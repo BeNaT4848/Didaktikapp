@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.errenteriaapp.components.AppScaffold
 import com.example.errenteriaapp.navigation.AppNavigation
 import com.example.errenteriaapp.ui.theme.ErrenteriaappTheme
 import com.example.errenteriaapp.viewModel.ConversacionViewModel
@@ -18,15 +19,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
-            val navController = rememberNavController()
-            val conversacionViewModel: ConversacionViewModel = viewModel()
-
             ErrenteriaappTheme {
-                AppNavigation(
-                    navController = navController,
-                    conversacionViewModel = conversacionViewModel
-                )
+                val navController = rememberNavController()
+                val conversacionViewModel: ConversacionViewModel = viewModel()
+
+                AppScaffold(
+                    navController = navController
+                ) { padding ->
+                    AppNavigation(
+                        navController = navController,
+                        conversacionViewModel = conversacionViewModel
+                    )
+                }
             }
         }
     }

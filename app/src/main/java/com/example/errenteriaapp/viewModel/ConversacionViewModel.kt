@@ -2,23 +2,12 @@ package com.example.errenteriaapp.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.errenteriaapp.model.ConversationState
+import com.example.errenteriaapp.model.Message
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
-data class Message(
-    val text: String,
-    val isFromXanti: Boolean,
-    val duration: Long
-)
-
-data class ConversationState(
-    val currentMessage: Message? = null,
-    val messages: List<Message> = emptyList(),
-    val currentMessageIndex: Int = -1,
-    val showStartButton: Boolean = false
-)
 
 class ConversacionViewModel : ViewModel() {
     private val _state = MutableStateFlow(ConversationState())
