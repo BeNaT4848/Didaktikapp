@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +44,7 @@ fun HomeScreen(
     viewModel: ConversacionViewModel = viewModel(),
     navController: NavController,
 
-) {
+    ) {
     val state by viewModel.state.collectAsState()
 
     // Iniciar conversación cuando se carga la pantalla
@@ -68,31 +69,29 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+                .padding(16.dp)
+                .offset(y = 12.dp), // desplaza la fila hacia abajo
+            horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom
         ) {
             // XANTI (izquierda)
             CharacterWithSpeech(
                 isSpeaking = state.currentMessage?.isFromXanti == true,
                 isXanti = true,
-                message = if (state.currentMessage?.isFromXanti == true)
-                    state.currentMessage?.text else null
+                message = if (state.currentMessage?.isFromXanti == true) state.currentMessage?.text else null
             )
 
             // MAIALEN (derecha)
             CharacterWithSpeech(
                 isSpeaking = state.currentMessage?.isFromXanti == false,
                 isXanti = false,
-                message = if (state.currentMessage?.isFromXanti == false)
-                    state.currentMessage?.text else null
+                message = if (state.currentMessage?.isFromXanti == false) state.currentMessage?.text else null
             )
         }
 
         // Botón "Empezar Juego" (solo visible al final)
         if (state.showStartButton) {
             Button(
-                onClick = {navController.navigate(Routes.GAME_SCREEN)},
+                onClick = { navController.navigate(Routes.GAME_SCREEN) },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 32.dp)
@@ -116,14 +115,14 @@ fun HomeScreen(
 
 @Composable
 fun CharacterWithSpeech(
-    isSpeaking: Boolean,
-    isXanti: Boolean,
-    message: String?
+    isSpeaking: Boolean, isXanti: Boolean, message: String?
 ) {
     // Declara aquí los recursos de imagen
-    val xantiOpen = painterResource(id = R.drawable.xanti_silla_hablando) // Cambia por el nombre real
+    val xantiOpen =
+        painterResource(id = R.drawable.xanti_silla_hablando) // Cambia por el nombre real
     val xantiClosed = painterResource(id = R.drawable.xanti_silla) // Cambia por el nombre real
-    val maialenOpen = painterResource(id = R.drawable.maialen_silla_hablando) // Cambia por el nombre real
+    val maialenOpen =
+        painterResource(id = R.drawable.maialen_silla_hablando) // Cambia por el nombre real
     val maialenClosed = painterResource(id = R.drawable.maialen_silla) // Cambia por el nombre real
 
     Column(
@@ -160,23 +159,17 @@ fun CharacterWithSpeech(
 
 @Composable
 fun SpeechBubble(
-    text: String,
-    isFromXanti: Boolean,
-    modifier: Modifier = Modifier
+    text: String, isFromXanti: Boolean, modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(
+        modifier = modifier, shape = RoundedCornerShape(
             topStart = if (isFromXanti) 0.dp else 16.dp,
             topEnd = 16.dp,
             bottomStart = 16.dp,
             bottomEnd = if (isFromXanti) 16.dp else 0.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ), colors = CardDefaults.cardColors(
+            containerColor = Color.White, contentColor = Color.Black
+        ), elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Text(
             text = text,
