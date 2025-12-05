@@ -1,7 +1,6 @@
 package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +17,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,7 +39,7 @@ import com.example.errenteriaapp.viewModel.ConversacionViewModel
 // ConversationScreen.kt
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier, // Añade esto
+    modifier: Modifier = Modifier,
     viewModel: ConversacionViewModel = viewModel(),
     navController: NavController,
 
@@ -55,9 +54,11 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .navigationBarsPadding()
+
     ) {
         Image(
-            painter = painterResource(id = R.drawable.fondo2),
+            painter = painterResource(id = R.drawable.iglesia),
             contentDescription = null,
             contentScale = ContentScale.FillBounds, // Ajusta la imagen a toda la pantalla
             modifier = Modifier.matchParentSize()
@@ -67,8 +68,7 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .padding(bottom = 100.dp),
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
@@ -121,10 +121,10 @@ fun CharacterWithSpeech(
     message: String?
 ) {
     // Declara aquí los recursos de imagen
-    val xantiOpen = painterResource(id = R.drawable.xanti_hablando) // Cambia por el nombre real
-    val xantiClosed = painterResource(id = R.drawable.xanti) // Cambia por el nombre real
-    val maialenOpen = painterResource(id = R.drawable.maialen_hablando) // Cambia por el nombre real
-    val maialenClosed = painterResource(id = R.drawable.maialen) // Cambia por el nombre real
+    val xantiOpen = painterResource(id = R.drawable.xanti_silla_hablando) // Cambia por el nombre real
+    val xantiClosed = painterResource(id = R.drawable.xanti_silla) // Cambia por el nombre real
+    val maialenOpen = painterResource(id = R.drawable.maialen_silla_hablando) // Cambia por el nombre real
+    val maialenClosed = painterResource(id = R.drawable.maialen_silla) // Cambia por el nombre real
 
     Column(
         horizontalAlignment = if (isXanti) Alignment.Start else Alignment.End,
@@ -151,7 +151,7 @@ fun CharacterWithSpeech(
             },
             contentDescription = if (isXanti) "Xanti" else "Maialen",
             modifier = Modifier
-                .height(350.dp)
+                .height(450.dp)
                 .fillMaxWidth(),
             contentScale = ContentScale.Fit
         )
