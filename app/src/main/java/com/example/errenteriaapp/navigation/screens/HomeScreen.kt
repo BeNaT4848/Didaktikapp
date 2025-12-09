@@ -125,7 +125,7 @@ fun HomeScreen(
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Text(
-                    text = "¡EMPEZAR EL JUEGO!",
+                    text = "¡JOLASTEN HASI!",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(8.dp)

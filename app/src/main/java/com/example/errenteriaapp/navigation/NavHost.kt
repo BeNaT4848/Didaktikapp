@@ -36,24 +36,17 @@ fun AppNavigation(
             )
 
         }
-        composable(Routes.GAME_SCREEN) {
-            GameScreen(
-                conversacionViewModel = conversacionViewModel,
+        composable(Routes.LOGIN_SCREEN) {
+            LoginScreen(
+                loginViewModel = loginViewModel,
+                navController = navController,
+            )
+        }
+        composable(Routes.MAPA_SCREEN) {
+            MapaScreen(
                 navController = navController
             )
         }
-        composable(Routes.LOGIN_SCREEN) {
-            LoginScreen(
-                        loginViewModel = loginViewModel,
-                        navController = navController,
-
-                    )
-                }
-        composable(Routes.MAPA_SCREEN) {
-                    MapaScreen(
-                        navController = navController
-                    )
-                }
         composable(Routes.BERTSOJOLASA_SCREEN) {
             BertsoJolasaScreen(
                 navController = navController
@@ -62,6 +55,20 @@ fun AppNavigation(
         composable(Routes.PUZLE_SCREEN) {
             PuzleScreen(
                 navController = navController
+            )
+        }
+        composable(Routes.GAME_SCREEN) {
+            GameScreen(
+                navController = navController,
+                photos = listOf(
+                    com.example.errenteriaapp.R.drawable.errota_prozesua_1,
+                    com.example.errenteriaapp.R.drawable.errota_prozesua_2,
+                    com.example.errenteriaapp.R.drawable.errota_prozesua_3,
+                    com.example.errenteriaapp.R.drawable.errota_prozesua_4,
+                    com.example.errenteriaapp.R.drawable.errota_prozesua_5,
+                    com.example.errenteriaapp.R.drawable.errota_prozesua_6,
+                ),
+                modifier = Modifier
             )
         }
     }
