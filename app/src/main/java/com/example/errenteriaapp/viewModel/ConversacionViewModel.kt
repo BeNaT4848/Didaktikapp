@@ -38,29 +38,45 @@ class ConversacionViewModel : ViewModel() {
             "Denak ezagutu nahi badituzue jarraitu zuen irakasleak!",
             false,
             6000L
-        ), Message(
-            "Jolasten hasteko sakatu beheko botoia.",
+        )
+    )
+
+    private val idleLoop = listOf(
+        Message(
+            "Prest gaude! Sakatu botoia jolasten hasteko.",
             true,
-            3000L
+            15000L
+        ), Message(
+            "Zure zain gaude, sakatu botoia eta has gaitezen!",
+            false,
+            15000L
         )
     )
 
     fun startConversation() {
         viewModelScope.launch {
-            for (i in conversation.indices) {
-                // Actualizamos el mensaje actual
-                _state.value = _state.value.copy(
-                    currentMessage = conversation[i],
-                    currentMessageIndex = i,
-                    messages = _state.value.messages + conversation[i]
-                )
-
-                // Esperamos la duración del mensaje
-                delay(conversation[i].duration)
-            }
-
-            // Al terminar la conversación, mostramos el botón
+            conversation.forEach { emitMessage(it) }
             _state.value = _state.value.copy(showStartButton = true)
+
+            while (!_state.value.startButtonPressed) {
+                idleLoop.forEach {
+                    if (_state.value.startButtonPressed) return@launch
+                    emitMessage(it)
+                }
+            }
         }
+    }
+
+    private suspend fun emitMessage(message: Message) {
+        _state.value = _state.value.copy(
+            currentMessage = message,
+            currentMessageIndex = _state.value.currentMessageIndex + 1,
+            messages = _state.value.messages + message
+        )
+        delay(message.duration)
+    }
+
+    fun onStartButtonClicked() {
+        _state.value = _state.value.copy(startButtonPressed = true)
     }
 }
