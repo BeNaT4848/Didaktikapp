@@ -6,6 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen
 import com.example.errenteriaapp.navigation.screens.GameScreen
 import com.example.errenteriaapp.navigation.screens.HomeScreen
 import com.example.errenteriaapp.navigation.screens.LoginScreen
@@ -52,5 +53,10 @@ fun AppNavigation(
                         navController = navController
                     )
                 }
+        composable(Routes.BERTSOJOLASA_SCREEN) {
+            BertsoJolasaScreen(
+                navController = navController
+            )
+        }
     }
 }
