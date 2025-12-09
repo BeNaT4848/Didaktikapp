@@ -6,4 +6,5 @@ object Routes {
     const val LOGIN_SCREEN = "login_screen"
     const val MAPA_SCREEN = "mapa_screen"
     const val BERTSOJOLASA_SCREEN = "bertso_jolasa_screen"
+    const val PUZLE_SCREEN = "Puzle_screen"
 }
