@@ -24,8 +24,8 @@ class MainActivity : ComponentActivity() {
                 val conversacionViewModel: ConversacionViewModel = viewModel()
 
                 AppScaffold(
-                    navController = navController
-                ) { padding ->
+                    navController = navController,
+                    ) { padding ->
                     AppNavigation(
                         navController = navController,
                         conversacionViewModel = conversacionViewModel
