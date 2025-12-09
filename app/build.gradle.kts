@@ -64,4 +64,8 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.3")
     implementation("androidx.room:room-ktx:2.8.3") // Korutinekin lan egiteko
     kapt("androidx.room:room-compiler:2.8.3")
+    implementation ("androidx.compose.material3:material3:1.1.0") // o versión más reciente
+
+    implementation ("androidx.compose.material3:material3")
+
 }

@@ -63,7 +63,23 @@ fun HomeScreen(
             contentScale = ContentScale.FillBounds, // Ajusta la imagen a toda la pantalla
             modifier = Modifier.matchParentSize()
         )
-
+        Button(
+            onClick = { navController.navigate(Routes.LOGIN_SCREEN) },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF9800),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Skip",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         // Fila principal con los personajes
         Row(
             modifier = Modifier
@@ -92,7 +108,7 @@ fun HomeScreen(
         // Botón "Empezar Juego" (solo visible al final)
         if (state.showStartButton) {
             Button(
-                onClick = {navController.navigate(Routes.GAME_SCREEN)},
+                onClick = {navController.navigate(Routes.LOGIN_SCREEN)},
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 32.dp)
@@ -104,7 +120,7 @@ fun HomeScreen(
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Text(
-                    text = "¡EMPEZAR EL JUEGO!",
+                    text = "¡LOGEATU!",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(8.dp)
