@@ -78,7 +78,7 @@ fun LoginScreen(
                     } else {
                         loginViewModel.guardarNombre(nombreCompleto)
                         // Navegamos a la pantalla del mapa
-                        navController.navigate("bertso_jolasa_screen")
+                        navController.navigate("Puzle_screen")
                     }
                 }
             )
