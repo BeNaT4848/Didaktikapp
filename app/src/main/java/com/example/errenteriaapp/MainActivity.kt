@@ -18,6 +18,7 @@ import com.example.errenteriaapp.ui.theme.ErrenteriaappTheme
 import com.example.errenteriaapp.viewModel.ConversacionViewModel
 import com.example.errenteriaapp.viewModel.LoginViewModel
 import com.example.errenteriaapp.viewModel.LoginViewModelFactory
+import com.example.errenteriaapp.viewModel.PapresaViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -47,14 +48,15 @@ class MainActivity : ComponentActivity() {
             val loginViewModel: LoginViewModel = viewModel(
                 factory = loginViewModelFactory
             )
-
+            val PapresaViewModel: PapresaViewModel = viewModel()
             val conversacionViewModel: ConversacionViewModel = viewModel()
 
             ErrenteriaappTheme {
                 AppNavigation(
                     navController = navController,
                     conversacionViewModel = conversacionViewModel,
-                    loginViewModel = loginViewModel
+                    loginViewModel = loginViewModel,
+                    PapresaViewModel = PapresaViewModel
                 )
             }
         }

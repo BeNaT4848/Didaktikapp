@@ -18,6 +18,7 @@ import com.example.errenteriaapp.navigation.screens.PuzleScreen
 
 import com.example.errenteriaapp.viewModel.ConversacionViewModel
 import com.example.errenteriaapp.viewModel.LoginViewModel
+import com.example.errenteriaapp.viewModel.PapresaViewModel
 
 
 @Composable
@@ -25,6 +26,7 @@ fun AppNavigation(
     conversacionViewModel: ConversacionViewModel,
     loginViewModel: LoginViewModel,
     navController: NavHostController,
+    PapresaViewModel: PapresaViewModel
 ) {
 
     NavHost(
@@ -67,7 +69,8 @@ fun AppNavigation(
         }
         composable(Routes.BASURA_SCREEN) {
             PapresaScreen(
-                navController = navController
+                navController = navController,
+                viewModel = PapresaViewModel
 
             )
         }

@@ -78,7 +78,7 @@ fun LoginScreen(
                     } else {
                         loginViewModel.guardarNombre(nombreCompleto)
                         // Navegamos a la pantalla del mapa
-                        navController.navigate("Puzle_screen")
+                        navController.navigate("basura_screen")
                     }
                 }
             )
