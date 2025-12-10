@@ -3,7 +3,7 @@ package com.example.errenteriaapp.database.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.model.ConversationState
-import com.example.errenteriaapp.model.Message
+import com.example.errenteriaapp.classes.Message
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

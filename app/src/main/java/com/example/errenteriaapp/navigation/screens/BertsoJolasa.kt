@@ -15,9 +15,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.components.ClickableTextFunction
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.errenteriaapp.components.showFeedbackToast
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 import com.example.errenteriaapp.navigation.Routes
-import com.example.errenteriaapp.components.showFeedbackToast
 
 @Composable
 fun BertsoJolasaScreen(
