@@ -30,7 +30,7 @@ import androidx.navigation.NavController
 import com.example.errenteriaapp.R // Necesitas importar R para las imágenes
 import com.example.errenteriaapp.components.CharacterWithSpeech
 import com.example.errenteriaapp.navigation.Routes
-import com.example.errenteriaapp.components.viewModel.ConversacionViewModel
+import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 
 // ConversationScreen.kt
 @Composable

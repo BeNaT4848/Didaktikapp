@@ -7,15 +7,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen
 import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen2
-import com.example.errenteriaapp.navigation.screens.GameScreen
 import com.example.errenteriaapp.navigation.screens.HomeScreen
 import com.example.errenteriaapp.navigation.screens.LoginScreen
 import com.example.errenteriaapp.navigation.screens.MapaScreen
 import com.example.errenteriaapp.navigation.screens.PuzleScreen
 
 
-import com.example.errenteriaapp.components.viewModel.ConversacionViewModel
-import com.example.errenteriaapp.components.viewModel.LoginViewModel
+import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
+import com.example.errenteriaapp.database.viewModel.LoginViewModel
+import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 
 
 @Composable
@@ -62,17 +62,9 @@ fun AppNavigation(
                 navController = navController
             )
         }
-        composable(Routes.GAME_SCREEN) {
-            GameScreen(
+        composable(Routes.ORDENATUJOLASA_SCREEN) {
+            OrdenatuJolasaScreen(
                 navController = navController,
-                photos = listOf(
-                    com.example.errenteriaapp.R.drawable.errota_prozesua_1,
-                    com.example.errenteriaapp.R.drawable.errota_prozesua_2,
-                    com.example.errenteriaapp.R.drawable.errota_prozesua_3,
-                    com.example.errenteriaapp.R.drawable.errota_prozesua_4,
-                    com.example.errenteriaapp.R.drawable.errota_prozesua_5,
-                    com.example.errenteriaapp.R.drawable.errota_prozesua_6,
-                ),
                 modifier = Modifier
             )
         }

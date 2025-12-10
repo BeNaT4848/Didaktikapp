@@ -10,9 +10,9 @@ import androidx.room.Room
 import com.example.errenteriaapp.database.AppDatabase
 import com.example.errenteriaapp.navigation.AppNavigation
 import com.example.errenteriaapp.ui.theme.ErrenteriaappTheme
-import com.example.errenteriaapp.components.viewModel.ConversacionViewModel
-import com.example.errenteriaapp.components.viewModel.LoginViewModel
-import com.example.errenteriaapp.components.viewModel.LoginViewModelFactory
+import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
+import com.example.errenteriaapp.database.viewModel.LoginViewModel
+import com.example.errenteriaapp.database.viewModel.LoginViewModelFactory
 
 
 class MainActivity : ComponentActivity() {
