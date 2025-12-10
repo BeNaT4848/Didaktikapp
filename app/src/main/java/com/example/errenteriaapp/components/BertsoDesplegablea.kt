@@ -2,6 +2,7 @@ package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +17,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun BertsoDesplegablea(a: String, b: String, c: String, ColorBox: Long) {
+fun BertsoDesplegablea(
+    a: String,
+    b: String,
+    c: String,
+    ColorBox: Long,
+    selectedOption: String?,
+    isCorrectSelection: Boolean?,
+    onOptionSelected: (String) -> Unit
+) {
+    val successColor = Color(0xFF4CAF50)
+    val errorColor = Color(0xFFE53935)
+
+    fun backgroundFor(option: String) = when {
+        option == selectedOption && isCorrectSelection == true -> successColor
+        option == selectedOption && isCorrectSelection == false -> errorColor
+        else -> Color.White
+    }
+
+    fun textColorFor(option: String) = if (option == selectedOption && isCorrectSelection != null) {
+        Color.White
+    } else {
+        Color.Black
+    }
+
     Box (
         modifier = Modifier
             .fillMaxWidth()
@@ -41,17 +66,17 @@ fun BertsoDesplegablea(a: String, b: String, c: String, ColorBox: Long) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 10.dp)
                         .border(
                             width = 0.01.dp,
                             color = Color.Black,
                             shape = RoundedCornerShape(24.dp)
                         )
-                        .background(Color.White, RoundedCornerShape(20.dp)),
+                        .background(backgroundFor(a), RoundedCornerShape(20.dp))
+                        .clickable(enabled = selectedOption == null) { onOptionSelected(a) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(a)
-
+                    Text(a, color = textColorFor(a), fontSize = 14.sp)
                 }
                 Box(
                     modifier = Modifier
@@ -62,11 +87,11 @@ fun BertsoDesplegablea(a: String, b: String, c: String, ColorBox: Long) {
                             color = Color.Black,
                             shape = RoundedCornerShape(24.dp)
                         )
-                        .background(Color.White, RoundedCornerShape(20.dp)),
+                        .background(backgroundFor(b), RoundedCornerShape(20.dp))
+                        .clickable(enabled = selectedOption == null) { onOptionSelected(b) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(b)
-
+                    Text(b, color = textColorFor(b), fontSize = 14.sp)
                 }
                 Box(
                     modifier = Modifier
@@ -77,11 +102,11 @@ fun BertsoDesplegablea(a: String, b: String, c: String, ColorBox: Long) {
                             color = Color.Black,
                             shape = RoundedCornerShape(24.dp)
                         )
-                        .background(Color.White, RoundedCornerShape(20.dp)),
+                        .background(backgroundFor(c), RoundedCornerShape(20.dp))
+                        .clickable(enabled = selectedOption == null) { onOptionSelected(c) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(c)
-
+                    Text(c, color = textColorFor(c), fontSize = 14.sp)
                 }
             }
         }
