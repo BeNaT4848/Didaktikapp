@@ -1,9 +1,5 @@
-package com.example.errenteriaapp.functions
+package com.example.errenteriaapp.components
 
-import android.view.LayoutInflater
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
@@ -20,10 +16,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.errenteriaapp.components.BertsoDesplegablea
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
-import com.example.errenteriaapp.R
 
 @Composable
 fun ClickableTextFunction(
@@ -33,42 +27,41 @@ fun ClickableTextFunction(
     bct: String,
     cct: String,
     colorBox: Long,
-    correctAnswer: String
+    correctAnswer: String,
+    onCorrect: (() -> Unit)? = null,
+    onAnswered: (() -> Unit)? = null,
+    isLocked: Boolean = false,
+    attemptKey: Int = 0,
+    resetOnAttempt: Boolean = false
 ) {
 
     val fullText = fulltext
     val clickableWord = clickableword
-
     val context = LocalContext.current
-    var showBertso by rememberSaveable { mutableStateOf(false) }
-    var selectedOption by rememberSaveable { mutableStateOf<String?>(null) }
-    var isCorrectSelection by rememberSaveable { mutableStateOf<Boolean?>(null) }
+
+    val saverKey = if (resetOnAttempt) attemptKey else 0
+    var showBertso by rememberSaveable(saverKey) { mutableStateOf(false) }
+    var selectedOption by rememberSaveable(saverKey) { mutableStateOf<String?>(null) }
+    var isCorrectSelection by rememberSaveable(saverKey) { mutableStateOf<Boolean?>(null) }
 
     val displayedWord = selectedOption ?: clickableWord
 
     fun handleSelection(option: String) {
-        if (selectedOption != null) return
+        if (selectedOption != null || isLocked) return
         selectedOption = option
         val isCorrect = option == correctAnswer
         isCorrectSelection = isCorrect
         val message = if (isCorrect) "Ongi" else "Erantzun Okerrra"
 
-        val inflater = LayoutInflater.from(context)
-        val toastLayout = inflater.inflate(R.layout.toast_feedback, null)
-        val icon = toastLayout.findViewById<ImageView>(R.id.toast_icon)
-        val text = toastLayout.findViewById<TextView>(R.id.toast_message)
-        text.text = message
-        icon.setImageResource(if (isCorrect) R.drawable.ic_toast_success else R.drawable.ic_toast_error)
+        showFeedbackToast(context, message, isCorrect)
 
-        Toast(context).apply {
-            duration = Toast.LENGTH_SHORT
-            view = toastLayout
-            show()
+        if (isCorrect) {
+            onCorrect?.invoke()
         }
+        onAnswered?.invoke()
 
         showBertso = false
     }
-
     val annotatedText = buildAnnotatedString {
         val start = fullText.indexOf(clickableWord)
         val end = start + clickableWord.length
@@ -108,13 +101,13 @@ fun ClickableTextFunction(
                     end = offset
                 ).firstOrNull()
 
-                if (annotation != null) {
+                if (annotation != null && !isLocked) {
                     showBertso = !showBertso
                 }
             }
         )
 
-        if (showBertso) {
+        if (showBertso && !isLocked) {
             BertsoDesplegablea(
                 a = act,
                 b = bct,

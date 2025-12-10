@@ -31,8 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.errenteriaapp.R
-import com.example.errenteriaapp.viewModel.ConversacionViewModel
 
 @Composable
 fun GameScreen(
