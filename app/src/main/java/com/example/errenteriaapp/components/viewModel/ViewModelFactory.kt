@@ -1,4 +1,4 @@
-package com.example.errenteriaapp.viewModel
+package com.example.errenteriaapp.components.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

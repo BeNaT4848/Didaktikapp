@@ -5,23 +5,43 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.errenteriaapp.components.BertsoDesplegablea
 import com.example.errenteriaapp.components.textoBertsoa
-import com.example.errenteriaapp.functions.ClickableTextFunction
+import com.example.errenteriaapp.components.ClickableTextFunction
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.errenteriaapp.components.viewModel.PuntuakViewModel
+import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.components.showFeedbackToast
 
 @Composable
 fun BertsoJolasaScreen(
-    navController: NavController) {
+    navController: NavController,
+    puntuakViewModel: PuntuakViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val hasNavigated = puntuakViewModel.hasNavigated
+    val totalItems = 7
+    val attempt = puntuakViewModel.attempt
+
+    fun handleProgress(onAfterAnswer: (() -> Unit)? = null) {
+        val answered = puntuakViewModel.registerAnswer()
+        onAfterAnswer?.invoke()
+        if (answered == totalItems) {
+            if (puntuakViewModel.correctCount > 4 && !hasNavigated) {
+                puntuakViewModel.markNavigated()
+                navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
+            } else if (!hasNavigated) {
+                showFeedbackToast(context, "Saiatu berriro!", false)
+                puntuakViewModel.restartAttempt()
+            }
+        }
+    }
 
     LazyColumn(Modifier.fillMaxWidth()) {
         item {
@@ -38,7 +58,12 @@ fun BertsoJolasaScreen(
                 bct = "urrian",
                 cct = "martxoan",
                 colorBox = 0xFFFFC1C1,
-                correctAnswer = "urrian"
+                correctAnswer = "urrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
         item {
@@ -56,7 +81,12 @@ fun BertsoJolasaScreen(
                 bct = "barruan",
                 cct = "atzean",
                 colorBox = 0xFFBDFFC0,
-                correctAnswer = "aurrian"
+                correctAnswer = "aurrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
         item {
@@ -76,7 +106,12 @@ fun BertsoJolasaScreen(
                 bct = "daukaguna",
                 cct = "zerbait",
                 colorBox = 0xFFBDCEFF,
-                correctAnswer = "deguna"
+                correctAnswer = "deguna",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
         item {
@@ -92,7 +127,12 @@ fun BertsoJolasaScreen(
                 bct = "ohorea",
                 cct = "eguna",
                 colorBox = 0xFFC5904E,
-                correctAnswer = "eguna"
+                correctAnswer = "eguna",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
         item {
@@ -117,7 +157,12 @@ fun BertsoJolasaScreen(
                 bct = "bizkarrian",
                 cct = "bularrean",
                 colorBox = 0xFFB6B6B6,
-                correctAnswer = "bizkarrian"
+                correctAnswer = "bizkarrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
         item {
@@ -133,7 +178,12 @@ fun BertsoJolasaScreen(
                 bct = "kanpoan",
                 cct = "bazterrian",
                 colorBox = 0xFFE0FF6F,
-                correctAnswer = "bazterrian"
+                correctAnswer = "bazterrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
         item {
@@ -151,7 +201,12 @@ fun BertsoJolasaScreen(
                 bct = "txarrian",
                 cct = "erdian",
                 colorBox = 0xFFFFE4C4,
-                correctAnswer = "txarrian"
+                correctAnswer = "txarrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
     }

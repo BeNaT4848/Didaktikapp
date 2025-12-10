@@ -3,9 +3,10 @@ package com.example.errenteriaapp.navigation.screens
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
+
 @Composable
-fun MapaScreen(
-    navController: NavController
+fun BertsoJolasaScreen2(
+    navController: NavController,
 ) {
-    println("Mapa Screen")
+
 }
