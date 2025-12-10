@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen
 import com.example.errenteriaapp.navigation.screens.GameScreen
 import com.example.errenteriaapp.navigation.screens.HomeScreen
+import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.LoginScreen
 import com.example.errenteriaapp.navigation.screens.MapaScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
@@ -72,6 +73,11 @@ fun AppNavigation(
                 navController = navController,
                 viewModel = PapresaViewModel
 
+            )
+        }
+        composable(Routes.SOPALETRA_SCREEN) {
+            LetraSopaScreen(
+                navController = navController
             )
         }
     }

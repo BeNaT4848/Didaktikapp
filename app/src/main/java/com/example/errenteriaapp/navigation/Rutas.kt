@@ -8,5 +8,6 @@ object Routes {
     const val PUZLE_SCREEN = "Puzle_screen"
     const val ORDENATUJOLASA_SCREEN = "ordenatu_jolasa_screen"
     const val BASURA_SCREEN = "basura_screen"
+    const val SOPALETRA_SCREEN = "Sopa_letra_screen"
 
 }
