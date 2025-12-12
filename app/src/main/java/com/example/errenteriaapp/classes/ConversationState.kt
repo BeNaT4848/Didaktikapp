@@ -2,6 +2,7 @@
 package com.example.errenteriaapp.classes
 
 
+
 data class ConversationState(
     val currentMessage: Dialogo? = null,
     val messages: List<Dialogo> = emptyList(),

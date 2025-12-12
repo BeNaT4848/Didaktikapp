@@ -1,4 +1,3 @@
-// kotlin
 package com.example.errenteriaapp.classes
 
 data class Dialogo(
