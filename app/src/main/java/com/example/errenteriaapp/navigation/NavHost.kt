@@ -15,7 +15,10 @@ import com.example.errenteriaapp.navigation.screens.PuzleScreen
 
 import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 import com.example.errenteriaapp.database.viewModel.LoginViewModel
+import com.example.errenteriaapp.database.viewModel.PapresaViewModel
+import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
+import com.example.errenteriaapp.navigation.screens.PapresaScreen
 
 
 @Composable
@@ -66,6 +69,16 @@ fun AppNavigation(
             OrdenatuJolasaScreen(
                 navController = navController,
                 modifier = Modifier
+            )
+        }
+        composable(Routes.BASURA_SCREEN) {
+            PapresaScreen(
+                navController = navController
+            )
+        }
+        composable(Routes.SOPALETRA_SCREEN) {
+            LetraSopaScreen(
+                navController = navController
             )
         }
     }

@@ -3,8 +3,6 @@ package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,8 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.components.*
+import com.example.errenteriaapp.database.viewModel.LoginViewModel
 import com.example.errenteriaapp.navigation.Routes
-import com.example.errenteriaapp.viewModel.LoginViewModel
 
 
 @Composable
@@ -23,7 +21,7 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     navController: NavController,
 
-) {
+    ) {
     var nombreCompleto by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     val isSaving = loginViewModel.isSaving.collectAsState()

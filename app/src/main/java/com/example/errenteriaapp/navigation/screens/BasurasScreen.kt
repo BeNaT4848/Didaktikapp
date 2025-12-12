@@ -20,9 +20,9 @@ import com.example.errenteriaapp.components.ProgressCounter
 import com.example.errenteriaapp.components.ResultsDialog
 import com.example.errenteriaapp.components.VerifyButton
 import com.example.errenteriaapp.components.WasteContainersRow
-import com.example.errenteriaapp.viewModel.PapresaViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-
+import com.example.errenteriaapp.database.viewModel.PapresaViewModel
+import com.example.errenteriaapp.navigation.Routes
 
 
 @Composable
@@ -94,8 +94,7 @@ fun PapresaScreen(
             onDismiss = viewModel::onDismissResults,
             onNext = {
                 viewModel.onDismissResults()
-                navController.navigate("bertso_jolasa_screen")
-            }
+                navController.navigate(Routes.MAPA_SCREEN)             }
         )
     }
 }
