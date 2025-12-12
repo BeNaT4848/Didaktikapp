@@ -1,5 +1,5 @@
+// app/src/main/java/com/example/errenteriaapp/database/viewModel/PapresaViewModel.kt
 package com.example.errenteriaapp.database.viewModel
-
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -9,15 +9,15 @@ import androidx.lifecycle.ViewModel
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
+import kotlin.math.ceil
 import kotlin.random.Random
-
 
 class PapresaViewModel : ViewModel() {
 
-    // Lista de items en orden aleatorio
+    private val successThreshold = 0.8
+
     val wasteItems = mutableStateListOf<WasteItem>()
 
-    // Estados
     var currentIndex by mutableStateOf(0)
         private set
 
@@ -25,8 +25,11 @@ class PapresaViewModel : ViewModel() {
 
     var showResults by mutableStateOf(false)
         private set
+    var showSuccessDialog by mutableStateOf(false)
+        private set
+    var showWrongDialog by mutableStateOf(false)
+        private set
 
-    // Propiedades computadas
     val allAnswered: Boolean
         get() = wasteItems.all { userAnswers.containsKey(it.id) }
 
@@ -39,65 +42,42 @@ class PapresaViewModel : ViewModel() {
     val currentItem: WasteItem?
         get() = wasteItems.getOrNull(currentIndex)
 
-    val score: Int
-        get() {
-            val correctAnswers = wasteItems.count { item ->
-                userAnswers[item.id] == item.correctCategory
-            }
-            return ((correctAnswers.toFloat() / wasteItems.size) * 100).toInt()
-        }
-
-    // Inicializar con orden aleatorio
     init {
         generarOrdenAleatorio()
     }
 
-    // Generar orden aleatorio
     private fun generarOrdenAleatorio() {
-        // Lista original de items
         val itemsOriginales = listOf(
-            WasteItem(1, "Botella de agua", WasteCategory.YELLOW, R.drawable.botella_agua),
-            WasteItem(2, "Lata de refresco", WasteCategory.YELLOW, R.drawable.lata_refresco),
-            WasteItem(3, "Bolsa de patatas", WasteCategory.YELLOW, R.drawable.bolsa_patatas),
-            WasteItem(4, "Tapon de plastico", WasteCategory.YELLOW, R.drawable.tapones_plastico),
-            WasteItem(5, "Yogurt", WasteCategory.YELLOW, R.drawable.yogurt),
-            WasteItem(6, "Caja de cereales", WasteCategory.BLUE, R.drawable.caja_cereales),
-            WasteItem(7, "Periodico", WasteCategory.BLUE, R.drawable.periodico),
-            WasteItem(8, "Cuaderno de papel", WasteCategory.BLUE, R.drawable.cuaderno_papel),
-            WasteItem(9, "Tubo de carton", WasteCategory.BLUE, R.drawable.tubo_carton),
-            WasteItem(10, "Sobre", WasteCategory.BLUE, R.drawable.sobre),
-            WasteItem(11, "Piel de fruta", WasteCategory.BROWN, R.drawable.piel_fruta),
-            WasteItem(12, "Restos de verduras", WasteCategory.BROWN, R.drawable.restos_verduras),
-            WasteItem(13, "Pan", WasteCategory.BROWN, R.drawable.pan),
-            WasteItem(14, "Huesos", WasteCategory.BROWN, R.drawable.huesos),
-            WasteItem(15, "Sobras de comida", WasteCategory.BROWN, R.drawable.sobras),
-            WasteItem(16, "Chicle", WasteCategory.BLACK, R.drawable.chicle),
-            WasteItem(17, "Colillas", WasteCategory.BLACK, R.drawable.colillas),
-            WasteItem(18, "Compresa", WasteCategory.BLACK, R.drawable.gorro_sanitario),
-            WasteItem(19, "Tiritas", WasteCategory.BLACK, R.drawable.tiritas),
-            WasteItem(20, "Panal", WasteCategory.BLACK, R.drawable.panal)
+            WasteItem(1, "Ur botila", WasteCategory.YELLOW, R.drawable.botella_agua),
+            WasteItem(2, "Freskagarri lata", WasteCategory.YELLOW, R.drawable.lata_refresco),
+            WasteItem(3, "Patata poltsa", WasteCategory.YELLOW, R.drawable.bolsa_patatas),
+            WasteItem(4, "Plastikozko tapoia", WasteCategory.YELLOW, R.drawable.tapones_plastico),
+            WasteItem(5, "Iogurta", WasteCategory.YELLOW, R.drawable.yogurt),
+            WasteItem(6, "Zereal kutxa", WasteCategory.BLUE, R.drawable.caja_cereales),
+            WasteItem(7, "Egunkaria", WasteCategory.BLUE, R.drawable.periodico),
+            WasteItem(8, "Paper koadernoa", WasteCategory.BLUE, R.drawable.cuaderno_papel),
+            WasteItem(9, "Kartoi hodia", WasteCategory.BLUE, R.drawable.tubo_carton),
+            WasteItem(10, "Gutun-azala", WasteCategory.BLUE, R.drawable.sobre),
+            WasteItem(11, "Fruta azala", WasteCategory.BROWN, R.drawable.piel_fruta),
+            WasteItem(12, "Barazki hondarrak", WasteCategory.BROWN, R.drawable.restos_verduras),
+            WasteItem(13, "Ogia", WasteCategory.BROWN, R.drawable.pan),
+            WasteItem(14, "Hezurrak", WasteCategory.BROWN, R.drawable.huesos),
+            WasteItem(15, "Janari hondarrak", WasteCategory.BROWN, R.drawable.sobras),
+            WasteItem(16, "Txikleak", WasteCategory.BLACK, R.drawable.chicle),
+            WasteItem(17, "Zigarro puntak", WasteCategory.BLACK, R.drawable.colillas),
+            WasteItem(18, "Konpresa", WasteCategory.BLACK, R.drawable.gorro_sanitario),
+            WasteItem(19, "Tiritak", WasteCategory.BLACK, R.drawable.tiritas),
+            WasteItem(20, "Pixoihala", WasteCategory.BLACK, R.drawable.panal)
         )
 
-        // Limpiar lista y agregar items en orden aleatorio
         wasteItems.clear()
         wasteItems.addAll(itemsOriginales.shuffled(Random))
     }
 
-    // Funciones de acción
     fun onContainerClick(category: WasteCategory) {
-        val currentItem = currentItem
         currentItem?.let {
             userAnswers[it.id] = category
-            if (currentIndex < wasteItems.size - 1) {
-                currentIndex++
-            }
-        }
-    }
-
-    fun onChangeAnswer() {
-        val currentItem = currentItem
-        currentItem?.let {
-            userAnswers.remove(it.id)
+            currentIndex = (currentIndex + 1) % wasteItems.size
         }
     }
 
@@ -110,8 +90,17 @@ class PapresaViewModel : ViewModel() {
     }
 
     fun onVerifyClick() {
-        if (allAnswered) {
-            showResults = true
+        if (!allAnswered) return
+        val correctAnswers = wasteItems.count { userAnswers[it.id] == it.correctCategory }
+        val requiredCorrect = ceil(wasteItems.size * successThreshold).toInt().coerceAtLeast(1)
+
+        showResults = true
+        if (correctAnswers >= requiredCorrect) {
+            showSuccessDialog = true
+            showWrongDialog = false
+        } else {
+            showWrongDialog = true
+            showSuccessDialog = false
         }
     }
 
@@ -119,10 +108,29 @@ class PapresaViewModel : ViewModel() {
         showResults = false
     }
 
+    fun dismissSuccessDialog() {
+        showSuccessDialog = false
+    }
+
+    fun dismissWrongDialog() {
+        showWrongDialog = false
+    }
+
+    fun onSuccessDialogConfirmed() {
+        showSuccessDialog = false
+    }
+
+    fun onWrongDialogRetry() {
+        showWrongDialog = false
+        resetGame()
+    }
+
     fun resetGame() {
-        generarOrdenAleatorio() // Nuevo orden aleatorio al reiniciar
+        generarOrdenAleatorio()
         currentIndex = 0
         userAnswers.clear()
         showResults = false
+        showSuccessDialog = false
+        showWrongDialog = false
     }
 }

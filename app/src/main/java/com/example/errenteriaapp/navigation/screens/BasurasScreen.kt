@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.navigation.screens
 
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,8 +9,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.errenteriaapp.components.AnswerInfoCard
+import com.example.errenteriaapp.components.GameResultDialogs
 import com.example.errenteriaapp.components.InstructionText
 import com.example.errenteriaapp.components.PapresaTitle
 import com.example.errenteriaapp.components.PhotoCarousel
@@ -20,21 +19,21 @@ import com.example.errenteriaapp.components.ProgressCounter
 import com.example.errenteriaapp.components.ResultsDialog
 import com.example.errenteriaapp.components.VerifyButton
 import com.example.errenteriaapp.components.WasteContainersRow
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.Routes
-
 
 @Composable
 fun PapresaScreen(
     navController: NavController,
     viewModel: PapresaViewModel = viewModel()
 ) {
-    // Observar estados del ViewModel
     val currentIndex = viewModel.currentIndex
     val allAnswered = viewModel.allAnswered
     val answeredCount = viewModel.answeredCount
     val showResults = viewModel.showResults
+    val showSuccess = viewModel.showSuccessDialog
+    val showWrong = viewModel.showWrongDialog
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,16 +41,8 @@ fun PapresaScreen(
             .background(Color(0xFFF4A460)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título
         PapresaTitle()
-
-        // Contador
-        ProgressCounter(
-            currentIndex = currentIndex,
-            totalItems = viewModel.totalCount
-        )
-
-        // Carrusel de fotos
+        ProgressCounter(currentIndex = currentIndex, totalItems = viewModel.totalCount)
         PhotoCarousel(
             wasteItems = viewModel.wasteItems,
             currentIndex = currentIndex,
@@ -59,25 +50,12 @@ fun PapresaScreen(
             onPreviousClick = viewModel::onPreviousClick,
             onNextClick = viewModel::onNextClick
         )
-
-        // Instrucción
         InstructionText()
-
-        // Contenedores
         WasteContainersRow(
             currentWasteItem = viewModel.currentItem,
             userAnswers = viewModel.userAnswers,
             onContainerClick = viewModel::onContainerClick
         )
-
-        // Información de respuesta
-        AnswerInfoCard(
-            currentWasteItem = viewModel.currentItem,
-            userAnswers = viewModel.userAnswers,
-            onChangeAnswer = viewModel::onChangeAnswer
-        )
-
-        // Botón de verificar
         VerifyButton(
             allAnswered = allAnswered,
             answeredCount = answeredCount,
@@ -86,15 +64,27 @@ fun PapresaScreen(
         )
     }
 
-    // Diálogo de resultados
-    if (showResults) {
+    GameResultDialogs(
+        showSuccess = showSuccess,
+        showWrong = showWrong,
+        onDismissSuccess = viewModel::dismissSuccessDialog,
+        onDismissWrong = viewModel::dismissWrongDialog,
+        onSuccessButton = {
+            viewModel.onSuccessDialogConfirmed()
+            navController.navigate(Routes.MAPA_SCREEN)
+        },
+        onWrongButton = viewModel::onWrongDialogRetry
+    )
+
+    if (showResults && !showSuccess && !showWrong) {
         ResultsDialog(
             wasteItems = viewModel.wasteItems,
             userAnswers = viewModel.userAnswers,
             onDismiss = viewModel::onDismissResults,
             onNext = {
                 viewModel.onDismissResults()
-                navController.navigate(Routes.MAPA_SCREEN)             }
+                navController.navigate(Routes.MAPA_SCREEN)
+            }
         )
     }
 }

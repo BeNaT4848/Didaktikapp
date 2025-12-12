@@ -21,5 +21,6 @@ fun PapresaTitle(
         fontWeight = FontWeight.Bold,
         color = Color.White,
         modifier = modifier.padding(16.dp)
+            .padding(top = 30.dp)
     )
 }
