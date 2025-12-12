@@ -1,7 +1,6 @@
 package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,10 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,45 +29,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.errenteriaapp.R
 import com.example.errenteriaapp.components.DraggablePhoto
 import com.example.errenteriaapp.components.DraggingImage
 import com.example.errenteriaapp.components.GameResultDialogs
 import com.example.errenteriaapp.components.GameSlot
+import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.navigation.Routes
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.res.painterResource
-import kotlinx.coroutines.delay
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun OrdenatuJolasaScreen(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: OrdenatuJolasaViewModel = viewModel()
 ) {
-    // Crear un mapa que defina qué foto va con qué número
-    val photoNumberMap = remember {
-        mapOf(
-            R.drawable.errota_prozesua_1 to 1,
-            R.drawable.errota_prozesua_2 to 2,
-            R.drawable.errota_prozesua_3 to 3,
-            R.drawable.errota_prozesua_4 to 4,
-            R.drawable.errota_prozesua_5 to 5,
-            R.drawable.errota_prozesua_6 to 6
-        )
-    }
-
-    val photos = remember { photoNumberMap.keys.toList().shuffled() }
+    val photoNumberMap = viewModel.photoNumberMap
+    val photos = viewModel.photos
+    val slotAssignments = viewModel.slotAssignments
     val slotCount = photos.size
-    val slotAssignments = remember(slotCount) {
-        mutableStateListOf<Int?>().apply { repeat(slotCount) { add(null) } }
-    }
+    val showSuccessDialog = viewModel.showSuccessDialog
+    val showWrongDialog = viewModel.showWrongDialog
+
     val dropZones = remember(slotCount) {
         mutableStateListOf<Rect?>().apply { repeat(slotCount) { add(null) } }
     }
-    val photoBounds = remember(photos.size) {
+    val photoBounds = remember(photos) {
         mutableStateListOf<Rect?>().apply { repeat(photos.size) { add(null) } }
     }
     val placedPhotoBounds = remember(slotCount) {
@@ -80,34 +69,11 @@ fun OrdenatuJolasaScreen(
     var dragOffsetPx by remember { mutableStateOf(Offset.Zero) }
     var dragCenterPx by remember { mutableStateOf<Offset?>(null) }
     var enlargedPhoto by remember { mutableStateOf<Int?>(null) }
-    var showSuccessDialog by remember { mutableStateOf(false) }
-    var showWrongDialog by remember { mutableStateOf(false) }
     var isDraggingFromSlot by remember { mutableStateOf(false) }
     var draggingSlotIndex by remember { mutableStateOf<Int?>(null) }
 
-    val isComplete by remember {
-        derivedStateOf { slotAssignments.all { it != null } }
-    }
-
-    val correctCount by remember(slotAssignments) {
-        derivedStateOf {
-            slotAssignments.withIndex().count { (slotIndex, photoRes) ->
-                photoRes != null && photoNumberMap[photoRes] == slotIndex + 1
-            }
-        }
-    }
-
-    fun isPhotoInCorrectSlot(photoRes: Int, slotIndex: Int): Boolean =
+    val isPhotoInCorrectSlot: (Int, Int) -> Boolean = { photoRes, slotIndex ->
         photoNumberMap[photoRes] == slotIndex + 1
-
-    LaunchedEffect(isComplete) {
-        if (isComplete) {
-            if (correctCount >= 3) {
-                showSuccessDialog = true
-            } else {
-                showWrongDialog = true
-            }
-        }
     }
 
     fun resetDragState() {
@@ -127,22 +93,12 @@ fun OrdenatuJolasaScreen(
             if (isDraggingFromSlot) {
                 val sourceSlot = draggingSlotIndex
                 if (sourceSlot != null && sourceSlot != targetIndex) {
-                    val photoRes = slotAssignments[sourceSlot]
-                    if (photoRes != null) {
-                        val currentInTarget = slotAssignments[targetIndex]
-                        slotAssignments[sourceSlot] = currentInTarget
-                        slotAssignments[targetIndex] = photoRes
-                    }
+                    viewModel.swapSlots(sourceSlot, targetIndex)
                 }
             } else {
                 val photoIndex = draggingPhotoIndex
                 if (photoIndex != null) {
-                    val photoRes = photos[photoIndex]
-                    val previousSlot = slotAssignments.indexOf(photoRes)
-                    if (previousSlot != -1 && previousSlot != targetIndex) {
-                        slotAssignments[previousSlot] = null
-                    }
-                    slotAssignments[targetIndex] = photoRes
+                    viewModel.assignPhotoToSlot(photos[photoIndex], targetIndex)
                 }
             }
         }
@@ -184,7 +140,7 @@ fun OrdenatuJolasaScreen(
                             dragOffsetPx += Offset(x, y)
                             dragStartBounds?.let { bounds ->
                                 dragCenterPx = bounds.topLeft + dragOffsetPx +
-                                        Offset(bounds.width / 2f, bounds.height / 2f)
+                                    Offset(bounds.width / 2f, bounds.height / 2f)
                             }
                         },
                         onDragEnd = { handleDrop() },
@@ -232,7 +188,7 @@ fun OrdenatuJolasaScreen(
                             dragOffsetPx += Offset(x, y)
                             dragStartBounds?.let { bounds ->
                                 dragCenterPx = bounds.topLeft + dragOffsetPx +
-                                        Offset(bounds.width / 2f, bounds.height / 2f)
+                                    Offset(bounds.width / 2f, bounds.height / 2f)
                             }
                         },
                         onDragEnd = { handleDrop() },
@@ -279,10 +235,17 @@ fun OrdenatuJolasaScreen(
         GameResultDialogs(
             showSuccess = showSuccessDialog,
             showWrong = showWrongDialog,
-            onDismissSuccess = { showSuccessDialog = false },
-            onDismissWrong = { showWrongDialog = false },
-            onSuccessButton = { navController.navigate(Routes.MAPA_SCREEN) },
-            onWrongButton = { navController.navigate(Routes.ORDENATUJOLASA_SCREEN) }
+            onDismissSuccess = { viewModel.dismissDialogs() },
+            onDismissWrong = { viewModel.dismissDialogs() },
+            onSuccessButton = {
+                viewModel.dismissDialogs()
+                navController.navigate(Routes.MAPA_SCREEN)
+            },
+            onWrongButton = {
+                viewModel.resetGame()
+                viewModel.dismissDialogs()
+                navController.navigate(Routes.ORDENATUJOLASA_SCREEN)
+            }
         )
 
         if (enlargedPhoto != null) {

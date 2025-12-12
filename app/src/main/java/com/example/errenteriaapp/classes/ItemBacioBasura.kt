@@ -21,13 +21,13 @@ enum class WasteCategory(
     YELLOW(
         Color(0xFFFFEB3B),
         "🟡 Ontzi horia",
-        "Plastikoa, latak",
+        "Plastikoa eta latak",
         R.drawable.ontzi_horia
     ),
     BLUE(
         Color(0xFF2196F3),
         "🔵 Ontzi urdina",
-        "Papera eta kartoi",
+        "Papera eta kartoia",
         R.drawable.ontzi_urdina
     ),
     BROWN(
