@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,7 +70,11 @@ dependencies {
     implementation("androidx.room:room-ktx:2.8.3") // Korutinekin lan egiteko
     kapt("androidx.room:room-compiler:2.8.3")
     implementation ("androidx.compose.material3:material3:1.1.0") // o versión más reciente
-
     implementation ("androidx.compose.material3:material3")
+
+    // ExoPlayer (versión más reciente)
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
+    implementation("androidx.media3:media3-ui:1.2.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.2.1")
 
 }

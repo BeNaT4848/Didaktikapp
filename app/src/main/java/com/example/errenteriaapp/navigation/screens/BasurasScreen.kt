@@ -4,21 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.errenteriaapp.components.GameResultDialogs
-import com.example.errenteriaapp.components.InstructionText
-import com.example.errenteriaapp.components.PapresaTitle
-import com.example.errenteriaapp.components.PhotoCarousel
-import com.example.errenteriaapp.components.ProgressCounter
-import com.example.errenteriaapp.components.ResultsDialog
-import com.example.errenteriaapp.components.VerifyButton
-import com.example.errenteriaapp.components.WasteContainersRow
+import com.example.errenteriaapp.components.*
+import com.example.errenteriaapp.components.video.InstruccionesVideoPapresa
+
+import com.example.errenteriaapp.components.video.VideoDialogoa
 import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.Routes
 
@@ -33,6 +29,23 @@ fun PapresaScreen(
     val showResults = viewModel.showResults
     val showSuccess = viewModel.showSuccessDialog
     val showWrong = viewModel.showWrongDialog
+
+    // Estados para controlar el flujo estricto
+    var showVideoInstructionDialog by remember { mutableStateOf(false) }
+    var showStrictVideoDialog by remember { mutableStateOf(false) }
+    var hasWatchedVideo by remember { mutableStateOf(false) }
+
+    // Lógica para mostrar instrucción del video solo si aprueba
+    LaunchedEffect(showResults) {
+        if (showResults && !showVideoInstructionDialog && !hasWatchedVideo) {
+            // Suponiendo que showResults significa que aprobó
+            // Si necesitas otra lógica para determinar aprobación, ajústala
+            showVideoInstructionDialog = true
+        }
+    }
+
+    // Si suspende, muestra diálogo de error inmediatamente
+
 
     Column(
         modifier = Modifier
@@ -64,27 +77,38 @@ fun PapresaScreen(
         )
     }
 
-    GameResultDialogs(
-        showSuccess = showSuccess,
-        showWrong = showWrong,
-        onDismissSuccess = viewModel::dismissSuccessDialog,
-        onDismissWrong = viewModel::dismissWrongDialog,
-        onSuccessButton = {
-            viewModel.onSuccessDialogConfirmed()
-            navController.navigate(Routes.MAPA_SCREEN)
-        },
-        onWrongButton = viewModel::onWrongDialogRetry
-    )
-
-    if (showResults && !showSuccess && !showWrong) {
-        ResultsDialog(
-            wasteItems = viewModel.wasteItems,
-            userAnswers = viewModel.userAnswers,
-            onDismiss = viewModel::onDismissResults,
-            onNext = {
-                viewModel.onDismissResults()
-                navController.navigate(Routes.MAPA_SCREEN)
+    // 1. Diálogo de instrucción del video (NO se puede cerrar)
+    if (showVideoInstructionDialog) {
+        InstruccionesVideoPapresa(
+            onWatchVideo = {
+                showVideoInstructionDialog = false
+                showStrictVideoDialog = true
             }
+            // No tiene onDismiss, no se puede cerrar
+        )
+    }
+
+
+    if (showStrictVideoDialog) {
+        VideoDialogoa(
+            onDismiss = { showStrictVideoDialog = false },  // showVideoDialog -> showStrictVideoDialog
+            onVideoCompleted = {
+                showStrictVideoDialog = false
+                hasWatchedVideo = true
+                viewModel.showSuccessDialog = true  // showSuccessDialog ya está en el ViewModel
+            }
+        )
+    }
+
+    // 3. Diálogo de éxito solo después de ver el video
+    if (showSuccess && hasWatchedVideo) {
+        Emaitza2Papresa(
+            showSuccess = true,
+            onContinue = {
+                viewModel.dismissSuccessDialog()
+                navController.navigate(Routes.MAPA_SCREEN)
+            },
+
         )
     }
 }

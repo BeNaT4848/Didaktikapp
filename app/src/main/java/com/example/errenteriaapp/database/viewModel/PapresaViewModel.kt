@@ -9,12 +9,16 @@ import androidx.lifecycle.ViewModel
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlin.math.ceil
 import kotlin.random.Random
 
 class PapresaViewModel : ViewModel() {
 
     private val successThreshold = 0.8
+    private val _showResults = MutableStateFlow(false)
 
     val wasteItems = mutableStateListOf<WasteItem>()
 
@@ -26,7 +30,6 @@ class PapresaViewModel : ViewModel() {
     var showResults by mutableStateOf(false)
         private set
     var showSuccessDialog by mutableStateOf(false)
-        private set
     var showWrongDialog by mutableStateOf(false)
         private set
 
@@ -116,9 +119,6 @@ class PapresaViewModel : ViewModel() {
         showWrongDialog = false
     }
 
-    fun onSuccessDialogConfirmed() {
-        showSuccessDialog = false
-    }
 
     fun onWrongDialogRetry() {
         showWrongDialog = false
@@ -131,6 +131,32 @@ class PapresaViewModel : ViewModel() {
         userAnswers.clear()
         showResults = false
         showSuccessDialog = false
+        showWrongDialog = false
+    }
+    fun showResults() {
+        _showResults.value = true
+    }
+
+
+
+    // Asegurar que onSuccessDialogConfirmed limpia el estado
+    fun onSuccessDialogConfirmed() {
+        _showResults.value = false
+        // ... resto de tu lógica ...
+    }
+    fun showSuccessDialog() {
+        showSuccessDialog = true
+        showWrongDialog = false
+    }
+
+    fun showWrongDialog() {
+        showWrongDialog = true
+        showSuccessDialog = false
+    }
+
+    fun onVideoWatched() {
+        // Esta función se llama cuando el video se ha visto completo
+        showSuccessDialog = true
         showWrongDialog = false
     }
 }
