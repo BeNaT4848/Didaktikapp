@@ -77,7 +77,7 @@ fun LoginScreen(
                     } else {
                         loginViewModel.guardarNombre(nombreCompleto)
                         // Navegamos a la pantalla del mapa
-                        navController.navigate(Routes.SOPALETRA_SCREEN)
+                        navController.navigate(Routes.MAPA_SCREEN)
 
                     }
                 }
