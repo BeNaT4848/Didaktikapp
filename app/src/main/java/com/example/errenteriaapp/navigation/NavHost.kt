@@ -19,6 +19,7 @@ import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
+import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
 
 
 @Composable
@@ -78,6 +79,11 @@ fun AppNavigation(
         }
         composable(Routes.SOPALETRA_SCREEN) {
             LetraSopaScreen(
+                navController = navController
+            )
+        }
+        composable(Routes.SANMARKOS_SCREEN) {
+            SanMarkosekoGalderak(
                 navController = navController
             )
         }

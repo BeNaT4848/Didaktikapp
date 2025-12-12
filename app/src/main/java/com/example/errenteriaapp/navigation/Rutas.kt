@@ -12,5 +12,6 @@ object Routes {
     const val ORDENATUJOLASA_SCREEN = "ordenatu_jolasa_screen"
     const val BASURA_SCREEN = "basura_screen"
     const val SOPALETRA_SCREEN = "Sopa_letra_screen"
+    const val SANMARKOS_SCREEN = "san_markos_screen"
 
 }
