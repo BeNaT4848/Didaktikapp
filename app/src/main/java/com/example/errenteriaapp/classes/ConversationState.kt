@@ -2,7 +2,6 @@
 package com.example.errenteriaapp.classes
 
 
-import com.example.errenteriaapp.classes.Message
 
 data class ConversationState(
     val currentMessage: Dialogo? = null,
