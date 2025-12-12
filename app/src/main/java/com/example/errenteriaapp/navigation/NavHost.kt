@@ -71,7 +71,7 @@ fun AppNavigation(
         composable(Routes.BASURA_SCREEN) {
             PapresaScreen(
                 navController = navController,
-                viewModel = PapresaViewModel
+
 
             )
         }
