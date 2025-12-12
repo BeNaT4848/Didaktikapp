@@ -1,5 +1,4 @@
-package com.example.errenteriaapp.viewModel
-
+package com.example.errenteriaapp.database.viewModel
 
 
 import androidx.compose.runtime.getValue

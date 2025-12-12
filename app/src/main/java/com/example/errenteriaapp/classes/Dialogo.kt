@@ -1,5 +1,4 @@
-// kotlin
-package com.example.errenteriaapp.model
+package com.example.errenteriaapp.classes
 
 data class Message(
     val text: String,

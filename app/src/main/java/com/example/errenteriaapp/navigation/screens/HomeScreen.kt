@@ -1,9 +1,7 @@
 package com.example.errenteriaapp.navigation.screens
 
-import android.R.attr.maxHeight
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,8 +30,7 @@ import androidx.navigation.NavController
 import com.example.errenteriaapp.R // Necesitas importar R para las imágenes
 import com.example.errenteriaapp.components.CharacterWithSpeech
 import com.example.errenteriaapp.navigation.Routes
-import com.example.errenteriaapp.viewModel.ConversacionViewModel
-import kotlin.times
+import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 
 // ConversationScreen.kt
 @Composable

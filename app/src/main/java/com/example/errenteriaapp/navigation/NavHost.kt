@@ -2,24 +2,23 @@ package com.example.errenteriaapp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen
-import com.example.errenteriaapp.navigation.screens.GameScreen
+import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen2
 import com.example.errenteriaapp.navigation.screens.HomeScreen
-import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.LoginScreen
 import com.example.errenteriaapp.navigation.screens.MapaScreen
-import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
-import com.example.errenteriaapp.navigation.screens.PapresaScreen
 import com.example.errenteriaapp.navigation.screens.PuzleScreen
 
 
-import com.example.errenteriaapp.viewModel.ConversacionViewModel
-import com.example.errenteriaapp.viewModel.LoginViewModel
-import com.example.errenteriaapp.viewModel.PapresaViewModel
+import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
+import com.example.errenteriaapp.database.viewModel.LoginViewModel
+import com.example.errenteriaapp.database.viewModel.PapresaViewModel
+import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
+import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
+import com.example.errenteriaapp.navigation.screens.PapresaScreen
 
 
 @Composable
@@ -27,7 +26,6 @@ fun AppNavigation(
     conversacionViewModel: ConversacionViewModel,
     loginViewModel: LoginViewModel,
     navController: NavHostController,
-    PapresaViewModel: PapresaViewModel
 ) {
 
     NavHost(
@@ -57,6 +55,11 @@ fun AppNavigation(
                 navController = navController
             )
         }
+        composable(Routes.BERTSOJOLASA2_SCREEN) {
+            BertsoJolasaScreen2(
+                navController = navController
+            ) }
+
         composable(Routes.PUZLE_SCREEN) {
             PuzleScreen(
                 navController = navController
@@ -70,9 +73,7 @@ fun AppNavigation(
         }
         composable(Routes.BASURA_SCREEN) {
             PapresaScreen(
-                navController = navController,
-
-
+                navController = navController
             )
         }
         composable(Routes.SOPALETRA_SCREEN) {

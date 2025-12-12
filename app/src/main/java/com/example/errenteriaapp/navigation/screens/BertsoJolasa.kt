@@ -1,162 +1,212 @@
 package com.example.errenteriaapp.navigation.screens
 
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.errenteriaapp.components.BertsoDesplegablea
-import com.example.errenteriaapp.functions.ClickableTextFunction
+import com.example.errenteriaapp.components.textoBertsoa
+import com.example.errenteriaapp.components.ClickableTextFunction
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.errenteriaapp.components.showFeedbackToast
+import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
+import com.example.errenteriaapp.navigation.Routes
 
 @Composable
 fun BertsoJolasaScreen(
-    navController: NavController) {
+    navController: NavController,
+    puntuakViewModel: PuntuakViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val hasNavigated = puntuakViewModel.hasNavigated
+    val totalItems = 7
+    val attempt = puntuakViewModel.attempt
+
+    fun handleProgress(onAfterAnswer: (() -> Unit)? = null) {
+        val answered = puntuakViewModel.registerAnswer()
+        onAfterAnswer?.invoke()
+        if (answered == totalItems) {
+            if (puntuakViewModel.correctCount > 4 && !hasNavigated) {
+                puntuakViewModel.markNavigated()
+                navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
+            } else if (!hasNavigated) {
+                showFeedbackToast(context, "Saiatu berriro!", false)
+                puntuakViewModel.restartAttempt()
+            }
+        }
+    }
 
     LazyColumn(Modifier.fillMaxWidth()) {
         item {
-            ClickableTextFunction(
-                fulltext = "Hemen _____",
-                clickableword = "_____",
-                a = "ab",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFFFC1C1
+            Spacer(modifier = Modifier.padding(6.dp))
+            textoBertsoa(
+                textobertsoa = "Milla zortziehun eta hirurogeita"
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Beste lerro _____.",
+                fulltext = "hamalau urte _____.",
                 clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFBDFFC0
+                act = "abenduan",
+                bct = "urrian",
+                cct = "martxoan",
+                colorBox = 0xFFFFC1C1,
+                correctAnswer = "urrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
+            )
+        }
+        item {
+            textoBertsoa(
+                textobertsoa = "lehenengo plazan kantatu nuen\n" +
+                        "nik Ernaniko lurrean,\n" +
+                        "San Antonio deitzen diogun"
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Hona hemen _____.",
+                fulltext = "ermita baten _____.",
                 clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFBDCEFF
+                act = "aurrian",
+                bct = "barruan",
+                cct = "atzean",
+                colorBox = 0xFFBDFFC0,
+                correctAnswer = "aurrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
+            )
+        }
+        item {
+            textoBertsoa(
+                textobertsoa = "lengo ohitura zaharrean.\n" +
+                        "\n" + "\n" +
+                        "Joxe Migelek atera zuen\n" +
+                        "oso izketa leguna:\n" +
+                        "«Hau da, gazteak, prezisamente"
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Aukeratu hemen _____.",
+                fulltext = "guk egin behar _____.",
                 clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFC5904E
+                act = "deguna",
+                bct = "daukaguna",
+                cct = "zerbait",
+                colorBox = 0xFFBDCEFF,
+                correctAnswer = "deguna",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
+            )
+        }
+        item {
+            textoBertsoa(
+                textobertsoa = "altxa dezagun San Antonio."
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Klikatu berriro _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFB6B6B6
+                fulltext = "gaur da beraren _____!",
+                clickableword = "_____!",
+                act = "ospakizuna",
+                bct = "ohorea",
+                cct = "eguna",
+                colorBox = 0xFFC5904E,
+                correctAnswer = "eguna",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
+            )
+        }
+        item {
+            textoBertsoa(
+                textobertsoa = "Gaur Goiatz Txikin dago itxututa\n" +
+                    "orduko nire laguna."
+            )
+            Spacer(modifier = Modifier.padding(10.dp))
+            textoBertsoa(
+                textobertsoa = "(…)"
+            )
+            Spacer(modifier = Modifier.padding(10.dp))
+            textoBertsoa(
+                textobertsoa = "Hirurogeita hamar bat urte"
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Beste aukera _____.",
+                fulltext = "badut _____.",
                 clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFE0FF6F
+                act = "sorbaldan",
+                bct = "bizkarrian",
+                cct = "bularrean",
+                colorBox = 0xFFB6B6B6,
+                correctAnswer = "bizkarrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
+            )
+        }
+        item {
+            textoBertsoa(
+                textobertsoa = "kargamenturik txarrena hau da,"
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Esaldi berria _____.",
+                fulltext = "ezin utzi _____.",
                 clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFFFE4C4
+                act = "bidean",
+                bct = "kanpoan",
+                cct = "bazterrian",
+                colorBox = 0xFFE0FF6F,
+                correctAnswer = "bazterrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
+            )
+        }
+        item {
+            textoBertsoa(
+                textobertsoa = "anka batetik kojoka nabil,\n" +
+                        "reuma daukat iztarrean,\n" +
+                        "baina baditut laguntzaileak,"
             )
         }
         item {
             ClickableTextFunction(
-                fulltext = "Hurrengoa _____.",
+                fulltext = "ez nago modu _____.",
                 clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFFFD1DC
-            )
-        }
-        item {
-            ClickableTextFunction(
-                fulltext = "Klik egin _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFE0BBE4
-            )
-        }
-        item {
-            ClickableTextFunction(
-                fulltext = "Adibide hau _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFF6FFFBC
-            )
-        }
-        item {
-            ClickableTextFunction(
-                fulltext = "Beste bat _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFCCE2CB
-            )
-        }
-        item {
-            ClickableTextFunction(
-                fulltext = "Jarraitu _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFB5EAD7
-            )
-        }
-        item {
-            ClickableTextFunction(
-                fulltext = "Amaitzeko _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFFA7FF6F
-            )
-        }
-        item {
-            ClickableTextFunction(
-                fulltext = "Azkena _____.",
-                clickableword = "_____",
-                a = "a",
-                b = "b",
-                c = "c",
-                colorBox = 0xFDF6BCFF
+                act = "onean",
+                bct = "txarrian",
+                cct = "erdian",
+                colorBox = 0xFFFFE4C4,
+                correctAnswer = "txarrian",
+                onCorrect = { puntuakViewModel.registerCorrect() },
+                onAnswered = { handleProgress() },
+                isLocked = hasNavigated,
+                attemptKey = attempt,
+                resetOnAttempt = true
             )
         }
     }
