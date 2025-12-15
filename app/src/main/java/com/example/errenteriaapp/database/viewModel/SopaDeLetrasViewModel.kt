@@ -25,7 +25,7 @@ class SopaDeLetrasViewModel : ViewModel() {
 
     val palabras = listOf(
         PalabraSopa(
-            texto = "SAXOFOLA",
+            texto = "SAXOFOIA",
             posiciones = listOf(
                 Pair(0, 3), Pair(0, 4), Pair(0, 5), Pair(0, 6),
                 Pair(0, 7), Pair(0, 8), Pair(0, 9), Pair(0, 10)

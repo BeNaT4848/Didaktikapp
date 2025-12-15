@@ -32,10 +32,10 @@ fun SopaPalabrasList(
             modifier = Modifier.padding(12.dp)
         ) {
             Text(
-                text = "Instrumentos encontrados:",
+                text = "Aurkitutako tresnak:",
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
