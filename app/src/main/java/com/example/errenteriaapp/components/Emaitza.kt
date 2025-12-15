@@ -1,5 +1,6 @@
 package com.example.errenteriaapp.components
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +15,17 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,6 +46,7 @@ fun GameResultDialogs(
         ResultDialog(
             isSuccess = true,
             imageRes = R.drawable.ondo_egina,
+            audioRes = R.raw.oso_ondo_audioa,
             buttonText = "Jolasekin jarraitu!",
             buttonColor = Color(0xFF4CAF50),
             onDismiss = onDismissSuccess,
@@ -48,6 +57,7 @@ fun GameResultDialogs(
         ResultDialog(
             isSuccess = false,
             imageRes = R.drawable.saiatu_berriro,
+            audioRes = R.raw.saiatu_berriro_audioa,
             buttonText = "Saiatu berriro!",
             buttonColor = Color(0xFFC62828),
             onDismiss = onDismissWrong,
@@ -60,12 +70,30 @@ fun GameResultDialogs(
 fun ResultDialog(
     isSuccess: Boolean,
     imageRes: Int,
+    audioRes: Int,
     buttonText: String,
     buttonColor: Color,
     onDismiss: () -> Unit,
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        mediaPlayer = MediaPlayer.create(context, audioRes).apply {
+            setOnCompletionListener {
+                it.release()
+                mediaPlayer = null
+            }
+            start()
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer?.release()
+            mediaPlayer = null
+        }
+    }
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = modifier
@@ -92,7 +120,12 @@ fun ResultDialog(
                     )
                 }
                 Button(
-                    onClick = onButtonClick,
+                    onClick = {
+                        // Detener el audio antes de cerrar
+                        mediaPlayer?.release()
+                        mediaPlayer = null
+                        onButtonClick()
+                    },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                         .padding(bottom = 24.dp)
