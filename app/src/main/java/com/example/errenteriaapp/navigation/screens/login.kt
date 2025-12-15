@@ -100,7 +100,7 @@ fun LoginScreen(
                 ) {
                     CharacterItemLogin(
                         imageRes = R.drawable.xanti_silla_hablando,
-                        name = "Xanti",  // Solo para accesibilidad
+                        name = "Xanti",
                         imageHeight = imageHeight
                     )
                 }
