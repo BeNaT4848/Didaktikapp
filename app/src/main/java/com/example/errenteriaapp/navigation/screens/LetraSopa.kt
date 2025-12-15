@@ -94,6 +94,7 @@ fun LetraSopaScreen(
             SopaPalabrasList(
                 palabras = viewModel.palabras,
                 palabrasEncontradas = gameState.palabrasEncontradas
+
             )
         }
 

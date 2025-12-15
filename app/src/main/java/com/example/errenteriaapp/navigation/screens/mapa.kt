@@ -24,7 +24,7 @@ import com.example.errenteriaapp.navigation.Routes
 fun MapaScreen(
     navController: NavController
 ) {
-    println("Mapa Screen")
+
 
     Column(
         modifier = Modifier
@@ -33,6 +33,7 @@ fun MapaScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(20.dp))
         Button(
             onClick = { navController.navigate(Routes.ORDENATUJOLASA_SCREEN) },
             modifier = Modifier
