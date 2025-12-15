@@ -104,11 +104,11 @@ fun BertsoJolasaScreen(
                 ClickableTextFunction(
                     fulltext = "guk egin behar _____.",
                     clickableword = "_____",
-                    act = "deguna",
+                    act = "doguna",
                     bct = "daukaguna",
                     cct = "zerbait",
                     colorBox = 0xFFBDCEFF,
-                    correctAnswer = "deguna",
+                    correctAnswer = "doguna",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     isLocked = hasNavigated,

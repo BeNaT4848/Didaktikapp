@@ -17,9 +17,9 @@ import com.example.errenteriaapp.database.viewModel.LoginViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Errenteriaapp)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         // 1️⃣ Crear la base de datos
         val db = Room.databaseBuilder(
             applicationContext,
