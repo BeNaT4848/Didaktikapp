@@ -18,7 +18,6 @@ import kotlin.random.Random
 class PapresaViewModel : ViewModel() {
 
     private val successThreshold = 0.8
-    private val _showResults = MutableStateFlow(false)
 
     val wasteItems = mutableStateListOf<WasteItem>()
 
@@ -29,8 +28,14 @@ class PapresaViewModel : ViewModel() {
 
     var showResults by mutableStateOf(false)
         private set
+
     var showSuccessDialog by mutableStateOf(false)
+        private set
+
     var showWrongDialog by mutableStateOf(false)
+        private set
+
+    var hasPassed by mutableStateOf(false)
         private set
 
     val allAnswered: Boolean
@@ -74,7 +79,7 @@ class PapresaViewModel : ViewModel() {
         )
 
         wasteItems.clear()
-        wasteItems.addAll(itemsOriginales.shuffled(Random))
+        wasteItems.addAll(itemsOriginales.shuffled())
     }
 
     fun onContainerClick(category: WasteCategory) {
@@ -94,34 +99,27 @@ class PapresaViewModel : ViewModel() {
 
     fun onVerifyClick() {
         if (!allAnswered) return
-        val correctAnswers = wasteItems.count { userAnswers[it.id] == it.correctCategory }
-        val requiredCorrect = ceil(wasteItems.size * successThreshold).toInt().coerceAtLeast(1)
 
+        val correctAnswers =
+            wasteItems.count { userAnswers[it.id] == it.correctCategory }
+
+        val requiredCorrect =
+            ceil(wasteItems.size * successThreshold).toInt().coerceAtLeast(1)
+
+        hasPassed = correctAnswers >= requiredCorrect
         showResults = true
-        if (correctAnswers >= requiredCorrect) {
-            showSuccessDialog = true
-            showWrongDialog = false
-        } else {
+
+        if (!hasPassed) {
             showWrongDialog = true
-            showSuccessDialog = false
         }
     }
 
-    fun onDismissResults() {
-        showResults = false
+    /** Se llama SOLO cuando termina el vídeo */
+    fun onVideoWatched() {
+        showSuccessDialog = true
     }
-
-    fun dismissSuccessDialog() {
-        showSuccessDialog = false
-    }
-
-    fun dismissWrongDialog() {
-        showWrongDialog = false
-    }
-
 
     fun onWrongDialogRetry() {
-        showWrongDialog = false
         resetGame()
     }
 
@@ -132,31 +130,11 @@ class PapresaViewModel : ViewModel() {
         showResults = false
         showSuccessDialog = false
         showWrongDialog = false
-    }
-    fun showResults() {
-        _showResults.value = true
+        hasPassed = false
     }
 
-
-
-    // Asegurar que onSuccessDialogConfirmed limpia el estado
-    fun onSuccessDialogConfirmed() {
-        _showResults.value = false
-        // ... resto de tu lógica ...
-    }
-    fun showSuccessDialog() {
-        showSuccessDialog = true
-        showWrongDialog = false
-    }
-
-    fun showWrongDialog() {
-        showWrongDialog = true
+    fun dismissSuccessDialog() {
         showSuccessDialog = false
     }
-
-    fun onVideoWatched() {
-        // Esta función se llama cuando el video se ha visto completo
-        showSuccessDialog = true
-        showWrongDialog = false
-    }
 }
+

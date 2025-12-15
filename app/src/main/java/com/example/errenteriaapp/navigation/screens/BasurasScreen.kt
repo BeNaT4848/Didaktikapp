@@ -12,11 +12,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.*
+
 import com.example.errenteriaapp.components.video.InstruccionesVideoPapresa
 
 import com.example.errenteriaapp.components.video.VideoDialogoa
 import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.Routes
+
 
 @Composable
 fun PapresaScreen(
@@ -29,23 +31,22 @@ fun PapresaScreen(
     val showResults = viewModel.showResults
     val showSuccess = viewModel.showSuccessDialog
     val showWrong = viewModel.showWrongDialog
+    val hasPassed = viewModel.hasPassed
 
     // Estados para controlar el flujo estricto
     var showVideoInstructionDialog by remember { mutableStateOf(false) }
     var showStrictVideoDialog by remember { mutableStateOf(false) }
     var hasWatchedVideo by remember { mutableStateOf(false) }
 
-    // Lógica para mostrar instrucción del video solo si aprueba
+    // Lógica CORREGIDA para mostrar instrucción del video solo si APRUEBA
     LaunchedEffect(showResults) {
-        if (showResults && !showVideoInstructionDialog && !hasWatchedVideo) {
-            // Suponiendo que showResults significa que aprobó
-            // Si necesitas otra lógica para determinar aprobación, ajústala
+        if (showResults && hasPassed && !showVideoInstructionDialog && !hasWatchedVideo) {
+            // Solo mostrar instrucción del video si APRUEBA (hasPassed = true)
             showVideoInstructionDialog = true
         }
     }
 
-    // Si suspende, muestra diálogo de error inmediatamente
-
+    // Si suspende, muestra diálogo de error inmediatamente (ya lo maneja el viewModel)
 
     Column(
         modifier = Modifier
@@ -77,38 +78,55 @@ fun PapresaScreen(
         )
     }
 
-    // 1. Diálogo de instrucción del video (NO se puede cerrar)
+    // 1. Diálogo de instrucción del video (SOLO si APRUEBA)
     if (showVideoInstructionDialog) {
         InstruccionesVideoPapresa(
             onWatchVideo = {
                 showVideoInstructionDialog = false
                 showStrictVideoDialog = true
             }
-            // No tiene onDismiss, no se puede cerrar
+
         )
     }
 
-
+    // 2. Diálogo del video (obligatorio ver completo)
     if (showStrictVideoDialog) {
         VideoDialogoa(
-            onDismiss = { showStrictVideoDialog = false },  // showVideoDialog -> showStrictVideoDialog
             onVideoCompleted = {
                 showStrictVideoDialog = false
                 hasWatchedVideo = true
-                viewModel.showSuccessDialog = true  // showSuccessDialog ya está en el ViewModel
+                viewModel.onVideoWatched()
             }
         )
     }
 
-    // 3. Diálogo de éxito solo después de ver el video
+
+    // 3. Diálogo de éxito SOLO después de ver el video completo
     if (showSuccess && hasWatchedVideo) {
-        Emaitza2Papresa(
+        GameResultDialogs(
             showSuccess = true,
-            onContinue = {
+            showWrong = false,
+            onDismissSuccess = { },
+            onDismissWrong = {  },
+            onSuccessButton = {
                 viewModel.dismissSuccessDialog()
                 navController.navigate(Routes.MAPA_SCREEN)
             },
+            onWrongButton = { }
+        )
+    }
 
+    // 4. Diálogo de error si SUSPENDE - se muestra inmediatamente
+    if (showWrong) {
+        GameResultDialogs(
+            showSuccess = false,
+            showWrong = true,
+            onDismissSuccess = { },
+            onDismissWrong = {  },
+            onSuccessButton = {  },
+            onWrongButton = {
+                viewModel.onWrongDialogRetry()
+            }
         )
     }
 }
