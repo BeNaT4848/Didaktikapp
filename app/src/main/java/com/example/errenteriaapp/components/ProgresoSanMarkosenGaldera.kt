@@ -85,12 +85,7 @@ fun ProgressIndicator(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = if (esCorrecta) "✓" else "✗",
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+
                         }
                     }
                 }
