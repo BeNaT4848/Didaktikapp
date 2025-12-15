@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Errenteriaapp" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Tema normal de la app (SIN fondo especial) -->
+    <style name="Theme.Errenteriaapp" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- aquí tus colores normales, pero SIN android:windowBackground -->
+        <item name="android:windowBackground">@color/white</item>
+
+    </style>
+
+    <!-- Tema SOLO para el inicio (con fondo del splash) -->
+    <style name="Theme.Errenteriaapp.Splash" parent="Theme.Errenteriaapp">
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+
 </resources>
