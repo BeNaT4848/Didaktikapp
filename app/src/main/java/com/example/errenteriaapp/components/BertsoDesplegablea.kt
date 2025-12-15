@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -48,27 +49,27 @@ fun BertsoDesplegablea(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 4.dp, vertical = 12.dp)
             .background(Color(ColorBox), RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 10.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 10.dp)
+                        .padding(horizontal = 2.dp)
                         .border(
-                            width = 0.01.dp,
+                            width = 0.8.dp,
                             color = Color.Black,
                             shape = RoundedCornerShape(24.dp)
                         )
@@ -76,14 +77,24 @@ fun BertsoDesplegablea(
                         .clickable(enabled = selectedOption == null) { onOptionSelected(a) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(a, color = textColorFor(a), fontSize = 14.sp)
+                    Text(
+                        text = a,
+                        color = textColorFor(a),
+                        fontSize = 15.sp,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 6.dp)
+                            .fillMaxWidth(),
+                        maxLines = 2,
+                        softWrap = true,
+                        textAlign = TextAlign.Center
+                    )
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 2.dp)
                         .border(
-                            width = 0.01.dp,
+                            width = 0.8.dp,
                             color = Color.Black,
                             shape = RoundedCornerShape(24.dp)
                         )
@@ -91,14 +102,24 @@ fun BertsoDesplegablea(
                         .clickable(enabled = selectedOption == null) { onOptionSelected(b) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(b, color = textColorFor(b), fontSize = 14.sp)
+                    Text(
+                        text = b,
+                        color = textColorFor(b),
+                        fontSize = 15.sp,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 6.dp)
+                            .fillMaxWidth(),
+                        maxLines = 2,
+                        softWrap = true,
+                        textAlign = TextAlign.Center
+                    )
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 2.dp)
                         .border(
-                            width = 0.01.dp,
+                            width = 0.8.dp,
                             color = Color.Black,
                             shape = RoundedCornerShape(24.dp)
                         )
@@ -106,7 +127,17 @@ fun BertsoDesplegablea(
                         .clickable(enabled = selectedOption == null) { onOptionSelected(c) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(c, color = textColorFor(c), fontSize = 14.sp)
+                    Text(
+                        text = c,
+                        color = textColorFor(c),
+                        fontSize = 15.sp,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp, horizontal = 6.dp)
+                            .fillMaxWidth(),
+                        maxLines = 2,
+                        softWrap = true,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
