@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Tema normal de la app (SIN fondo especial) -->
+    <!-- Tema normal -->
     <style name="Theme.Errenteriaapp" parent="@android:style/Theme.Material.Light.NoActionBar">
-        <!-- aquí tus colores normales, pero SIN android:windowBackground -->
-        <item name="android:windowBackground">@color/white</item>
-
+        <!-- Usar el mismo fondo azul que en el splash para evitar flash blanco -->
+        <item name="android:windowBackground">@color/splash_background</item>
     </style>
 
-    <!-- Tema SOLO para el inicio (con fondo del splash) -->
+    <!-- Tema de inicio -->
     <style name="Theme.Errenteriaapp.Splash" parent="Theme.Errenteriaapp">
-        <item name="android:windowBackground">@color/splash_background</item>
+        <!-- Atributos SplashScreen API para Android 12+ -->
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
     </style>
 
 </resources>
