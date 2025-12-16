@@ -5,27 +5,28 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Room
 import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen
 import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen2
 import com.example.errenteriaapp.navigation.screens.HomeScreen
 import com.example.errenteriaapp.navigation.screens.LoginScreen
 import com.example.errenteriaapp.navigation.screens.MapaScreen
 import com.example.errenteriaapp.navigation.screens.PuzleScreen
-
-
 import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 import com.example.errenteriaapp.database.viewModel.LoginViewModel
-import com.example.errenteriaapp.database.viewModel.PapresaViewModel
+import com.example.errenteriaapp.database.viewModel.LoginViewModelFactory
+import com.example.errenteriaapp.database.AppDatabase
 import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
 
-
 @Composable
 fun AppNavigation(
     conversacionViewModel: ConversacionViewModel,
-    loginViewModel: LoginViewModel,
     navController: NavHostController,
 ) {
 
@@ -41,6 +42,23 @@ fun AppNavigation(
 
         }
         composable(Routes.LOGIN_SCREEN) {
+            val context = LocalContext.current
+            val db = remember {
+                Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "errenteria_database"
+                ).build()
+            }
+            val ikasleDao = remember { db.ikasleDao() }
+            val irakasleDao = remember { db.irakasleDao() }
+
+            val loginViewModelFactory = remember {
+                LoginViewModelFactory(ikasleDao, irakasleDao)
+            }
+
+            val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
+
             LoginScreen(
                 loginViewModel = loginViewModel,
                 navController = navController,

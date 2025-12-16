@@ -4,7 +4,7 @@
     <!-- Tema normal -->
     <style name="Theme.Errenteriaapp" parent="@android:style/Theme.Material.Light.NoActionBar">
         <!-- Usar el mismo fondo azul que en el splash para evitar flash blanco -->
-        <item name="android:windowBackground">@color/splash_background</item>
+<!--        <item name="android:windowBackground">@color/splash_background</item>-->
     </style>
 
     <!-- Tema de inicio -->
