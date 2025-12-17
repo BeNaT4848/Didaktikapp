@@ -18,7 +18,6 @@ import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.components.ClickableTextFunction
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.components.ParagraphCard
-import com.example.errenteriaapp.components.showFeedbackToast
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 import com.example.errenteriaapp.navigation.Routes
 
@@ -40,7 +39,6 @@ fun BertsoJolasaScreen(
                 puntuakViewModel.markNavigated()
                 navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
             } else if (!hasNavigated) {
-                showFeedbackToast(context, "Saiatu berriro!", false)
                 puntuakViewModel.restartAttempt()
             }
         }

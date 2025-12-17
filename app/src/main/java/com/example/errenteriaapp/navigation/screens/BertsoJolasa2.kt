@@ -15,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.components.ClickableTextFunction
 import com.example.errenteriaapp.components.ParagraphCard
-import com.example.errenteriaapp.components.showFeedbackToast
 import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 
@@ -33,10 +32,8 @@ fun BertsoJolasaScreen2(
         onAfterAnswer?.invoke()
         if (answered == totalItems) {
             if (puntuakViewModel.correctCount > 3) {
-                showFeedbackToast(context, "Zorionak! Bertsoa osatu duzu", true)
                 puntuakViewModel.restartAttempt()
             } else {
-                showFeedbackToast(context, "Saiatu berriro!", false)
                 puntuakViewModel.restartAttempt()
             }
         }
