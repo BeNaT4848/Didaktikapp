@@ -11,8 +11,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.errenteriaapp"
-        minSdk = 27
-        targetSdk = 36
+        minSdk = 31
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
