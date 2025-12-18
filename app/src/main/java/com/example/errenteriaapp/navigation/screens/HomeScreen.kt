@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,8 +67,8 @@ fun HomeScreen(
                 .align(Alignment.TopEnd)
                 .padding(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.onTertiary
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -116,15 +117,17 @@ fun HomeScreen(
                     .padding(bottom = 32.dp)
                     .fillMaxWidth(0.8f),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Text(
                     text = "¡JOLASTEN HASI!",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
                     modifier = Modifier.padding(8.dp)
                 )
             }
