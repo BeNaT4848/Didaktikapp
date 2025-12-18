@@ -6,42 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
-import com.example.errenteriaapp.database.AppDatabase
 import com.example.errenteriaapp.navigation.AppNavigation
 import com.example.errenteriaapp.ui.theme.ErrenteriaappTheme
 import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
-import com.example.errenteriaapp.database.viewModel.LoginViewModel
-import com.example.errenteriaapp.database.viewModel.LoginViewModelFactory
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Errenteriaapp)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // 1️⃣ Crear la base de datos
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "errenteria_database"
-        ).build()
-
-        // Obtener DAOs
-        val ikasleDao = db.ikasleDao()
-        val irakasleDao = db.irakasleDao()
-
-        // Crear ViewModel factories
-        val loginViewModelFactory = LoginViewModelFactory(ikasleDao, irakasleDao)
-
-
         setContent {
             val navController = rememberNavController()
-
-            // Usar viewModel con factory
-            val loginViewModel: LoginViewModel = viewModel(
-                factory = loginViewModelFactory
-            )
 
             val conversacionViewModel: ConversacionViewModel = viewModel()
 
@@ -49,7 +25,6 @@ class MainActivity : ComponentActivity() {
                 AppNavigation(
                     navController = navController,
                     conversacionViewModel = conversacionViewModel,
-                    loginViewModel = loginViewModel
                 )
             }
         }

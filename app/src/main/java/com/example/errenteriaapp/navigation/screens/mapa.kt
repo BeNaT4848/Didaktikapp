@@ -122,5 +122,22 @@ fun MapaScreen(
                 fontWeight = FontWeight.Bold
             )
         }
+        Button(
+            onClick = { navController.navigate(Routes.TAULAARRASTRAR_SCRENN) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF9800),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Taula Arrastatu Jolasa",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

@@ -5,13 +5,12 @@ object Routes {
     const val LOGIN_SCREEN = "login_screen"
     const val MAPA_SCREEN = "mapa_screen"
     const val BERTSOJOLASA_SCREEN = "bertso_jolasa_screen"
-
     const val BERTSOJOLASA2_SCREEN = "bertso_jolasa2_screen"
-
     const val PUZLE_SCREEN = "Puzle_screen"
     const val ORDENATUJOLASA_SCREEN = "ordenatu_jolasa_screen"
     const val BASURA_SCREEN = "basura_screen"
     const val SOPALETRA_SCREEN = "Sopa_letra_screen"
     const val SANMARKOS_SCREEN = "san_markos_screen"
+    const val TAULAARRASTRAR_SCRENN = "taula_arrastrar_screen"
 
 }
