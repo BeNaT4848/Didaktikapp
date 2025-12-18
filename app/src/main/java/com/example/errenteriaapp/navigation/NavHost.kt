@@ -23,6 +23,7 @@ import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
+import com.example.errenteriaapp.navigation.screens.TaulaArrastrarScreen
 
 @Composable
 fun AppNavigation(
@@ -102,6 +103,11 @@ fun AppNavigation(
         }
         composable(Routes.SANMARKOS_SCREEN) {
             SanMarkosekoGalderak(
+                navController = navController
+            )
+        }
+        composable(Routes.TAULAARRASTRAR_SCRENN) {
+            TaulaArrastrarScreen(
                 navController = navController
             )
         }
