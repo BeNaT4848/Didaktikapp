@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 fun LoginPlaySection(
     enabled: Boolean,
     isSaving: Boolean,
+    showButton: Boolean,
     onClick: () -> Unit
 ) {
 
@@ -22,32 +23,39 @@ fun LoginPlaySection(
         Text(
             text = "ZOAZ JOLASTERA",
             fontSize = 28.sp,
-            color = Color.White
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(Modifier.height(20.dp))
 
-        Button(
-            onClick = onClick,
-            enabled = enabled,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFF4A460),
-                contentColor = Color.White
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 40.dp)
-                .height(55.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            if (isSaving)
-                CircularProgressIndicator(
-                    color = Color.White,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(24.dp)
-                )
-            else
-                Text("HASI JOLASA", fontSize = 18.sp)
+        if (showButton) {
+            Button(
+                onClick = onClick,
+                enabled = enabled,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 40.dp)
+                    .height(55.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "HASI JOLASA",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
         }
     }
 }

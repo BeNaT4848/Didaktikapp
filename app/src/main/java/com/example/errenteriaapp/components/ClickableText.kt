@@ -3,6 +3,7 @@ package com.example.errenteriaapp.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +27,6 @@ fun ClickableTextFunction(
     act: String,
     bct: String,
     cct: String,
-    colorBox: Long,
     correctAnswer: String,
     onCorrect: (() -> Unit)? = null,
     onAnswered: (() -> Unit)? = null,
@@ -77,7 +77,7 @@ fun ClickableTextFunction(
                 color = when (isCorrectSelection) {
                     true -> Color(0xFF4CAF50)
                     false -> Color(0xFFE53935)
-                    else -> Color(0xFF1D3357)
+                    else -> MaterialTheme.colorScheme.primary
                 },
                 textDecoration = if (isCorrectSelection == null) TextDecoration.Underline else TextDecoration.None
             )
@@ -93,7 +93,7 @@ fun ClickableTextFunction(
 
         ClickableText(
             text = annotatedText,
-            style = TextStyle(fontSize = 20.sp),
+            style = TextStyle(fontSize = 20.sp, color = MaterialTheme.colorScheme.primary),
             onClick = { offset ->
                 val annotation = annotatedText.getStringAnnotations(
                     tag = "CLICK",
@@ -112,7 +112,6 @@ fun ClickableTextFunction(
                 a = act,
                 b = bct,
                 c = cct,
-                ColorBox = colorBox,
                 selectedOption = selectedOption,
                 isCorrectSelection = isCorrectSelection,
                 onOptionSelected = { option ->

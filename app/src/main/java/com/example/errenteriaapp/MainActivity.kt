@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.errenteriaapp.navigation.AppNavigation
 import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
+import com.example.errenteriaapp.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +21,9 @@ class MainActivity : ComponentActivity() {
 
             val conversacionViewModel: ConversacionViewModel = viewModel()
 
-            MaterialTheme {
+            AppTheme(
+                dynamicColor = false
+            ) {
                 AppNavigation(
                     navController = navController,
                     conversacionViewModel = conversacionViewModel,

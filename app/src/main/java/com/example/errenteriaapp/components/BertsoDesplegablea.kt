@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +26,6 @@ fun BertsoDesplegablea(
     a: String,
     b: String,
     c: String,
-    ColorBox: Long,
     selectedOption: String?,
     isCorrectSelection: Boolean?,
     onOptionSelected: (String) -> Unit
@@ -39,8 +39,9 @@ fun BertsoDesplegablea(
         else -> Color.White
     }
 
+    @Composable
     fun textColorFor(option: String) = if (option == selectedOption && isCorrectSelection != null) {
-        Color.White
+        Color.Black
     } else {
         Color.Black
     }
@@ -50,7 +51,7 @@ fun BertsoDesplegablea(
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = 4.dp, vertical = 12.dp)
-            .background(Color(ColorBox), RoundedCornerShape(24.dp)),
+            .background(color =  MaterialTheme.colorScheme.onPrimaryContainer, RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center
     ) {
         Column(

@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,8 +50,8 @@ fun BertsoJolasaScreen(
         item { Spacer(modifier = Modifier.padding(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFFFF3E0),
-                borderColor = Color(0xFFDA8A00)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary
             ) {
                 textoBertsoa("Milla zortziehun eta hirurogeita")
                 ClickableTextFunction(
@@ -60,7 +60,6 @@ fun BertsoJolasaScreen(
                     act = "abenduan",
                     bct = "urrian",
                     cct = "martxoan",
-                    colorBox = 0xFFFFC1C1,
                     correctAnswer = "urrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -79,7 +78,6 @@ fun BertsoJolasaScreen(
                     act = "aurrian",
                     bct = "barruan",
                     cct = "atzean",
-                    colorBox = 0xFFBDFFC0,
                     correctAnswer = "aurrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -93,8 +91,8 @@ fun BertsoJolasaScreen(
         item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFEAF3FF),
-                borderColor = Color(0xFF0056A3)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary
             ) {
                 textoBertsoa(
                     textobertsoa = "Joxe Migelek atera zuen\n" +
@@ -107,7 +105,6 @@ fun BertsoJolasaScreen(
                     act = "doguna",
                     bct = "daukaguna",
                     cct = "zerbait",
-                    colorBox = 0xFFBDCEFF,
                     correctAnswer = "doguna",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -122,7 +119,6 @@ fun BertsoJolasaScreen(
                     act = "ospakizuna",
                     bct = "ohorea",
                     cct = "eguna",
-                    colorBox = 0xFFC5904E,
                     correctAnswer = "eguna",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -139,8 +135,8 @@ fun BertsoJolasaScreen(
         item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFDFF8E8),
-                borderColor = Color(0xFF0B7D3E)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary
             ) {
                 textoBertsoa("(…)")
                 Spacer(modifier = Modifier.height(10.dp))
@@ -151,7 +147,6 @@ fun BertsoJolasaScreen(
                     act = "sorbaldan",
                     bct = "bizkarrian",
                     cct = "bularrean",
-                    colorBox = 0xFFB6B6B6,
                     correctAnswer = "bizkarrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -166,7 +161,6 @@ fun BertsoJolasaScreen(
                     act = "bidean",
                     bct = "kanpoan",
                     cct = "bazterrian",
-                    colorBox = 0xFFE0FF6F,
                     correctAnswer = "bazterrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -185,7 +179,6 @@ fun BertsoJolasaScreen(
                     act = "onean",
                     bct = "txarrian",
                     cct = "erdian",
-                    colorBox = 0xFFFFE4C4,
                     correctAnswer = "txarrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
