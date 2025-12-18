@@ -140,7 +140,7 @@ fun OrdenatuJolasaScreen(
                             dragOffsetPx += Offset(x, y)
                             dragStartBounds?.let { bounds ->
                                 dragCenterPx = bounds.topLeft + dragOffsetPx +
-                                    Offset(bounds.width / 2f, bounds.height / 2f)
+                                        Offset(bounds.width / 2f, bounds.height / 2f)
                             }
                         },
                         onDragEnd = { handleDrop() },
@@ -188,7 +188,7 @@ fun OrdenatuJolasaScreen(
                             dragOffsetPx += Offset(x, y)
                             dragStartBounds?.let { bounds ->
                                 dragCenterPx = bounds.topLeft + dragOffsetPx +
-                                    Offset(bounds.width / 2f, bounds.height / 2f)
+                                        Offset(bounds.width / 2f, bounds.height / 2f)
                             }
                         },
                         onDragEnd = { handleDrop() },
