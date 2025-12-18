@@ -573,7 +573,7 @@ fun crearCeldasEstado(): List<CeldaEstado> {
     celdas.add(CeldaEstado(0, 0, esNegra = true))
     celdas.add(CeldaEstado(0, 1, esNegra = true))
     celdas.add(CeldaEstado(0, 2, esNegra = false, numeroPista = 1, letraCorrecta = 'L'))
-    celdas.add(CeldaEstado(0, 3, esNegra = false, letraCorrecta = 'E'))
+    celdas.add(CeldaEstado(0, 3, esNegra = false,  numeroPista = 2,letraCorrecta = 'E'))
     celdas.add(CeldaEstado(0, 4, esNegra = false, letraCorrecta = 'I'))
     celdas.add(CeldaEstado(0, 5, esNegra = false, letraCorrecta = 'Z'))
     celdas.add(CeldaEstado(0, 6, esNegra = false, numeroPista = 3, letraCorrecta = 'E'))
