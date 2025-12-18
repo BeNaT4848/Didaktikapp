@@ -1,6 +1,7 @@
 package com.example.errenteriaapp.navigation.screens
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,7 +48,9 @@ fun BertsoJolasaScreen(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.spacedBy(3.dp),
         contentPadding = PaddingValues(vertical = 60.dp)
     ) {
