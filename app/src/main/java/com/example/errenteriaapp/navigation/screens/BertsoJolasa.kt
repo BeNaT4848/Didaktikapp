@@ -1,10 +1,10 @@
 package com.example.errenteriaapp.navigation.screens
 
 
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -46,12 +46,16 @@ fun BertsoJolasaScreen(
         }
     }
 
-    LazyColumn(Modifier.fillMaxWidth()) {
-        item { Spacer(modifier = Modifier.padding(12.dp)) }
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+        contentPadding = PaddingValues(vertical = 30.dp)
+    ) {
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                borderColor = MaterialTheme.colorScheme.primary
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa("Milla zortziehun eta hirurogeita")
                 ClickableTextFunction(
@@ -88,11 +92,11 @@ fun BertsoJolasaScreen(
                 textoBertsoa("lengo ohitura zaharrean.")
             }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                borderColor = MaterialTheme.colorScheme.primary
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa(
                     textobertsoa = "Joxe Migelek atera zuen\n" +
@@ -103,7 +107,7 @@ fun BertsoJolasaScreen(
                     fulltext = "guk egin behar _____.",
                     clickableword = "_____",
                     act = "doguna",
-                    bct = "daukaguna",
+                    bct = "dituena",
                     cct = "zerbait",
                     correctAnswer = "doguna",
                     onCorrect = { puntuakViewModel.registerCorrect() },
@@ -116,7 +120,7 @@ fun BertsoJolasaScreen(
                 ClickableTextFunction(
                     fulltext = "gaur da beraren _____!",
                     clickableword = "_____!",
-                    act = "ospakizuna",
+                    act = "izuna",
                     bct = "ohorea",
                     cct = "eguna",
                     correctAnswer = "eguna",
@@ -132,19 +136,18 @@ fun BertsoJolasaScreen(
                 )
             }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                borderColor = MaterialTheme.colorScheme.primary
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth().navigationBarsPadding()
             ) {
                 textoBertsoa("(…)")
-                Spacer(modifier = Modifier.height(10.dp))
                 textoBertsoa("Hirurogeita hamar bat urte")
                 ClickableTextFunction(
                     fulltext = "badut _____.",
                     clickableword = "_____",
-                    act = "sorbaldan",
+                    act = "buruan",
                     bct = "bizkarrian",
                     cct = "bularrean",
                     correctAnswer = "bizkarrian",
@@ -159,7 +162,7 @@ fun BertsoJolasaScreen(
                     fulltext = "ezin utzi _____.",
                     clickableword = "_____",
                     act = "bidean",
-                    bct = "kanpoan",
+                    bct = "etxean",
                     cct = "bazterrian",
                     correctAnswer = "bazterrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
@@ -185,7 +188,10 @@ fun BertsoJolasaScreen(
                     isLocked = hasNavigated,
                     attemptKey = attempt,
                     resetOnAttempt = true
+
                 )
+
+
             }
         }
     }

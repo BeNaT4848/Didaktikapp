@@ -81,7 +81,7 @@ fun BertsoDesplegablea(
                     Text(
                         text = a,
                         color = textColorFor(a),
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp, horizontal = 6.dp)
                             .fillMaxWidth(),
@@ -106,7 +106,7 @@ fun BertsoDesplegablea(
                     Text(
                         text = b,
                         color = textColorFor(b),
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp, horizontal = 6.dp)
                             .fillMaxWidth(),
@@ -131,7 +131,7 @@ fun BertsoDesplegablea(
                     Text(
                         text = c,
                         color = textColorFor(c),
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp, horizontal = 6.dp)
                             .fillMaxWidth(),

@@ -1,18 +1,17 @@
 package com.example.errenteriaapp.navigation.screens
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.components.ClickableTextFunction
 import com.example.errenteriaapp.components.ParagraphCard
 import com.example.errenteriaapp.components.showFeedbackToast
@@ -42,12 +41,16 @@ fun BertsoJolasaScreen2(
         }
     }
 
-    LazyColumn(Modifier.fillMaxWidth()) {
-        item { Spacer(modifier = Modifier.height(30.dp)) }
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFFFF3E0),
-                borderColor = Color(0xFFDA8A00)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp)
             ) {
                 textoBertsoa("Iparragirre abila dela")
                 textoBertsoa("askori diot aditzen")
@@ -82,11 +85,13 @@ fun BertsoJolasaScreen2(
                 textoBertsoa("gogua dedan orduan.")
             }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFEAF3FF),
-                borderColor = Color(0xFF0056A3)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp)
             ) {
                 textoBertsoa("Eskola ona eta musika")
                 textoBertsoa("bertsolaria gainera")
@@ -132,7 +137,6 @@ fun BertsoJolasaScreen2(
                 )
             }
         }
-        item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
@@ -140,5 +144,5 @@ fun BertsoJolasaScreen2(
 @Preview(showBackground = true)
 @Composable
 private fun BertsoJolasa2Preview() {
-    BertsoJolasaScreen2(navController = rememberNavController())
+    BertsoJolasaScreen2(rememberNavController())
 }
