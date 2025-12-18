@@ -49,7 +49,7 @@ fun BertsoJolasaScreen(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(3.dp),
-        contentPadding = PaddingValues(vertical = 30.dp)
+        contentPadding = PaddingValues(vertical = 60.dp)
     ) {
         item {
             ParagraphCard(

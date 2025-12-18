@@ -1,6 +1,9 @@
 package com.example.errenteriaapp.navigation.screens
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +22,7 @@ import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 fun BertsoJolasaScreen2(
     navController: NavController,
     puntuakViewModel: PuntuakViewModel = viewModel()
@@ -42,7 +46,10 @@ fun BertsoJolasaScreen2(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding(),
+        verticalArrangement = Arrangement.Center
     ) {
         item {
             ParagraphCard(
@@ -50,7 +57,7 @@ fun BertsoJolasaScreen2(
                 borderColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.dp)
+                    .padding(top = 24.dp, bottom = 2.dp)
             ) {
                 textoBertsoa("Iparragirre abila dela")
                 textoBertsoa("askori diot aditzen")
@@ -91,7 +98,7 @@ fun BertsoJolasaScreen2(
                 borderColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.dp)
+                    .padding(top = 2.dp)
             ) {
                 textoBertsoa("Eskola ona eta musika")
                 textoBertsoa("bertsolaria gainera")
