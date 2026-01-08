@@ -49,7 +49,8 @@ fun BertsoJolasaScreen(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.spacedBy(3.dp),
+        // más espacio entre cards
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 60.dp)
     ) {
         item {
@@ -137,6 +138,7 @@ fun BertsoJolasaScreen(
                 )
             }
         }
+
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,

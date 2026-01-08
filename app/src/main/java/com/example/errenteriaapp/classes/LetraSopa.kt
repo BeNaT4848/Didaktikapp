@@ -2,6 +2,7 @@ package com.example.errenteriaapp.classes
 
 
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 
@@ -9,7 +10,6 @@ data class PalabraSopa(
     val texto: String,
     val posiciones: List<Pair<Int, Int>>,
     val encontrada: Boolean = false,
-    val color: Color = Color(0xFFFFD700)
 )
 
 data class CeldaSopa(

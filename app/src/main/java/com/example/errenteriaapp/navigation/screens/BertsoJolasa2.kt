@@ -2,10 +2,10 @@ package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -48,15 +48,15 @@ fun BertsoJolasaScreen2(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .navigationBarsPadding(),
-        verticalArrangement = Arrangement.Center
+        // más espacio entre cards
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 24.dp)
     ) {
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 borderColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa("Iparragirre abila dela")
                 textoBertsoa("askori diot aditzen")
@@ -95,9 +95,7 @@ fun BertsoJolasaScreen2(
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 borderColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa("Eskola ona eta musika")
                 textoBertsoa("bertsolaria gainera")

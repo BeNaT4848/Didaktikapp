@@ -3,6 +3,7 @@ package com.example.errenteriaapp.components
 
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ fun InstructionText(
         text = "Sakatu ontzi egokia:",
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold,
-        color = Color(0xFF2E7D32),
+        color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(bottom = 8.dp)
     )
 }
