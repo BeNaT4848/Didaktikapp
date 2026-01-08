@@ -53,7 +53,7 @@ fun MapaScreen(
         }
 
         Button(
-            onClick = { navController.navigate(Routes.BERTSOJOLASA_SCREEN) },
+            onClick = { navController.navigate(Routes.AZALPENA_BERTSO) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
