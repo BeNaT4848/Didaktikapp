@@ -10,9 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -23,10 +21,12 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.errenteriaapp.components.GameResultDialogs
+import com.example.errenteriaapp.navigation.Routes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // Estado para cada celda del crucigrama
@@ -35,30 +35,49 @@ data class CeldaEstado(
     val columna: Int,
     val esNegra: Boolean = false,
     val numeroPista: Int? = null,
-    var letraUsuario: Char? = null, // Letra que introduce el usuario
-    val letraCorrecta: Char? = null, // Letra correcta (respuesta)
-    var esCorrecta: Boolean = false, // Si la letra del usuario es correcta
-    var estaEditando: Boolean = false // Si la celda está siendo editada
+    var letraUsuario: Char? = null,
+    val letraCorrecta: Char? = null,
+    var esCorrecta: Boolean = false,
+    var estaEditando: Boolean = false
 )
 
-// Definimos las respuestas correctas
+// Definición de palabras del crucigrama
+data class PalabraInfo(
+    val numero: Int,
+    val texto: String,
+    val direccion: String, // "HORIZONTAL" o "VERTICAL"
+    val filaInicio: Int,
+    val columnaInicio: Int,
+    val longitud: Int
+)
+
 class CrucigramaEstado {
-    val respuestasHorizontales = mapOf(
-        1 to "LEIZEA",    // Horizontal 1
-        3 to "ESTALAKTITA",      // Horizontal 3
-        5 to "ZUTABEA"    // Horizontal 5
+    val palabras = listOf(
+        PalabraInfo(1, "LEIZEA", "HORIZONTAL", 0, 2, 6),
+        PalabraInfo(3, "ESTALAKTITA", "VERTICAL", 0, 6, 11),
+        PalabraInfo(5, "ZUTABEA", "HORIZONTAL", 3, 0, 7),
+        PalabraInfo(2, "ESTALAGMITA", "VERTICAL", 0, 3, 11),
+        PalabraInfo(4, "RUPESTRE", "VERTICAL", 2, 1, 8)
     )
 
-    val respuestasVerticales = mapOf(
-        2 to "ESTALAGMITA",  // Vertical 2
-        4 to "RUPESTRE"     // Vertical 4
-    )
+    // Mapa para acceso rápido a celdas por coordenadas
+    val mapaCeldas = mutableMapOf<Pair<Int, Int>, PalabraInfo>()
+
+    init {
+        // Construir mapa de celdas
+        palabras.forEach { palabra ->
+            for (i in 0 until palabra.longitud) {
+                val fila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + i
+                val columna = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + i else palabra.columnaInicio
+                mapaCeldas[Pair(fila, columna)] = palabra
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun CrucigramaScreen(navController: NavController) {
-
     // Estado del crucigrama
     val celdas = remember { crearCeldasEstado().toMutableStateList() }
     val crucigramaEstado = remember { CrucigramaEstado() }
@@ -66,6 +85,20 @@ fun CrucigramaScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
+    var mostrarDialogoExito by remember { mutableStateOf(false) }
+    var direccionActual by remember { mutableStateOf("HORIZONTAL") }
+    var palabraActiva by remember { mutableStateOf<PalabraInfo?>(null) }
+
+    // Mapa de FocusRequesters para cada celda
+    val focusRequesters = remember {
+        mutableMapOf<Pair<Int, Int>, FocusRequester>().apply {
+            for (fila in 0 until 11) {
+                for (columna in 0 until 8) {
+                    this[Pair(fila, columna)] = FocusRequester()
+                }
+            }
+        }
+    }
 
     // Función para obtener una celda específica
     fun obtenerCelda(fila: Int, columna: Int): CeldaEstado? {
@@ -77,6 +110,272 @@ fun CrucigramaScreen(navController: NavController) {
         val index = celdas.indexOfFirst { it.fila == fila && it.columna == columna }
         if (index != -1) {
             celdas[index] = actualizacion(celdas[index])
+        }
+    }
+
+    fun encontrarCeldaAnterior(
+        fila: Int,
+        columna: Int,
+        palabra: PalabraInfo
+    ): Pair<Int, Int>? {
+        val posActual =
+            if (palabra.direccion == "HORIZONTAL")
+                columna - palabra.columnaInicio
+            else
+                fila - palabra.filaInicio
+
+        if (posActual <= 0) return null
+
+        val nuevaPos = posActual - 1
+
+        val newFila =
+            if (palabra.direccion == "HORIZONTAL")
+                palabra.filaInicio
+            else
+                palabra.filaInicio + nuevaPos
+
+        val newCol =
+            if (palabra.direccion == "HORIZONTAL")
+                palabra.columnaInicio + nuevaPos
+            else
+                palabra.columnaInicio
+
+        return Pair(newFila, newCol)
+    }
+
+    // Función para encontrar la palabra en una celda
+    fun encontrarPalabraEnCelda(fila: Int, columna: Int): PalabraInfo? {
+        return crucigramaEstado.mapaCeldas[Pair(fila, columna)]
+    }
+
+    // Función para encontrar la siguiente celda en la misma palabra
+    fun encontrarSiguienteCeldaEnPalabraActual(fila: Int, columna: Int): Pair<Int, Int>? {
+        val palabra = palabraActiva ?: return null
+
+        val posicionActual = if (palabra.direccion == "HORIZONTAL") {
+            columna - palabra.columnaInicio
+        } else {
+            fila - palabra.filaInicio
+        }
+
+        // Buscar siguiente celda vacía en la palabra
+        for (i in posicionActual + 1 until palabra.longitud) {
+            val nextFila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + i
+            val nextColumna = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + i else palabra.columnaInicio
+            val celda = obtenerCelda(nextFila, nextColumna)
+            if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
+                return Pair(nextFila, nextColumna)
+            }
+        }
+
+        // Si no hay después de la posición actual, buscar desde el inicio
+        for (i in 0 until posicionActual) {
+            val nextFila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + i
+            val nextColumna = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + i else palabra.columnaInicio
+            val celda = obtenerCelda(nextFila, nextColumna)
+            if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
+                return Pair(nextFila, nextColumna)
+            }
+        }
+
+        return null
+    }
+
+    fun palabraEstaCompleta(palabra: PalabraInfo): Boolean {
+        for (i in 0 until palabra.longitud) {
+            val fila = if (palabra.direccion == "HORIZONTAL")
+                palabra.filaInicio
+            else
+                palabra.filaInicio + i
+
+            val columna = if (palabra.direccion == "HORIZONTAL")
+                palabra.columnaInicio + i
+            else
+                palabra.columnaInicio
+
+            val celda = obtenerCelda(fila, columna)
+            if (celda?.letraUsuario == null) {
+                return false
+            }
+        }
+        return true
+    }
+
+    fun juegoCompletado(): Boolean {
+        return celdas
+            .filter { !it.esNegra }
+            .all { it.letraUsuario != null && it.esCorrecta }
+    }
+
+    // Función para buscar cualquier celda vacía
+    fun buscarYCualquierCeldaVacia() {
+        coroutineScope.launch {
+            delay(100)
+            val celdaVacia = celdas.firstOrNull { !it.esNegra && it.letraUsuario == null && !it.esCorrecta }
+            celdaVacia?.let {
+                focusRequesters[Pair(it.fila, it.columna)]?.requestFocus()
+                // Al buscar celda vacía, NO establecer palabraActiva automáticamente
+            } ?: run {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+            }
+        }
+    }
+
+    fun encontrarPalabraPorDireccion(
+        fila: Int,
+        columna: Int,
+        direccion: String
+    ): PalabraInfo? {
+        return crucigramaEstado.palabras.firstOrNull { palabra ->
+            palabra.direccion == direccion &&
+                    when (direccion) {
+                        "HORIZONTAL" ->
+                            fila == palabra.filaInicio &&
+                                    columna in palabra.columnaInicio until (palabra.columnaInicio + palabra.longitud)
+
+                        "VERTICAL" ->
+                            columna == palabra.columnaInicio &&
+                                    fila in palabra.filaInicio until (palabra.filaInicio + palabra.longitud)
+
+                        else -> false
+                    }
+        }
+    }
+
+    fun moverFocoASiguienteCelda(filaActual: Int, columnaActual: Int) {
+        coroutineScope.launch {
+            delay(50)
+
+            // PRIMERO: Intentar mover dentro de la palabra activa actual
+            if (palabraActiva != null) {
+                val siguiente = encontrarSiguienteCeldaEnPalabraActual(filaActual, columnaActual)
+                if (siguiente != null) {
+                    focusRequesters[siguiente]?.requestFocus()
+                    return@launch
+                } else {
+                    // Si no hay más celdas vacías en la palabra activa
+                    // Verificar si la palabra está completa
+                    if (palabraActiva?.let { palabraEstaCompleta(it) } == true) {
+                        // Palabra completada, buscar nueva palabra
+                        palabraActiva = null
+                    } else {
+                        // Palabra no completa pero sin celdas vacías, mantener foco
+                        focusRequesters[Pair(filaActual, columnaActual)]?.requestFocus()
+                        return@launch
+                    }
+                }
+            }
+
+            // SEGUNDO: Si no hay palabra activa, buscar en dirección actual
+            val palabraEnDireccion = encontrarPalabraPorDireccion(filaActual, columnaActual, direccionActual)
+            if (palabraEnDireccion != null) {
+                // Buscar siguiente celda en esta palabra
+                val posicionActual = if (palabraEnDireccion.direccion == "HORIZONTAL") {
+                    columnaActual - palabraEnDireccion.columnaInicio
+                } else {
+                    filaActual - palabraEnDireccion.filaInicio
+                }
+
+                for (i in posicionActual + 1 until palabraEnDireccion.longitud) {
+                    val nextFila = if (palabraEnDireccion.direccion == "HORIZONTAL")
+                        palabraEnDireccion.filaInicio
+                    else
+                        palabraEnDireccion.filaInicio + i
+
+                    val nextColumna = if (palabraEnDireccion.direccion == "HORIZONTAL")
+                        palabraEnDireccion.columnaInicio + i
+                    else
+                        palabraEnDireccion.columnaInicio
+
+                    val celda = obtenerCelda(nextFila, nextColumna)
+                    if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
+                        palabraActiva = palabraEnDireccion
+                        focusRequesters[Pair(nextFila, nextColumna)]?.requestFocus()
+                        return@launch
+                    }
+                }
+            }
+
+            // TERCERO: Si no se encontró nada, buscar cualquier celda vacía
+            buscarYCualquierCeldaVacia()
+        }
+    }
+
+    // MODIFICADA: Esta función solo debe usarse cuando el usuario hace clic
+    fun obtenerDireccionPreferidaAlHacerClic(fila: Int, columna: Int): String {
+        val tieneVertical = crucigramaEstado.palabras.any {
+            it.direccion == "VERTICAL" &&
+                    it.columnaInicio == columna &&
+                    fila in it.filaInicio until (it.filaInicio + it.longitud)
+        }
+
+        val tieneHorizontal = crucigramaEstado.palabras.any {
+            it.direccion == "HORIZONTAL" &&
+                    it.filaInicio == fila &&
+                    columna in it.columnaInicio until (it.columnaInicio + it.longitud)
+        }
+
+        // Si hay palabra activa, mantener su dirección
+        if (palabraActiva != null) {
+            // Verificar si la celda pertenece a la palabra activa
+            val perteneceAPalabraActiva = when (palabraActiva!!.direccion) {
+                "HORIZONTAL" ->
+                    fila == palabraActiva!!.filaInicio &&
+                            columna in palabraActiva!!.columnaInicio until (palabraActiva!!.columnaInicio + palabraActiva!!.longitud)
+
+                "VERTICAL" ->
+                    columna == palabraActiva!!.columnaInicio &&
+                            fila in palabraActiva!!.filaInicio until (palabraActiva!!.filaInicio + palabraActiva!!.longitud)
+
+                else -> false
+            }
+
+            if (perteneceAPalabraActiva) {
+                return palabraActiva!!.direccion
+            }
+        }
+
+        // Si no hay palabra activa o la celda no pertenece a ella
+        // Priorizar la dirección actual si la celda tiene una palabra en esa dirección
+        val tieneEnDireccionActual = when (direccionActual) {
+            "HORIZONTAL" -> tieneHorizontal
+            "VERTICAL" -> tieneVertical
+            else -> false
+        }
+
+        if (tieneEnDireccionActual) {
+            return direccionActual
+        }
+
+        // Si no, elegir la dirección disponible
+        return when {
+            tieneVertical -> "VERTICAL"
+            tieneHorizontal -> "HORIZONTAL"
+            else -> direccionActual
+        }
+    }
+
+    fun borrarYRetroceder(fila: Int, columna: Int) {
+        actualizarCelda(fila, columna) {
+            it.copy(letraUsuario = null, esCorrecta = false)
+        }
+
+        // Buscar celda anterior en la palabra activa
+        if (palabraActiva != null) {
+            val anterior = encontrarCeldaAnterior(fila, columna, palabraActiva!!)
+            if (anterior != null) {
+                focusRequesters[anterior]?.requestFocus()
+            }
+        } else {
+            // Si no hay palabra activa, buscar en dirección actual
+            val palabraEnDireccion = encontrarPalabraPorDireccion(fila, columna, direccionActual)
+            palabraEnDireccion?.let {
+                val anterior = encontrarCeldaAnterior(fila, columna, it)
+                if (anterior != null) {
+                    focusRequesters[anterior]?.requestFocus()
+                }
+            }
         }
     }
 
@@ -93,19 +392,17 @@ fun CrucigramaScreen(navController: NavController) {
             }
         }
 
-        // Mover automáticamente a la siguiente celda (si hay letra)
+        // Si se ingresó una letra
         if (nuevoCaracter != null) {
-            coroutineScope.launch {
-                // Buscar siguiente celda editable en la misma dirección
-                // Por simplicidad, vamos a la derecha
-                val siguienteColumna = columna + 1
-                val siguienteCelda = obtenerCelda(fila, siguienteColumna)
-
-                if (siguienteCelda != null && !siguienteCelda.esNegra) {
-                    // Aquí normalmente usaríamos un FocusRequester
-                    // Pero para mantenerlo simple, solo actualizamos
-                }
+            // Si no hay palabra activa, establecerla
+            if (palabraActiva == null) {
+                // Buscar una palabra en la dirección actual que contenga esta celda
+                palabraActiva = encontrarPalabraPorDireccion(fila, columna, direccionActual)
+                    ?: encontrarPalabraEnCelda(fila, columna)
             }
+
+            // Mover a siguiente celda
+            moverFocoASiguienteCelda(fila, columna)
         }
     }
 
@@ -122,14 +419,16 @@ fun CrucigramaScreen(navController: NavController) {
 
         // Verificar respuestas horizontales
         verificarHorizontal(1, 0, 2, "LEIZEA", celdas)
-        verificarHorizontal(3, 0, 6, "ESTALAKTITA", celdas)
         verificarHorizontal(5, 3, 0, "ZUTABEA", celdas)
-
-        // Verificar respuestas verticales
         verificarVertical(2, 0, 3, "ESTALAGMITA", celdas)
         verificarVertical(4, 2, 1, "RUPESTRE", celdas)
+        verificarVertical(3, 0, 6, "ESTALAKTITA", celdas)
 
         verificacionRealizada = true
+
+        if (juegoCompletado()) {
+            mostrarDialogoExito = true
+        }
     }
 
     Column(
@@ -142,7 +441,7 @@ fun CrucigramaScreen(navController: NavController) {
         // Título principal
         Text(
             text = "GURUTZEGRAMA",
-            fontSize = 32.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF2196F3),
             modifier = Modifier.padding(bottom = 4.dp, top = 10.dp)
@@ -150,18 +449,48 @@ fun CrucigramaScreen(navController: NavController) {
 
         Text(
             text = "Aizpitarte-Hitz gurutzatuak",
-            fontSize = 18.sp,
+            fontSize = 12.sp,
             color = Color.Gray,
             modifier = Modifier.padding(bottom = 20.dp)
         )
 
+
+
         // Tablero del crucigrama interactivo
         TableroCrucigramaInteractivo(
             celdas = celdas,
+            focusRequesters = focusRequesters,
             onLetraCambiada = { fila, columna, caracter ->
                 onLetraCambiada(fila, columna, caracter)
             },
-            focusManager = focusManager
+            onBorrar = { fila, columna ->
+                borrarYRetroceder(fila, columna)
+            },
+            focusManager = focusManager,
+            direccionActual = direccionActual,
+            onDireccionCambio = { nuevaDireccion ->
+                // Al cambiar dirección manualmente, limpiar palabra activa
+                direccionActual = nuevaDireccion
+                palabraActiva = null
+            },
+            obtenerDireccionPreferidaAlHacerClic = { fila, columna ->
+                obtenerDireccionPreferidaAlHacerClic(fila, columna)
+            },
+            onClickCelda = { fila, columna ->
+                // Al hacer clic en una celda:
+                // 1. Obtener dirección preferida para esta celda
+                val nuevaDireccion = obtenerDireccionPreferidaAlHacerClic(fila, columna)
+                if (nuevaDireccion != direccionActual) {
+                    direccionActual = nuevaDireccion
+                }
+
+                // 2. Establecer palabra activa basada en la nueva dirección
+                palabraActiva = encontrarPalabraPorDireccion(fila, columna, direccionActual)
+                    ?: encontrarPalabraEnCelda(fila, columna)
+
+                // 3. Enfocar la celda
+                focusRequesters[Pair(fila, columna)]?.requestFocus()
+            }
         )
 
         Spacer(modifier = Modifier.height(30.dp))
@@ -278,27 +607,39 @@ fun CrucigramaScreen(navController: NavController) {
             )
         }
 
-
-
         Spacer(modifier = Modifier.height(8.dp))
 
+        if (mostrarDialogoExito) {
+            GameResultDialogs(
+                showSuccess = true,
+                showWrong = false,
+                onDismissSuccess = {
+                    mostrarDialogoExito = false
+                },
+                onDismissWrong = {},
+                onSuccessButton = {
+                    mostrarDialogoExito = false
+                    navController.navigate(Routes.MAPA_SCREEN)
+                },
+                onWrongButton = {}
+            )
+        }
+
         // Indicador de estado
-        if (verificacionRealizada) {
-            val celdasCorrectas = celdas.count { it.esCorrecta }
-            val celdasTotales = celdas.count { !it.esNegra }
+        if (verificacionRealizada && !mostrarDialogoExito) {
+            val correctas = celdas.count { !it.esNegra && it.esCorrecta }
+            val totales = celdas.count { !it.esNegra }
 
             Text(
-                text = "Emaitza: $celdasCorrectas/$celdasTotales zuzen",
-                fontSize = 14.sp,
-                color = if (celdasCorrectas == celdasTotales) Color.Green else Color(0xFFFF9800),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
+                text = "Letras correctas: $correctas / $totales",
+                color = Color(0xFFFF9800),
+                fontWeight = FontWeight.Bold
             )
         }
 
         // Instrucción
         Text(
-            text = "Idatzi hizkiak gelaxketan eta sakatu 'EGIAZTATU' zure erantzunak egiaztatzeko",
+            text = "Haz clic en una palabra para activarla. La dirección se mantendrá hasta completarla.",
             fontSize = 12.sp,
             color = Color.Gray,
             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
@@ -314,8 +655,14 @@ fun CrucigramaScreen(navController: NavController) {
 @Composable
 fun TableroCrucigramaInteractivo(
     celdas: List<CeldaEstado>,
+    focusRequesters: Map<Pair<Int, Int>, FocusRequester>,
     onLetraCambiada: (Int, Int, Char?) -> Unit,
-    focusManager: androidx.compose.ui.focus.FocusManager
+    onBorrar: (Int, Int) -> Unit,
+    focusManager: FocusManager,
+    direccionActual: String,
+    onDireccionCambio: (String) -> Unit,
+    obtenerDireccionPreferidaAlHacerClic: (Int, Int) -> String,
+    onClickCelda: (Int, Int) -> Unit
 ) {
     // Organizar celdas en grid
     val grid = Array(11) { Array<CeldaEstado?>(8) { null } }
@@ -339,21 +686,19 @@ fun TableroCrucigramaInteractivo(
                     celda?.let {
                         CeldaInteractivaUI(
                             celda = it,
+                            focusRequester = focusRequesters[Pair(fila, columna)] ?: FocusRequester(),
                             onLetraCambiada = { caracter ->
                                 onLetraCambiada(fila, columna, caracter)
                             },
+                            onBorrar = {
+                                onBorrar(fila, columna)
+                            },
                             focusManager = focusManager,
-                            modifier = Modifier.combinedClickable(
-                                onClick = {
-                                    // No hacer nada en click simple
-                                },
-                                onDoubleClick = {
-                                    // Limpiar celda al doble click
-                                    if (!celda.esNegra && !celda.esCorrecta) {
-                                        onLetraCambiada(fila, columna, null)
-                                    }
-                                }
-                            )
+                            direccionActual = direccionActual,
+                            onDireccionCambio = onDireccionCambio,
+                            onClickCelda = {
+                                onClickCelda(fila, columna)
+                            }
                         )
                     }
                 }
@@ -366,11 +711,14 @@ fun TableroCrucigramaInteractivo(
 @Composable
 fun CeldaInteractivaUI(
     celda: CeldaEstado,
+    focusRequester: FocusRequester,
     onLetraCambiada: (Char?) -> Unit,
-    focusManager: androidx.compose.ui.focus.FocusManager,
-    modifier: Modifier = Modifier
+    onBorrar: () -> Unit,
+    focusManager: FocusManager,
+    direccionActual: String,
+    onDireccionCambio: (String) -> Unit,
+    onClickCelda: () -> Unit
 ) {
-    val focusRequester = remember { FocusRequester() }
     var textFieldValue by remember(celda.letraUsuario) {
         mutableStateOf(
             TextFieldValue(
@@ -383,22 +731,26 @@ fun CeldaInteractivaUI(
     // Determinar color de fondo
     val backgroundColor = when {
         celda.esNegra -> Color.Black
-        celda.esCorrecta -> Color(0xFFC8E6C9) // Verde claro para correcto
+        celda.esCorrecta -> Color(0xFFC8E6C9)
         else -> Color.White
     }
 
     // Determinar color del texto
     val textColor = when {
         celda.esNegra -> Color.White
-        celda.esCorrecta -> Color(0xFF2E7D32) // Verde oscuro
+        celda.esCorrecta -> Color(0xFF2E7D32)
         else -> Color.Black
     }
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .size(35.dp)
             .border(1.dp, Color.Gray)
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .clickable(
+                enabled = !celda.esNegra && !celda.esCorrecta,
+                onClick = onClickCelda
+            ),
         contentAlignment = Alignment.Center
     ) {
         // Número de pista
@@ -416,7 +768,6 @@ fun CeldaInteractivaUI(
 
         if (celda.esNegra) {
             // Celda negra - no editable
-            // No mostrar nada o podría mostrar algo decorativo
         } else if (celda.esCorrecta) {
             // Celda correcta - mostrar letra pero no editable
             Text(
@@ -431,16 +782,17 @@ fun CeldaInteractivaUI(
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { newValue ->
-                    // Solo permitir una letra
-                    if (newValue.text.length <= 1) {
-                        textFieldValue = newValue
-                        val caracter = newValue.text.uppercase().getOrNull(0)
-                        onLetraCambiada(caracter)
+                    // BACKSPACE
+                    if (newValue.text.isEmpty() && textFieldValue.text.isNotEmpty()) {
+                        textFieldValue = TextFieldValue("", TextRange(0))
+                        onBorrar()
+                        return@BasicTextField
+                    }
 
-                        // Si se ingresó una letra, mover focus
-                        if (caracter != null) {
-                            focusManager.moveFocus(FocusDirection.Right)
-                        }
+                    // UNA sola letra
+                    if (newValue.text.length == 1) {
+                        textFieldValue = newValue
+                        onLetraCambiada(newValue.text[0])
                     }
                 },
                 modifier = Modifier
@@ -459,9 +811,7 @@ fun CeldaInteractivaUI(
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
-                    onNext = {
-                        focusManager.moveFocus(FocusDirection.Right)
-                    },
+                    onNext = {},
                     onDone = {
                         focusManager.clearFocus()
                     }
@@ -474,7 +824,6 @@ fun CeldaInteractivaUI(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         innerTextField()
-                        // Placeholder si está vacío
                         if (textFieldValue.text.isEmpty()) {
                             Text(
                                 text = "",
@@ -529,16 +878,15 @@ fun PistaVisualItem(numero: Int, texto: String) {
     }
 }
 
-// Función para crear el estado inicial de las celdas
+// Función para crear el estado inicial de las celdas (igual que antes)
 fun crearCeldasEstado(): List<CeldaEstado> {
     val celdas = mutableListOf<CeldaEstado>()
-
 
     // Fila 0
     celdas.add(CeldaEstado(0, 0, esNegra = true))
     celdas.add(CeldaEstado(0, 1, esNegra = true))
     celdas.add(CeldaEstado(0, 2, esNegra = false, numeroPista = 1, letraCorrecta = 'L'))
-    celdas.add(CeldaEstado(0, 3, esNegra = false,  numeroPista = 2,letraCorrecta = 'E'))
+    celdas.add(CeldaEstado(0, 3, esNegra = false, numeroPista = 2, letraCorrecta = 'E'))
     celdas.add(CeldaEstado(0, 4, esNegra = false, letraCorrecta = 'I'))
     celdas.add(CeldaEstado(0, 5, esNegra = false, letraCorrecta = 'Z'))
     celdas.add(CeldaEstado(0, 6, esNegra = false, numeroPista = 3, letraCorrecta = 'E'))
@@ -584,10 +932,10 @@ fun crearCeldasEstado(): List<CeldaEstado> {
     celdas.add(CeldaEstado(4, 6, esNegra = false, letraCorrecta = 'L'))
     celdas.add(CeldaEstado(4, 7, esNegra = true))
 
-    // Fila 5 (corregida - había un error en tu código original)
+    // Fila 5
     celdas.add(CeldaEstado(5, 0, esNegra = true))
     celdas.add(CeldaEstado(5, 1, esNegra = false, letraCorrecta = 'E'))
-    celdas.add(CeldaEstado(5, 2, esNegra = true)) // Esta estaba duplicada en tu código
+    celdas.add(CeldaEstado(5, 2, esNegra = true))
     celdas.add(CeldaEstado(5, 3, esNegra = false, letraCorrecta = 'A'))
     celdas.add(CeldaEstado(5, 4, esNegra = true))
     celdas.add(CeldaEstado(5, 5, esNegra = true))
@@ -647,7 +995,7 @@ fun crearCeldasEstado(): List<CeldaEstado> {
     return celdas
 }
 
-// Funciones de verificación
+// Funciones de verificación (igual que antes)
 fun verificarHorizontal(
     numeroPista: Int,
     filaInicio: Int,
@@ -662,8 +1010,10 @@ fun verificarHorizontal(
         }
         if (index != -1) {
             val celda = celdas[index]
-            val esCorrecta = celda.letraUsuario?.equals(letra, ignoreCase = true) ?: false
-            celdas[index] = celda.copy(esCorrecta = esCorrecta)
+            val coincide = celda.letraUsuario?.equals(letra, ignoreCase = true) ?: false
+            celdas[index] = celda.copy(
+                esCorrecta = celda.esCorrecta || coincide
+            )
         }
         columna++
     }
