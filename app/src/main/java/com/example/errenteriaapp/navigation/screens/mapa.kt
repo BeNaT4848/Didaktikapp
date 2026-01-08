@@ -1,39 +1,59 @@
 package com.example.errenteriaapp.navigation.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenBertso
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+// Imports para BottomSheet
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.draw.clip
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapaScreen(
     navController: NavController
 ) {
+    // Estados
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBertsoSheet by remember { mutableStateOf(false) }
 
+    // Forzar altura al abrir
+    LaunchedEffect(showBertsoSheet) {
+        if (showBertsoSheet) {
+            delay(100) // Pequeño delay para asegurar renderizado
+            sheetState.expand() // Forzar expansión máxima
+        }
+    }
 
+    // Contenido principal
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
+            .background(Color(0xFFE8F5E9))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(20.dp))
+
+        // Botones (todos igual excepto Bertso)
         Button(
             onClick = { navController.navigate(Routes.ORDENATUJOLASA_SCREEN) },
             modifier = Modifier
@@ -45,15 +65,12 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Juego Ordenatu Jolasa",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Juego Ordenatu Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
+        // BOTÓN BERTSO - Abre Bottom Sheet
         Button(
-            onClick = { navController.navigate(Routes.AZALPENA_BERTSO) },
+            onClick = { showBertsoSheet = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -63,11 +80,7 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Juego Bertso Jolasa",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Juego Bertso Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
         Button(
@@ -81,11 +94,7 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Juego Basura",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Juego Basura", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
         Button(
@@ -99,12 +108,9 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Juego Letra Sopa",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Juego Letra Sopa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
+
         Button(
             onClick = { navController.navigate(Routes.SANMARKOS_SCREEN) },
             modifier = Modifier
@@ -116,12 +122,9 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "San Markoseko Galderak",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("San Markoseko Galderak", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
+
         Button(
             onClick = { navController.navigate(Routes.TAULAARRASTRAR_SCRENN) },
             modifier = Modifier
@@ -133,12 +136,9 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Taula Arrastatu Jolasa",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Taula Arrastatu Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
+
         Button(
             onClick = { navController.navigate(Routes.CRUCIGRAMA_SCREEN) },
             modifier = Modifier
@@ -150,11 +150,54 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text(
-                text = "Gurutzegrama Jokoa",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text("Gurutzegrama Jokoa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+
+    // BOTTOM SHEET
+    if (showBertsoSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBertsoSheet = false
+            },
+            sheetState = sheetState,
+            dragHandle = {
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .background(Color.Gray.copy(alpha = 0.5f))
+                        .clip(RoundedCornerShape(2.dp))
+                )
+            },
+            containerColor = Color(0xFF0E1B14),
+            scrimColor = Color.Black.copy(alpha = 0.4f)
+        ) {
+            // CONTENIDO CON ALTURA FORZADA
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.48f)
+            ) {
+                AzalpenBertso(
+                    onClose = {
+                        scope.launch {
+                            sheetState.hide()
+                            delay(300)
+                            showBertsoSheet = false
+                        }
+                    },
+                    onNavigateToGame = {
+                        scope.launch {
+                            sheetState.hide()
+                            delay(300)
+                            showBertsoSheet = false
+                            navController.navigate(Routes.BERTSOJOLASA_SCREEN)
+                        }
+                    }
+                )
+            }
         }
     }
 }

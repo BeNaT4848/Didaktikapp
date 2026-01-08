@@ -72,11 +72,6 @@ fun AppNavigation(
                 navController = navController
             )
         }
-        composable(Routes.AZALPENA_BERTSO) {
-            AzalpenBertso(
-                navController = navController
-            )
-        }
         composable(Routes.BERTSOJOLASA_SCREEN) {
             BertsoJolasaScreen(
                 navController = navController
