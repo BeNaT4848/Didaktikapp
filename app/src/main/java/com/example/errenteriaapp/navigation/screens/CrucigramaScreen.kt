@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,13 +45,13 @@ data class CeldaEstado(
 class CrucigramaEstado {
     val respuestasHorizontales = mapOf(
         1 to "LEIZEA",    // Horizontal 1
-        3 to "ESEA",      // Horizontal 3 (ejemplo)
+        3 to "ESTALAKTITA",      // Horizontal 3
         5 to "ZUTABEA"    // Horizontal 5
     )
 
     val respuestasVerticales = mapOf(
-        2 to "ARKEOLOGOA",  // Vertical 2
-        4 to "RENTERIA"     // Vertical 4
+        2 to "ESTALAGMITA",  // Vertical 2
+        4 to "RUPESTRE"     // Vertical 4
     )
 }
 
@@ -120,13 +121,13 @@ fun CrucigramaScreen(navController: NavController) {
         }
 
         // Verificar respuestas horizontales
-        verificarHorizontal(1, 0, 2, "LEIZEA", celdas)  // Horizontal 1: LEIZEA
-        verificarHorizontal(3, 0, 6, "ESEA", celdas)     // Horizontal 3: ESEA
-        verificarHorizontal(5, 3, 0, "ZUTABEA", celdas)  // Horizontal 5: ZUTABEA
+        verificarHorizontal(1, 0, 2, "LEIZEA", celdas)
+        verificarHorizontal(3, 0, 6, "ESTALAKTITA", celdas)
+        verificarHorizontal(5, 3, 0, "ZUTABEA", celdas)
 
         // Verificar respuestas verticales
-        verificarVertical(2, 2, 1, "RENTERIA", celdas)   // Vertical 2: RENTERIA
-        verificarVertical(4, 0, 2, "ARKELOGA", celdas)   // Vertical 4: ARKELOGA (modificado para coincidir)
+        verificarVertical(2, 0, 3, "ESTALAGMITA", celdas)
+        verificarVertical(4, 2, 1, "RUPESTRE", celdas)
 
         verificacionRealizada = true
     }
@@ -277,37 +278,7 @@ fun CrucigramaScreen(navController: NavController) {
             )
         }
 
-        // Botón para limpiar/resetear
-        Button(
-            onClick = {
-                // Resetear todas las celdas
-                celdas.forEachIndexed { index, celda ->
-                    if (!celda.esNegra) {
-                        celdas[index] = celda.copy(
-                            letraUsuario = null,
-                            esCorrecta = false
-                        )
-                    }
-                }
-                verificacionRealizada = false
-                keyboardController?.hide()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(top = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF757575),
-                contentColor = Color.White
-            ),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Text(
-                text = "GARBITU",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -562,12 +533,6 @@ fun PistaVisualItem(numero: Int, texto: String) {
 fun crearCeldasEstado(): List<CeldaEstado> {
     val celdas = mutableListOf<CeldaEstado>()
 
-    // Definir las letras correctas según tu crucigrama
-    // Horizontal 1: LEIZEA (fila 0, columna 2-7)
-    // Horizontal 3: ESEA (fila 0, columna 6-9? - ajustar según grid)
-    // Horizontal 5: ZUTABEA (fila 3, columna 0-7)
-    // Vertical 2: ARKEOLOGOA? (ajustar según grid)
-    // Vertical 4: RENTERIA (fila 2-9, columna 1)
 
     // Fila 0
     celdas.add(CeldaEstado(0, 0, esNegra = true))
