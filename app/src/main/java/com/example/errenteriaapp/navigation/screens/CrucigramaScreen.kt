@@ -214,7 +214,6 @@ fun CrucigramaScreen(navController: NavController) {
             val celdaVacia = celdas.firstOrNull { !it.esNegra && it.letraUsuario == null && !it.esCorrecta }
             celdaVacia?.let {
                 focusRequesters[Pair(it.fila, it.columna)]?.requestFocus()
-                // Al buscar celda vacía, NO establecer palabraActiva automáticamente
             } ?: run {
                 focusManager.clearFocus()
                 keyboardController?.hide()
@@ -240,6 +239,20 @@ fun CrucigramaScreen(navController: NavController) {
 
                         else -> false
                     }
+        }
+    }
+
+    fun irASiguientePalabra(fila: Int, columna: Int) {
+        val palabraActual = encontrarPalabraEnCelda(fila, columna) ?: return
+        val indiceActual = crucigramaEstado.palabras.indexOf(palabraActual)
+        val siguientePalabra = crucigramaEstado.palabras.getOrNull(indiceActual + 1)
+        siguientePalabra?.let { palabra ->
+            palabraActiva = palabra
+            direccionActual = palabra.direccion
+            // Mover foco a la primera celda de la siguiente palabra
+            val primerFila = palabra.filaInicio
+            val primerCol = palabra.columnaInicio
+            focusRequesters[Pair(primerFila, primerCol)]?.requestFocus()
         }
     }
 
@@ -302,7 +315,7 @@ fun CrucigramaScreen(navController: NavController) {
         }
     }
 
-    // MODIFICADA: Esta función solo debe usarse cuando el usuario hace clic
+    // Función para obtener dirección preferida al hacer clic
     fun obtenerDireccionPreferidaAlHacerClic(fila: Int, columna: Int): String {
         val tieneVertical = crucigramaEstado.palabras.any {
             it.direccion == "VERTICAL" &&
@@ -357,25 +370,31 @@ fun CrucigramaScreen(navController: NavController) {
     }
 
     fun borrarYRetroceder(fila: Int, columna: Int) {
-        actualizarCelda(fila, columna) {
-            it.copy(letraUsuario = null, esCorrecta = false)
+        val palabra = encontrarPalabraEnCelda(fila, columna) ?: return
+
+        // Posición relativa en la palabra
+        val posActual = if (palabra.direccion == "HORIZONTAL") {
+            columna - palabra.columnaInicio
+        } else {
+            fila - palabra.filaInicio
         }
 
-        // Buscar celda anterior en la palabra activa
-        if (palabraActiva != null) {
-            val anterior = encontrarCeldaAnterior(fila, columna, palabraActiva!!)
-            if (anterior != null) {
-                focusRequesters[anterior]?.requestFocus()
-            }
-        } else {
-            // Si no hay palabra activa, buscar en dirección actual
-            val palabraEnDireccion = encontrarPalabraPorDireccion(fila, columna, direccionActual)
-            palabraEnDireccion?.let {
-                val anterior = encontrarCeldaAnterior(fila, columna, it)
-                if (anterior != null) {
-                    focusRequesters[anterior]?.requestFocus()
-                }
-            }
+        // Si la celda actual tiene letra, borrarla
+        val celdaActual = obtenerCelda(fila, columna)
+        if (celdaActual?.letraUsuario != null) {
+            actualizarCelda(fila, columna) { it.copy(letraUsuario = null, esCorrecta = false) }
+            focusRequesters[Pair(fila, columna)]?.requestFocus()
+            return
+        }
+
+        // Si la celda actual está vacía, moverse hacia atrás hasta la primera letra de la palabra
+        if (posActual > 0) {
+            val nuevaPos = posActual - 1
+            val newFila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + nuevaPos
+            val newCol = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + nuevaPos else palabra.columnaInicio
+
+            actualizarCelda(newFila, newCol) { it.copy(letraUsuario = null, esCorrecta = false) }
+            focusRequesters[Pair(newFila, newCol)]?.requestFocus()
         }
     }
 
@@ -404,6 +423,11 @@ fun CrucigramaScreen(navController: NavController) {
             // Mover a siguiente celda
             moverFocoASiguienteCelda(fila, columna)
         }
+    }
+
+    // Función para manejar Enter
+    fun onEnterPressed(fila: Int, columna: Int) {
+        irASiguientePalabra(fila, columna)
     }
 
     // Función para verificar respuestas
@@ -454,8 +478,6 @@ fun CrucigramaScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 20.dp)
         )
 
-
-
         // Tablero del crucigrama interactivo
         TableroCrucigramaInteractivo(
             celdas = celdas,
@@ -465,6 +487,9 @@ fun CrucigramaScreen(navController: NavController) {
             },
             onBorrar = { fila, columna ->
                 borrarYRetroceder(fila, columna)
+            },
+            onEnterPressed = { fila, columna ->
+                onEnterPressed(fila, columna)
             },
             focusManager = focusManager,
             direccionActual = direccionActual,
@@ -658,6 +683,7 @@ fun TableroCrucigramaInteractivo(
     focusRequesters: Map<Pair<Int, Int>, FocusRequester>,
     onLetraCambiada: (Int, Int, Char?) -> Unit,
     onBorrar: (Int, Int) -> Unit,
+    onEnterPressed: (Int, Int) -> Unit,
     focusManager: FocusManager,
     direccionActual: String,
     onDireccionCambio: (String) -> Unit,
@@ -693,6 +719,9 @@ fun TableroCrucigramaInteractivo(
                             onBorrar = {
                                 onBorrar(fila, columna)
                             },
+                            onEnterPressed = {
+                                onEnterPressed(fila, columna)
+                            },
                             focusManager = focusManager,
                             direccionActual = direccionActual,
                             onDireccionCambio = onDireccionCambio,
@@ -714,6 +743,7 @@ fun CeldaInteractivaUI(
     focusRequester: FocusRequester,
     onLetraCambiada: (Char?) -> Unit,
     onBorrar: () -> Unit,
+    onEnterPressed: () -> Unit,
     focusManager: FocusManager,
     direccionActual: String,
     onDireccionCambio: (String) -> Unit,
@@ -811,7 +841,10 @@ fun CeldaInteractivaUI(
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
-                    onNext = {},
+                    onNext = {
+                        // Al presionar Enter/Next, ir a siguiente palabra
+                        onEnterPressed()
+                    },
                     onDone = {
                         focusManager.clearFocus()
                     }
