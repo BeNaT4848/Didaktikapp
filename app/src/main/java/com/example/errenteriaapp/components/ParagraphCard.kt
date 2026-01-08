@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,7 +22,6 @@ fun ParagraphCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
             .padding(horizontal = 12.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         border = BorderStroke(1.dp, borderColor)
@@ -33,4 +31,3 @@ fun ParagraphCard(
         }
     }
 }
-

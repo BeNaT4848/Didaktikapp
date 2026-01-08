@@ -14,11 +14,12 @@ import com.example.errenteriaapp.navigation.screens.BertsoJolasaScreen2
 import com.example.errenteriaapp.navigation.screens.HomeScreen
 import com.example.errenteriaapp.navigation.screens.LoginScreen
 import com.example.errenteriaapp.navigation.screens.MapaScreen
-import com.example.errenteriaapp.navigation.screens.PuzleScreen
+
 import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 import com.example.errenteriaapp.database.viewModel.LoginViewModel
 import com.example.errenteriaapp.database.viewModel.LoginViewModelFactory
 import com.example.errenteriaapp.database.AppDatabase
+import com.example.errenteriaapp.navigation.screens.CrucigramaScreen
 import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
@@ -80,8 +81,8 @@ fun AppNavigation(
                 navController = navController
             ) }
 
-        composable(Routes.PUZLE_SCREEN) {
-            PuzleScreen(
+        composable(Routes.CRUCIGRAMA_SCREEN) {
+            CrucigramaScreen(
                 navController = navController
             )
         }

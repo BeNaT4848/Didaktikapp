@@ -16,7 +16,7 @@ fun LoginTextField(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF4A460)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(Modifier.padding(20.dp)) {

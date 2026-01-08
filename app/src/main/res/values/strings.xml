@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Errenteriaapp</string>
+    <string name="com_google_android_gms_fonts_certs_dev" />
 </resources>

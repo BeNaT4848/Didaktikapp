@@ -53,7 +53,7 @@ fun LetraSopaScreen(
 
                 // Esperar y navegar al siguiente juego
                 delay(2000)
-                navController.navigate(Routes.PUZLE_SCREEN)
+                navController.navigate(Routes.CRUCIGRAMA_SCREEN)
             }
         }
     }

@@ -139,5 +139,22 @@ fun MapaScreen(
                 fontWeight = FontWeight.Bold
             )
         }
+        Button(
+            onClick = { navController.navigate(Routes.CRUCIGRAMA_SCREEN) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF9800),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(
+                text = "Gurutzegrama Jokoa",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
