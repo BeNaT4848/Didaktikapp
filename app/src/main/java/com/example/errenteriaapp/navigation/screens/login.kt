@@ -2,6 +2,7 @@ package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -62,7 +63,7 @@ fun LoginScreen(
 
                 if (errorMessage.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
-                    Text(text = errorMessage, color = Color(0xFFFF6B6B))
+                    Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
                 }
 
                 Spacer(Modifier.height(30.dp))
@@ -74,6 +75,7 @@ fun LoginScreen(
                 LoginPlaySection(
                     enabled = nombreCompleto.trim().isNotEmpty() && !isSaving.value,
                     isSaving = isSaving.value,
+                    showButton = nombreCompleto.trim().isNotEmpty(),
                     onClick = {
                         if (nombreCompleto.isBlank()) {
                             errorMessage = "Mesedez, idatzi zure izena eta abizena"

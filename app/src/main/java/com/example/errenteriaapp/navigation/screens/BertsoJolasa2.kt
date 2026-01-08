@@ -1,18 +1,20 @@
 package com.example.errenteriaapp.navigation.screens
 
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.components.ClickableTextFunction
 import com.example.errenteriaapp.components.ParagraphCard
 import com.example.errenteriaapp.components.showFeedbackToast
@@ -20,6 +22,7 @@ import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 
 @Composable
+@Suppress("UNUSED_PARAMETER")
 fun BertsoJolasaScreen2(
     navController: NavController,
     puntuakViewModel: PuntuakViewModel = viewModel()
@@ -42,12 +45,19 @@ fun BertsoJolasaScreen2(
         }
     }
 
-    LazyColumn(Modifier.fillMaxWidth()) {
-        item { Spacer(modifier = Modifier.height(30.dp)) }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .navigationBarsPadding(),
+        verticalArrangement = Arrangement.Center
+    ) {
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFFFF3E0),
-                borderColor = Color(0xFFDA8A00)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 2.dp)
             ) {
                 textoBertsoa("Iparragirre abila dela")
                 textoBertsoa("askori diot aditzen")
@@ -58,7 +68,6 @@ fun BertsoJolasaScreen2(
                     act = "zerbitzen",
                     bct = "serbitzen",
                     cct = "zerbitzaz",
-                    colorBox = 0xFFF9D9D9,
                     correctAnswer = "serbitzen",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -72,7 +81,6 @@ fun BertsoJolasaScreen2(
                     act = "biltzen",
                     bct = "biltzar",
                     cct = "biltzer",
-                    colorBox = 0xFFE0ECFF,
                     correctAnswer = "biltzen",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -84,11 +92,13 @@ fun BertsoJolasaScreen2(
                 textoBertsoa("gogua dedan orduan.")
             }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFEAF3FF),
-                borderColor = Color(0xFF0056A3)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp)
             ) {
                 textoBertsoa("Eskola ona eta musika")
                 textoBertsoa("bertsolaria gainera")
@@ -98,7 +108,6 @@ fun BertsoJolasaScreen2(
                     act = "gera",
                     bct = "gara",
                     cct = "geure",
-                    colorBox = 0xFFD1F5D3,
                     correctAnswer = "gera",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -112,7 +121,6 @@ fun BertsoJolasaScreen2(
                     act = "kalera",
                     bct = "etxera",
                     cct = "plazara",
-                    colorBox = 0xFFFFEDC2,
                     correctAnswer = "kalera",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -128,7 +136,6 @@ fun BertsoJolasaScreen2(
                     act = "bisita",
                     bct = "bisigu",
                     cct = "bisitan",
-                    colorBox = 0xFFE6CCFF,
                     correctAnswer = "bisita",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -137,7 +144,6 @@ fun BertsoJolasaScreen2(
                 )
             }
         }
-        item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
@@ -145,5 +151,5 @@ fun BertsoJolasaScreen2(
 @Preview(showBackground = true)
 @Composable
 private fun BertsoJolasa2Preview() {
-    BertsoJolasaScreen2(navController = rememberNavController())
+    BertsoJolasaScreen2(rememberNavController())
 }

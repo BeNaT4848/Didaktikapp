@@ -1,14 +1,14 @@
 package com.example.errenteriaapp.navigation.screens
 
 
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,12 +46,16 @@ fun BertsoJolasaScreen(
         }
     }
 
-    LazyColumn(Modifier.fillMaxWidth()) {
-        item { Spacer(modifier = Modifier.padding(12.dp)) }
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+        contentPadding = PaddingValues(vertical = 60.dp)
+    ) {
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFFFF3E0),
-                borderColor = Color(0xFFDA8A00)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa("Milla zortziehun eta hirurogeita")
                 ClickableTextFunction(
@@ -60,7 +64,6 @@ fun BertsoJolasaScreen(
                     act = "abenduan",
                     bct = "urrian",
                     cct = "martxoan",
-                    colorBox = 0xFFFFC1C1,
                     correctAnswer = "urrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -79,7 +82,6 @@ fun BertsoJolasaScreen(
                     act = "aurrian",
                     bct = "barruan",
                     cct = "atzean",
-                    colorBox = 0xFFBDFFC0,
                     correctAnswer = "aurrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -90,11 +92,11 @@ fun BertsoJolasaScreen(
                 textoBertsoa("lengo ohitura zaharrean.")
             }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFEAF3FF),
-                borderColor = Color(0xFF0056A3)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa(
                     textobertsoa = "Joxe Migelek atera zuen\n" +
@@ -105,9 +107,8 @@ fun BertsoJolasaScreen(
                     fulltext = "guk egin behar _____.",
                     clickableword = "_____",
                     act = "doguna",
-                    bct = "daukaguna",
+                    bct = "dituena",
                     cct = "zerbait",
-                    colorBox = 0xFFBDCEFF,
                     correctAnswer = "doguna",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -119,10 +120,9 @@ fun BertsoJolasaScreen(
                 ClickableTextFunction(
                     fulltext = "gaur da beraren _____!",
                     clickableword = "_____!",
-                    act = "ospakizuna",
+                    act = "izuna",
                     bct = "ohorea",
                     cct = "eguna",
-                    colorBox = 0xFFC5904E,
                     correctAnswer = "eguna",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -136,22 +136,20 @@ fun BertsoJolasaScreen(
                 )
             }
         }
-        item { Spacer(modifier = Modifier.height(12.dp)) }
         item {
             ParagraphCard(
-                backgroundColor = Color(0xFFDFF8E8),
-                borderColor = Color(0xFF0B7D3E)
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                borderColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth().navigationBarsPadding()
             ) {
                 textoBertsoa("(…)")
-                Spacer(modifier = Modifier.height(10.dp))
                 textoBertsoa("Hirurogeita hamar bat urte")
                 ClickableTextFunction(
                     fulltext = "badut _____.",
                     clickableword = "_____",
-                    act = "sorbaldan",
+                    act = "buruan",
                     bct = "bizkarrian",
                     cct = "bularrean",
-                    colorBox = 0xFFB6B6B6,
                     correctAnswer = "bizkarrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -164,9 +162,8 @@ fun BertsoJolasaScreen(
                     fulltext = "ezin utzi _____.",
                     clickableword = "_____",
                     act = "bidean",
-                    bct = "kanpoan",
+                    bct = "etxean",
                     cct = "bazterrian",
-                    colorBox = 0xFFE0FF6F,
                     correctAnswer = "bazterrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
@@ -185,14 +182,16 @@ fun BertsoJolasaScreen(
                     act = "onean",
                     bct = "txarrian",
                     cct = "erdian",
-                    colorBox = 0xFFFFE4C4,
                     correctAnswer = "txarrian",
                     onCorrect = { puntuakViewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     isLocked = hasNavigated,
                     attemptKey = attempt,
                     resetOnAttempt = true
+
                 )
+
+
             }
         }
     }
