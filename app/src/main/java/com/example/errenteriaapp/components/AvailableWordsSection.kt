@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,15 +28,16 @@ fun AvailableWordsSection(
         text = "Hitzak arrastatu:",
         fontSize = 18.sp,
         fontWeight = FontWeight.Medium,
-        modifier = Modifier.padding(bottom = 8.dp)
+        modifier = Modifier.padding(bottom = 8.dp),
+        color = MaterialTheme.colorScheme.primary
     )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
+            .height(105.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.tertiary)
             .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
             .padding(vertical = 8.dp)
     ) {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,7 +43,7 @@ fun DraggableWordItem(
             .size(140.dp, 80.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFFFFF3E0))
-            .border(2.dp, Color(0xFFFF9800), RoundedCornerShape(8.dp))
+            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
             .onGloballyPositioned { coords ->
                 bounds = coords.boundsInWindow()
             }

@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +37,7 @@ import com.example.errenteriaapp.components.GameSlot
 import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.navigation.Routes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.draw.clip
 
@@ -201,7 +201,7 @@ fun OrdenatuJolasaScreen(
                 text = "Abenturarekin jarraitzeko gutxienez 3 ondo izan behar dituzu.",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1976D2),
+                color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()

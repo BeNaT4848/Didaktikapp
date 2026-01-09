@@ -1,6 +1,7 @@
 package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +17,7 @@ fun HeaderTaulaArrastrar() {
         text = "Hitzak Tauletan Sailkatu",
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold,
-        color = Color(0xFFD32F2F),
+        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(vertical = 16.dp)
     )
 }

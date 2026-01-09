@@ -4,6 +4,7 @@ package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,7 +23,7 @@ fun SopaHeader(
     ) {
         Text(
             text = "ZENTENARIOA",
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 21.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 9.dp, bottom = 2.dp)
@@ -30,7 +31,7 @@ fun SopaHeader(
 
         Text(
             text = "Ze musika tresna entzun dira?",
-            color = Color.DarkGray,
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
             fontSize = 14.sp,
             modifier = Modifier.padding(bottom = 13.dp)
         )

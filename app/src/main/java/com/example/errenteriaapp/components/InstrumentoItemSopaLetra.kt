@@ -27,7 +27,7 @@ fun InstrumentoItem(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (encontrado) color.copy(alpha = 0.2f) else Color.Blue
+            containerColor = if (encontrado) color.copy(alpha = 0.2f) else MaterialTheme.colorScheme.onPrimary
         ),
         border = BorderStroke(
             1.dp,
@@ -60,7 +60,7 @@ fun InstrumentoItem(
             // Nombre del instrumento
             Text(
                 text = nombre,
-                color = if (encontrado) color else Color.White,
+                color = Color.Black,
                 fontWeight = if (encontrado) FontWeight.Bold else FontWeight.Normal,
                 fontSize = 12.sp,
                 modifier = Modifier.weight(1f)

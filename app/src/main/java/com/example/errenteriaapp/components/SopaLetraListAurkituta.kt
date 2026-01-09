@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,7 +24,7 @@ fun SopaPalabrasList(
     modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.Gray),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
         modifier = modifier
             .fillMaxWidth()
             .height(280.dp)
@@ -64,7 +65,7 @@ fun SopaPalabrasList(
                                     InstrumentoItem(
                                         nombre = palabra.texto,
                                         encontrado = palabrasEncontradas.contains(palabra.texto),
-                                        color = palabra.color
+                                        color = Color.Black
                                     )
                                 }
                             } else {

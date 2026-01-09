@@ -3,6 +3,7 @@ package com.example.errenteriaapp.components
 
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ fun PapresaTitle(
         text = "PAPRESA JOLASA",
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(16.dp)
             .padding(top = 30.dp)
     )

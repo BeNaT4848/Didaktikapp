@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,7 +46,7 @@ fun WasteContainersRow(
                     .weight(1f)
                     .height(120.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.primary)
                     .border(
                         3.dp,
                         if (currentWasteItem?.let { userAnswers[it.id] == category } == true)
@@ -98,7 +99,7 @@ fun WasteContainersRow(
                         WasteCategory.BLACK -> "Birziklatu\nezinak"
                     },
                     fontSize = 9.sp,
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                     lineHeight = 10.sp,
                     maxLines = 2,
                     textAlign = TextAlign.Center
