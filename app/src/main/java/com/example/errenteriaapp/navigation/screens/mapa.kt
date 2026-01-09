@@ -161,16 +161,7 @@ fun MapaScreen(
                 showBertsoSheet = false
             },
             sheetState = sheetState,
-            dragHandle = {
-                Box(
-                    modifier = Modifier
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .background(Color.Gray.copy(alpha = 0.5f))
-                        .clip(RoundedCornerShape(2.dp))
-                )
-            },
+            dragHandle = null,
             containerColor = Color(0xFF0E1B14),
             scrimColor = Color.Black.copy(alpha = 0.4f)
         ) {
