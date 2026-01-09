@@ -4,7 +4,6 @@ object Routes {
     const val HOME_SCREEN = "home_screen"
     const val LOGIN_SCREEN = "login_screen"
     const val MAPA_SCREEN = "mapa_screen"
-    const val AZALPENA_BERTSO = "azalpena_bertso"
     const val BERTSOJOLASA_SCREEN = "bertso_jolasa_screen"
     const val BERTSOJOLASA2_SCREEN = "bertso_jolasa2_screen"
     const val CRUCIGRAMA_SCREEN = "crucigrama_screen"
