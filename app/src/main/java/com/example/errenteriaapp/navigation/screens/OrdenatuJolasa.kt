@@ -201,7 +201,7 @@ fun OrdenatuJolasaScreen(
                 text = "Abenturarekin jarraitzeko gutxienez 3 ondo izan behar dituzu.",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
