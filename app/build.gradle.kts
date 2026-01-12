@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.ui)
+    implementation(libs.play.services.maps)
+    implementation(libs.androidx.preference.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,6 +80,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.2.1")
     implementation("androidx.media3:media3-ui:1.2.1")
     implementation("androidx.media3:media3-exoplayer-dash:1.2.1")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
 
 
 

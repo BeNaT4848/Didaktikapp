@@ -13,4 +13,7 @@ object Routes {
     const val SANMARKOS_SCREEN = "san_markos_screen"
     const val TAULAARRASTRAR_SCRENN = "taula_arrastrar_screen"
 
+    const val GPS_SCREEN = "gps_screen"
+
+
 }

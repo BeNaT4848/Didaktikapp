@@ -21,6 +21,7 @@ import com.example.errenteriaapp.database.viewModel.LoginViewModelFactory
 import com.example.errenteriaapp.database.AppDatabase
 import com.example.errenteriaapp.navigation.screens.CrucigramaScreen
 import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
+import com.example.errenteriaapp.navigation.screens.MapaOsmScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
@@ -110,6 +111,11 @@ fun AppNavigation(
         }
         composable(Routes.TAULAARRASTRAR_SCRENN) {
             TaulaArrastrarScreen(
+                navController = navController
+            )
+        }
+        composable(Routes.GPS_SCREEN) {
+            MapaOsmScreen(
                 navController = navController
             )
         }
