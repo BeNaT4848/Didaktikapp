@@ -1,10 +1,11 @@
 package com.example.errenteriaapp.navigation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -17,7 +18,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.errenteriaapp.components.ClickableTextFunction
 import com.example.errenteriaapp.components.ParagraphCard
-import com.example.errenteriaapp.components.showFeedbackToast
 import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 
@@ -36,10 +36,8 @@ fun BertsoJolasaScreen2(
         onAfterAnswer?.invoke()
         if (answered == totalItems) {
             if (puntuakViewModel.correctCount > 3) {
-                showFeedbackToast(context, "Zorionak! Bertsoa osatu duzu", true)
                 puntuakViewModel.restartAttempt()
             } else {
-                showFeedbackToast(context, "Saiatu berriro!", false)
                 puntuakViewModel.restartAttempt()
             }
         }
@@ -48,16 +46,17 @@ fun BertsoJolasaScreen2(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .navigationBarsPadding(),
-        verticalArrangement = Arrangement.Center
+        // más espacio entre cards
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 24.dp)
     ) {
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 borderColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa("Iparragirre abila dela")
                 textoBertsoa("askori diot aditzen")
@@ -96,9 +95,7 @@ fun BertsoJolasaScreen2(
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 borderColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 2.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 textoBertsoa("Eskola ona eta musika")
                 textoBertsoa("bertsolaria gainera")

@@ -25,6 +25,7 @@ import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
 import com.example.errenteriaapp.navigation.screens.TaulaArrastrarScreen
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenBertso
 
 @Composable
 fun AppNavigation(

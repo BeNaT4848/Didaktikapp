@@ -51,9 +51,7 @@ fun ClickableTextFunction(
         selectedOption = option
         val isCorrect = option == correctAnswer
         isCorrectSelection = isCorrect
-        val message = if (isCorrect) "Ongi" else "Erantzun Okerrra"
 
-        showFeedbackToast(context, message, isCorrect)
 
         if (isCorrect) {
             onCorrect?.invoke()

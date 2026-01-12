@@ -1,6 +1,7 @@
 package com.example.errenteriaapp.navigation.screens
 
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +19,6 @@ import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.components.ClickableTextFunction
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.components.ParagraphCard
-import com.example.errenteriaapp.components.showFeedbackToast
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 import com.example.errenteriaapp.navigation.Routes
 
@@ -40,15 +40,17 @@ fun BertsoJolasaScreen(
                 puntuakViewModel.markNavigated()
                 navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
             } else if (!hasNavigated) {
-                showFeedbackToast(context, "Saiatu berriro!", false)
                 puntuakViewModel.restartAttempt()
             }
         }
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(3.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background),
+        // más espacio entre cards
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 60.dp)
     ) {
         item {
@@ -136,6 +138,7 @@ fun BertsoJolasaScreen(
                 )
             }
         }
+
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
