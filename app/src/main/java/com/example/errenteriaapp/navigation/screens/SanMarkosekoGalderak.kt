@@ -93,7 +93,7 @@ fun SanMarkosekoGalderak(
             // Cabecera
             QuizHeader()
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             // Progreso visual
             ProgressIndicator(
