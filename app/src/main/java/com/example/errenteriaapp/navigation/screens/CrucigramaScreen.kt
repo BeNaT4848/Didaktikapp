@@ -12,6 +12,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
@@ -61,15 +62,23 @@ class CrucigramaEstado {
     )
 
     // Mapa para acceso rápido a celdas por coordenadas
-    val mapaCeldas = mutableMapOf<Pair<Int, Int>, PalabraInfo>()
+    val mapaCeldas = mutableMapOf<Pair<Int, Int>, MutableList<PalabraInfo>>()
+
+    // Mapa para acceso rápido a palabras por número
+    val mapaPalabrasPorNumero = mutableMapOf<Int, PalabraInfo>()
 
     init {
-        // Construir mapa de celdas
+        // Construir mapa de celdas (una celda puede tener múltiples palabras)
         palabras.forEach { palabra ->
+            mapaPalabrasPorNumero[palabra.numero] = palabra
             for (i in 0 until palabra.longitud) {
                 val fila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + i
                 val columna = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + i else palabra.columnaInicio
-                mapaCeldas[Pair(fila, columna)] = palabra
+                val key = Pair(fila, columna)
+                if (!mapaCeldas.containsKey(key)) {
+                    mapaCeldas[key] = mutableListOf()
+                }
+                mapaCeldas[key]?.add(palabra)
             }
         }
     }
@@ -88,6 +97,8 @@ fun CrucigramaScreen(navController: NavController) {
     var mostrarDialogoExito by remember { mutableStateOf(false) }
     var direccionActual by remember { mutableStateOf("HORIZONTAL") }
     var palabraActiva by remember { mutableStateOf<PalabraInfo?>(null) }
+    val context = LocalContext.current
+    var mostrarInstruccionesIniciales by remember { mutableStateOf(true) }
 
     // Mapa de FocusRequesters para cada celda
     val focusRequesters = remember {
@@ -113,72 +124,9 @@ fun CrucigramaScreen(navController: NavController) {
         }
     }
 
-    fun encontrarCeldaAnterior(
-        fila: Int,
-        columna: Int,
-        palabra: PalabraInfo
-    ): Pair<Int, Int>? {
-        val posActual =
-            if (palabra.direccion == "HORIZONTAL")
-                columna - palabra.columnaInicio
-            else
-                fila - palabra.filaInicio
-
-        if (posActual <= 0) return null
-
-        val nuevaPos = posActual - 1
-
-        val newFila =
-            if (palabra.direccion == "HORIZONTAL")
-                palabra.filaInicio
-            else
-                palabra.filaInicio + nuevaPos
-
-        val newCol =
-            if (palabra.direccion == "HORIZONTAL")
-                palabra.columnaInicio + nuevaPos
-            else
-                palabra.columnaInicio
-
-        return Pair(newFila, newCol)
-    }
-
     // Función para encontrar la palabra en una celda
-    fun encontrarPalabraEnCelda(fila: Int, columna: Int): PalabraInfo? {
-        return crucigramaEstado.mapaCeldas[Pair(fila, columna)]
-    }
-
-    // Función para encontrar la siguiente celda en la misma palabra
-    fun encontrarSiguienteCeldaEnPalabraActual(fila: Int, columna: Int): Pair<Int, Int>? {
-        val palabra = palabraActiva ?: return null
-
-        val posicionActual = if (palabra.direccion == "HORIZONTAL") {
-            columna - palabra.columnaInicio
-        } else {
-            fila - palabra.filaInicio
-        }
-
-        // Buscar siguiente celda vacía en la palabra
-        for (i in posicionActual + 1 until palabra.longitud) {
-            val nextFila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + i
-            val nextColumna = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + i else palabra.columnaInicio
-            val celda = obtenerCelda(nextFila, nextColumna)
-            if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
-                return Pair(nextFila, nextColumna)
-            }
-        }
-
-        // Si no hay después de la posición actual, buscar desde el inicio
-        for (i in 0 until posicionActual) {
-            val nextFila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + i
-            val nextColumna = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + i else palabra.columnaInicio
-            val celda = obtenerCelda(nextFila, nextColumna)
-            if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
-                return Pair(nextFila, nextColumna)
-            }
-        }
-
-        return null
+    fun encontrarPalabraEnCelda(fila: Int, columna: Int): List<PalabraInfo> {
+        return crucigramaEstado.mapaCeldas[Pair(fila, columna)] ?: emptyList()
     }
 
     fun palabraEstaCompleta(palabra: PalabraInfo): Boolean {
@@ -207,170 +155,147 @@ fun CrucigramaScreen(navController: NavController) {
             .all { it.letraUsuario != null && it.esCorrecta }
     }
 
-    // Función para buscar cualquier celda vacía
-    fun buscarYCualquierCeldaVacia() {
+    // Función para activar una palabra por su número
+    fun activarPalabraPorNumero(numero: Int) {
         coroutineScope.launch {
             delay(100)
-            val celdaVacia = celdas.firstOrNull { !it.esNegra && it.letraUsuario == null && !it.esCorrecta }
-            celdaVacia?.let {
-                focusRequesters[Pair(it.fila, it.columna)]?.requestFocus()
-            } ?: run {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-            }
-        }
-    }
 
-    fun encontrarPalabraPorDireccion(
-        fila: Int,
-        columna: Int,
-        direccion: String
-    ): PalabraInfo? {
-        return crucigramaEstado.palabras.firstOrNull { palabra ->
-            palabra.direccion == direccion &&
-                    when (direccion) {
-                        "HORIZONTAL" ->
-                            fila == palabra.filaInicio &&
-                                    columna in palabra.columnaInicio until (palabra.columnaInicio + palabra.longitud)
+            // Buscar la palabra por número
+            val palabra = crucigramaEstado.mapaPalabrasPorNumero[numero]
+            palabra?.let {
+                // Si la misma palabra ya está activa, desactivarla
+                if (palabraActiva?.numero == numero) {
+                    palabraActiva = null
+                } else {
+                    // Activar la nueva palabra
+                    palabraActiva = it
+                    direccionActual = it.direccion
 
-                        "VERTICAL" ->
-                            columna == palabra.columnaInicio &&
-                                    fila in palabra.filaInicio until (palabra.filaInicio + palabra.longitud)
+                    // Buscar la primera celda vacía de esta palabra y enfocarla
+                    for (i in 0 until it.longitud) {
+                        val fila = if (it.direccion == "HORIZONTAL") it.filaInicio else it.filaInicio + i
+                        val columna = if (it.direccion == "HORIZONTAL") it.columnaInicio + i else it.columnaInicio
 
-                        else -> false
+                        val celda = obtenerCelda(fila, columna)
+                        if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
+                            focusRequesters[Pair(fila, columna)]?.requestFocus()
+                            return@let
+                        }
                     }
-        }
-    }
 
-    fun irASiguientePalabra(fila: Int, columna: Int) {
-        val palabraActual = encontrarPalabraEnCelda(fila, columna) ?: return
-        val indiceActual = crucigramaEstado.palabras.indexOf(palabraActual)
-        val siguientePalabra = crucigramaEstado.palabras.getOrNull(indiceActual + 1)
-        siguientePalabra?.let { palabra ->
-            palabraActiva = palabra
-            direccionActual = palabra.direccion
-            // Mover foco a la primera celda de la siguiente palabra
-            val primerFila = palabra.filaInicio
-            val primerCol = palabra.columnaInicio
-            focusRequesters[Pair(primerFila, primerCol)]?.requestFocus()
+                    // Si todas las celdas están llenas, enfocar la primera
+                    val primeraFila = it.filaInicio
+                    val primeraColumna = it.columnaInicio
+                    focusRequesters[Pair(primeraFila, primeraColumna)]?.requestFocus()
+                }
+            }
         }
     }
 
     fun moverFocoASiguienteCelda(filaActual: Int, columnaActual: Int) {
         coroutineScope.launch {
-            delay(50)
+            delay(30)
 
-            // PRIMERO: Intentar mover dentro de la palabra activa actual
-            if (palabraActiva != null) {
-                val siguiente = encontrarSiguienteCeldaEnPalabraActual(filaActual, columnaActual)
-                if (siguiente != null) {
-                    focusRequesters[siguiente]?.requestFocus()
+            val palabra = palabraActiva ?: return@launch
+
+            val posActual = if (palabra.direccion == "HORIZONTAL") {
+                columnaActual - palabra.columnaInicio
+            } else {
+                filaActual - palabra.filaInicio
+            }
+
+            // Buscar la siguiente casilla VACÍA dentro de la palabra
+            for (i in posActual + 1 until palabra.longitud) {
+                val nextFila = if (palabra.direccion == "HORIZONTAL") {
+                    palabra.filaInicio
+                } else {
+                    palabra.filaInicio + i
+                }
+
+                val nextColumna = if (palabra.direccion == "HORIZONTAL") {
+                    palabra.columnaInicio + i
+                } else {
+                    palabra.columnaInicio
+                }
+
+                val celda = obtenerCelda(nextFila, nextColumna)
+
+                // Saltar celdas con letra
+                if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
+                    focusRequesters[Pair(nextFila, nextColumna)]?.requestFocus()
                     return@launch
-                } else {
-                    // Si no hay más celdas vacías en la palabra activa
-                    // Verificar si la palabra está completa
-                    if (palabraActiva?.let { palabraEstaCompleta(it) } == true) {
-                        // Palabra completada, buscar nueva palabra
-                        palabraActiva = null
-                    } else {
-                        // Palabra no completa pero sin celdas vacías, mantener foco
-                        focusRequesters[Pair(filaActual, columnaActual)]?.requestFocus()
-                        return@launch
-                    }
                 }
             }
-
-            // SEGUNDO: Si no hay palabra activa, buscar en dirección actual
-            val palabraEnDireccion = encontrarPalabraPorDireccion(filaActual, columnaActual, direccionActual)
-            if (palabraEnDireccion != null) {
-                // Buscar siguiente celda en esta palabra
-                val posicionActual = if (palabraEnDireccion.direccion == "HORIZONTAL") {
-                    columnaActual - palabraEnDireccion.columnaInicio
-                } else {
-                    filaActual - palabraEnDireccion.filaInicio
-                }
-
-                for (i in posicionActual + 1 until palabraEnDireccion.longitud) {
-                    val nextFila = if (palabraEnDireccion.direccion == "HORIZONTAL")
-                        palabraEnDireccion.filaInicio
-                    else
-                        palabraEnDireccion.filaInicio + i
-
-                    val nextColumna = if (palabraEnDireccion.direccion == "HORIZONTAL")
-                        palabraEnDireccion.columnaInicio + i
-                    else
-                        palabraEnDireccion.columnaInicio
-
-                    val celda = obtenerCelda(nextFila, nextColumna)
-                    if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
-                        palabraActiva = palabraEnDireccion
-                        focusRequesters[Pair(nextFila, nextColumna)]?.requestFocus()
-                        return@launch
-                    }
-                }
-            }
-
-            // TERCERO: Si no se encontró nada, buscar cualquier celda vacía
-            buscarYCualquierCeldaVacia()
         }
     }
 
-    // Función para obtener dirección preferida al hacer clic
-    fun obtenerDireccionPreferidaAlHacerClic(fila: Int, columna: Int): String {
-        val tieneVertical = crucigramaEstado.palabras.any {
-            it.direccion == "VERTICAL" &&
-                    it.columnaInicio == columna &&
-                    fila in it.filaInicio until (it.filaInicio + it.longitud)
+    fun onLetraCambiada(fila: Int, columna: Int, nuevoCaracter: Char?) {
+        if (nuevoCaracter == null) return
+
+        // 1. Actualizar letra
+        actualizarCelda(fila, columna) { celda ->
+            if (!celda.esNegra && !celda.esCorrecta) {
+                celda.copy(
+                    letraUsuario = nuevoCaracter.uppercaseChar(),
+                    esCorrecta = false
+                )
+            } else celda
         }
 
-        val tieneHorizontal = crucigramaEstado.palabras.any {
-            it.direccion == "HORIZONTAL" &&
-                    it.filaInicio == fila &&
-                    columna in it.columnaInicio until (it.columnaInicio + it.longitud)
+        // 2. Avanzar foco SOLO si hay palabra activa
+        palabraActiva?.let { palabra ->
+            moverFocoASiguienteCelda(fila, columna)
         }
+    }
 
-        // Si hay palabra activa, mantener su dirección
-        if (palabraActiva != null) {
-            // Verificar si la celda pertenece a la palabra activa
-            val perteneceAPalabraActiva = when (palabraActiva!!.direccion) {
-                "HORIZONTAL" ->
-                    fila == palabraActiva!!.filaInicio &&
-                            columna in palabraActiva!!.columnaInicio until (palabraActiva!!.columnaInicio + palabraActiva!!.longitud)
+    fun onEnterPressed(fila: Int, columna: Int) {
+        // No hacer nada especial con Enter
+    }
 
-                "VERTICAL" ->
-                    columna == palabraActiva!!.columnaInicio &&
-                            fila in palabraActiva!!.filaInicio until (palabraActiva!!.filaInicio + palabraActiva!!.longitud)
+    fun moverFocoACeldaAnterior(filaActual: Int, columnaActual: Int) {
+        coroutineScope.launch {
+            delay(30)
 
-                else -> false
+            val palabra = palabraActiva ?: return@launch
+
+            val posActual = if (palabra.direccion == "HORIZONTAL") {
+                columnaActual - palabra.columnaInicio
+            } else {
+                filaActual - palabra.filaInicio
             }
 
-            if (perteneceAPalabraActiva) {
-                return palabraActiva!!.direccion
+            // Buscar la casilla anterior (aunque esté vacía)
+            if (posActual > 0) {
+                val prevFila = if (palabra.direccion == "HORIZONTAL") {
+                    palabra.filaInicio
+                } else {
+                    palabra.filaInicio + (posActual - 1)
+                }
+
+                val prevColumna = if (palabra.direccion == "HORIZONTAL") {
+                    palabra.columnaInicio + (posActual - 1)
+                } else {
+                    palabra.columnaInicio
+                }
+
+                val celda = obtenerCelda(prevFila, prevColumna)
+
+                // Ir a la celda anterior si no es negra ni correcta
+                if (celda != null && !celda.esNegra && !celda.esCorrecta) {
+                    focusRequesters[Pair(prevFila, prevColumna)]?.requestFocus()
+                    return@launch
+                }
             }
-        }
 
-        // Si no hay palabra activa o la celda no pertenece a ella
-        // Priorizar la dirección actual si la celda tiene una palabra en esa dirección
-        val tieneEnDireccionActual = when (direccionActual) {
-            "HORIZONTAL" -> tieneHorizontal
-            "VERTICAL" -> tieneVertical
-            else -> false
-        }
-
-        if (tieneEnDireccionActual) {
-            return direccionActual
-        }
-
-        // Si no, elegir la dirección disponible
-        return when {
-            tieneVertical -> "VERTICAL"
-            tieneHorizontal -> "HORIZONTAL"
-            else -> direccionActual
+            // Si no se puede ir a la anterior (o es la primera), enfocar la primera celda
+            val primeraFila = palabra.filaInicio
+            val primeraColumna = palabra.columnaInicio
+            focusRequesters[Pair(primeraFila, primeraColumna)]?.requestFocus()
         }
     }
 
     fun borrarYRetroceder(fila: Int, columna: Int) {
-        val palabra = encontrarPalabraEnCelda(fila, columna) ?: return
+        val palabra = palabraActiva ?: return
 
         // Posición relativa en la palabra
         val posActual = if (palabra.direccion == "HORIZONTAL") {
@@ -379,55 +304,29 @@ fun CrucigramaScreen(navController: NavController) {
             fila - palabra.filaInicio
         }
 
-        // Si la celda actual tiene letra, borrarla
-        val celdaActual = obtenerCelda(fila, columna)
-        if (celdaActual?.letraUsuario != null) {
-            actualizarCelda(fila, columna) { it.copy(letraUsuario = null, esCorrecta = false) }
-            focusRequesters[Pair(fila, columna)]?.requestFocus()
-            return
-        }
+        coroutineScope.launch {
+            delay(30)
 
-        // Si la celda actual está vacía, moverse hacia atrás hasta la primera letra de la palabra
-        if (posActual > 0) {
-            val nuevaPos = posActual - 1
-            val newFila = if (palabra.direccion == "HORIZONTAL") palabra.filaInicio else palabra.filaInicio + nuevaPos
-            val newCol = if (palabra.direccion == "HORIZONTAL") palabra.columnaInicio + nuevaPos else palabra.columnaInicio
+            // CASO 1: Borrar la celda actual si tiene contenido
+            val celdaActual = obtenerCelda(fila, columna)
+            if (celdaActual?.letraUsuario != null && !celdaActual.esCorrecta) {
+                actualizarCelda(fila, columna) { it.copy(letraUsuario = null, esCorrecta = false) }
+            }
 
-            actualizarCelda(newFila, newCol) { it.copy(letraUsuario = null, esCorrecta = false) }
-            focusRequesters[Pair(newFila, newCol)]?.requestFocus()
-        }
-    }
-
-    // Función para manejar entrada de texto
-    fun onLetraCambiada(fila: Int, columna: Int, nuevoCaracter: Char?) {
-        actualizarCelda(fila, columna) { celda ->
-            if (!celda.esNegra && !celda.esCorrecta) {
-                celda.copy(
-                    letraUsuario = nuevoCaracter?.uppercaseChar(),
-                    esCorrecta = false
-                )
+            // CASO 2: Mover foco a la celda anterior (aunque esté vacía)
+            if (posActual > 0) {
+                moverFocoACeldaAnterior(fila, columna)
             } else {
-                celda
+                // Si es la primera celda, mantener foco aquí
+                focusRequesters[Pair(fila, columna)]?.requestFocus()
             }
-        }
-
-        // Si se ingresó una letra
-        if (nuevoCaracter != null) {
-            // Si no hay palabra activa, establecerla
-            if (palabraActiva == null) {
-                // Buscar una palabra en la dirección actual que contenga esta celda
-                palabraActiva = encontrarPalabraPorDireccion(fila, columna, direccionActual)
-                    ?: encontrarPalabraEnCelda(fila, columna)
-            }
-
-            // Mover a siguiente celda
-            moverFocoASiguienteCelda(fila, columna)
         }
     }
 
-    // Función para manejar Enter
-    fun onEnterPressed(fila: Int, columna: Int) {
-        irASiguientePalabra(fila, columna)
+    // Función para verificar si una celda pertenece a la palabra activa
+    fun esCeldaDePalabraActiva(fila: Int, columna: Int): Boolean {
+        val palabrasEnCelda = crucigramaEstado.mapaCeldas[Pair(fila, columna)] ?: return false
+        return palabrasEnCelda.any { it.numero == palabraActiva?.numero }
     }
 
     // Función para verificar respuestas
@@ -478,6 +377,48 @@ fun CrucigramaScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 20.dp)
         )
 
+        // Indicador de palabra activa
+        if (palabraActiva != null) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE3F2FD)
+                ),
+                border = BorderStroke(1.dp, Color(0xFF2196F3))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Palabra activa: ${palabraActiva!!.numero} ",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1565C0)
+                    )
+
+                    Button(
+                        onClick = {
+                            palabraActiva = null
+                            focusManager.clearFocus()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFF44336),
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text("Desactivar", fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+
         // Tablero del crucigrama interactivo
         TableroCrucigramaInteractivo(
             celdas = celdas,
@@ -492,35 +433,20 @@ fun CrucigramaScreen(navController: NavController) {
                 onEnterPressed(fila, columna)
             },
             focusManager = focusManager,
-            direccionActual = direccionActual,
-            onDireccionCambio = { nuevaDireccion ->
-                // Al cambiar dirección manualmente, limpiar palabra activa
-                direccionActual = nuevaDireccion
-                palabraActiva = null
-            },
-            obtenerDireccionPreferidaAlHacerClic = { fila, columna ->
-                obtenerDireccionPreferidaAlHacerClic(fila, columna)
-            },
+            palabraActiva = palabraActiva,
+            crucigramaEstado = crucigramaEstado,
             onClickCelda = { fila, columna ->
-                // Al hacer clic en una celda:
-                // 1. Obtener dirección preferida para esta celda
-                val nuevaDireccion = obtenerDireccionPreferidaAlHacerClic(fila, columna)
-                if (nuevaDireccion != direccionActual) {
-                    direccionActual = nuevaDireccion
+                // Al hacer clic en una celda, activar la primera palabra que contiene
+                val palabrasEnCelda = encontrarPalabraEnCelda(fila, columna)
+                if (palabrasEnCelda.isNotEmpty()) {
+                    activarPalabraPorNumero(palabrasEnCelda.first().numero)
                 }
-
-                // 2. Establecer palabra activa basada en la nueva dirección
-                palabraActiva = encontrarPalabraPorDireccion(fila, columna, direccionActual)
-                    ?: encontrarPalabraEnCelda(fila, columna)
-
-                // 3. Enfocar la celda
-                focusRequesters[Pair(fila, columna)]?.requestFocus()
             }
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Sección de pistas HORIZONTALES
+        // Sección de pistas HORIZONTALES - AHORA SON CLICABLES
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -537,39 +463,37 @@ fun CrucigramaScreen(navController: NavController) {
             ) {
                 Text(
                     text = "HORIZONTALAK",
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32),
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                // Pista 1
-                PistaVisualItem(
+                // Pista 1 - CLICABLE
+                PistaClicableItem(
                     numero = 1,
-                    texto = "Duela milaka urte kobazuloetan bizi ziren gizakiak."
+                    texto = "Duela milaka urte kobazuloetan bizi ziren gizakiak.",
+                    esActiva = palabraActiva?.numero == 1,
+                    esHorizontal = true,
+                    onClick = { activarPalabraPorNumero(1) }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(3.dp))
 
-                // Pista 3
-                PistaVisualItem(
-                    numero = 3,
-                    texto = "Kobazuloetako hormetan margotzen zituzten animaliak eta sinboloak."
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Pista 5
-                PistaVisualItem(
+                // Pista 5 - CLICABLE
+                PistaClicableItem(
                     numero = 5,
-                    texto = "Haria lantzeko erabilizen zuten tresna."
+                    texto = "Haria lantzeko erabilizen zuten tresna.",
+                    esActiva = palabraActiva?.numero == 5,
+                    esHorizontal = true,
+                    onClick = { activarPalabraPorNumero(5) }
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Sección de pistas VERTICALES
+        // Sección de pistas VERTICALES - AHORA SON CLICABLES
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -586,29 +510,46 @@ fun CrucigramaScreen(navController: NavController) {
             ) {
                 Text(
                     text = "BERTIKALAK",
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1565C0),
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                // Pista 2
-                PistaVisualItem(
+                // Pista 2 - CLICABLE
+                PistaClicableItem(
                     numero = 2,
-                    texto = "Historiaurrea ikertzen duen zientzialaria."
+                    texto = "Historiaurrea ikertzen duen zientzialaria.",
+                    esActiva = palabraActiva?.numero == 2,
+                    esHorizontal = false,
+                    onClick = { activarPalabraPorNumero(2) }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(3.dp))
 
-                // Pista 4
-                PistaVisualItem(
+                // Pista 4 - CLICABLE
+                PistaClicableItem(
                     numero = 4,
-                    texto = "Aizpitarteko kobazuloak dauden herria."
+                    texto = "Aizpitarteko kobazuloak dauden herria.",
+                    esActiva = palabraActiva?.numero == 4,
+                    esHorizontal = false,
+                    onClick = { activarPalabraPorNumero(4) }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Pista 3 - CLICABLE (se movió aquí porque es vertical)
+                PistaClicableItem(
+                    numero = 3,
+                    texto = "Kobazuloetako hormetan margotzen zituzten animaliak eta sinboloak.",
+                    esActiva = palabraActiva?.numero == 3,
+                    esHorizontal = false,
+                    onClick = { activarPalabraPorNumero(3) }
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Botón Egiaztatu (verificar)
         Button(
@@ -631,8 +572,8 @@ fun CrucigramaScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
         }
+        Spacer(modifier = Modifier.height(6.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
 
         if (mostrarDialogoExito) {
             GameResultDialogs(
@@ -661,18 +602,77 @@ fun CrucigramaScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
         }
+        Spacer(modifier = Modifier.height(30.dp))
+        if (mostrarInstruccionesIniciales) {
+            AlertDialog(
+                onDismissRequest = { mostrarInstruccionesIniciales = false },
+                title = {
+                    Text(
+                        text = "¡Bienvenido al Crucigrama!",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2196F3)
+                    )
+                },
+                text = {
+                    Column {
+                        Text(
+                            text = "Instrucciones:",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
 
-        // Instrucción
-        Text(
-            text = "Haz clic en una palabra para activarla. La dirección se mantendrá hasta completarla.",
-            fontSize = 12.sp,
-            color = Color.Gray,
-            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        )
+                        Row(
+                            modifier = Modifier.padding(bottom = 4.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text("• ", color = Color(0xFFFF9800))
+                            Text(
+                                text = "Haz clic en el NÚMERO de una pista para activar esa palabra",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.padding(bottom = 4.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text("• ", color = Color(0xFFFF9800))
+                            Text(
+                                text = "Solo puedes escribir en la palabra activa (se marca en naranja)",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.padding(bottom = 4.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text("• ", color = Color(0xFFFF9800))
+                            Text(
+                                text = "Presiona EGIAZTATU para verificar tus respuestas",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { mostrarInstruccionesIniciales = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF2196F3)
+                        )
+                    ) {
+                        Text("¡Entendido!")
+                    }
+                },
+                containerColor = Color.White,
+                shape = MaterialTheme.shapes.large
+            )
+        }
+
     }
 }
 
@@ -685,9 +685,8 @@ fun TableroCrucigramaInteractivo(
     onBorrar: (Int, Int) -> Unit,
     onEnterPressed: (Int, Int) -> Unit,
     focusManager: FocusManager,
-    direccionActual: String,
-    onDireccionCambio: (String) -> Unit,
-    obtenerDireccionPreferidaAlHacerClic: (Int, Int) -> String,
+    palabraActiva: PalabraInfo?,
+    crucigramaEstado: CrucigramaEstado,
     onClickCelda: (Int, Int) -> Unit
 ) {
     // Organizar celdas en grid
@@ -710,6 +709,12 @@ fun TableroCrucigramaInteractivo(
                 for (columna in 0 until 8) {
                     val celda = grid[fila][columna]
                     celda?.let {
+                        // Verificar si la celda pertenece a la palabra activa
+                        val estaActiva = palabraActiva?.let { palabra ->
+                            val palabrasEnCelda = crucigramaEstado.mapaCeldas[Pair(fila, columna)]
+                            palabrasEnCelda?.any { it.numero == palabra.numero } ?: false
+                        } ?: false
+
                         CeldaInteractivaUI(
                             celda = it,
                             focusRequester = focusRequesters[Pair(fila, columna)] ?: FocusRequester(),
@@ -723,8 +728,7 @@ fun TableroCrucigramaInteractivo(
                                 onEnterPressed(fila, columna)
                             },
                             focusManager = focusManager,
-                            direccionActual = direccionActual,
-                            onDireccionCambio = onDireccionCambio,
+                            estaActiva = estaActiva,
                             onClickCelda = {
                                 onClickCelda(fila, columna)
                             }
@@ -745,8 +749,7 @@ fun CeldaInteractivaUI(
     onBorrar: () -> Unit,
     onEnterPressed: () -> Unit,
     focusManager: FocusManager,
-    direccionActual: String,
-    onDireccionCambio: (String) -> Unit,
+    estaActiva: Boolean,
     onClickCelda: () -> Unit
 ) {
     var textFieldValue by remember(celda.letraUsuario) {
@@ -762,6 +765,7 @@ fun CeldaInteractivaUI(
     val backgroundColor = when {
         celda.esNegra -> Color.Black
         celda.esCorrecta -> Color(0xFFC8E6C9)
+        estaActiva -> Color(0xFFFFF3E0) // Naranja claro para palabra activa
         else -> Color.White
     }
 
@@ -769,13 +773,17 @@ fun CeldaInteractivaUI(
     val textColor = when {
         celda.esNegra -> Color.White
         celda.esCorrecta -> Color(0xFF2E7D32)
+        estaActiva -> Color(0xFFE65100) // Naranja oscuro para palabra activa
         else -> Color.Black
     }
 
     Box(
         modifier = Modifier
             .size(35.dp)
-            .border(1.dp, Color.Gray)
+            .border(
+                width = if (estaActiva) 2.dp else 1.dp,
+                color = if (estaActiva) Color(0xFFFF9800) else Color.Gray
+            )
             .background(backgroundColor)
             .clickable(
                 enabled = !celda.esNegra && !celda.esCorrecta,
@@ -788,7 +796,7 @@ fun CeldaInteractivaUI(
             Text(
                 text = "${celda.numeroPista}",
                 fontSize = 10.sp,
-                color = Color.Blue,
+                color = if (estaActiva) Color.Red else Color.Blue,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -812,17 +820,24 @@ fun CeldaInteractivaUI(
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { newValue ->
-                    // BACKSPACE
-                    if (newValue.text.isEmpty() && textFieldValue.text.isNotEmpty()) {
+                    // BACKSPACE - cuando el texto se hace vacío
+                    if (newValue.text.isEmpty()) {
                         textFieldValue = TextFieldValue("", TextRange(0))
-                        onBorrar()
+                        onBorrar()  // Llama a borrarYRetroceder
                         return@BasicTextField
                     }
 
-                    // UNA sola letra
+                    // Escribir una letra nueva (solo una letra permitida)
                     if (newValue.text.length == 1) {
-                        textFieldValue = newValue
+                        textFieldValue = newValue.copy(selection = TextRange(newValue.text.length))
                         onLetraCambiada(newValue.text[0])
+                    }
+
+                    // Si es más de una letra (pegar texto), tomar solo la primera
+                    else if (newValue.text.length > 1) {
+                        val primeraLetra = newValue.text.first().toString()
+                        textFieldValue = TextFieldValue(primeraLetra, TextRange(primeraLetra.length))
+                        onLetraCambiada(primeraLetra[0])
                     }
                 },
                 modifier = Modifier
@@ -842,7 +857,6 @@ fun CeldaInteractivaUI(
                 ),
                 keyboardActions = KeyboardActions(
                     onNext = {
-                        // Al presionar Enter/Next, ir a siguiente palabra
                         onEnterPressed()
                     },
                     onDone = {
@@ -871,47 +885,61 @@ fun CeldaInteractivaUI(
         }
     }
 }
-
 @Composable
-fun PistaVisualItem(numero: Int, texto: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
+fun PistaClicableItem(numero: Int, texto: String, esActiva: Boolean, esHorizontal: Boolean, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = if (esActiva) Color(0xFFFFF3E0) else Color.Transparent
+        ),
+        border = if (esActiva) BorderStroke(2.dp, Color(0xFFFF9800)) else null
     ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(30.dp)
-                .background(
-                    color = if (numero % 2 == 1) Color(0xFFC8E6C9) else Color(0xFFBBDEFB),
-                    shape = androidx.compose.foundation.shape.CircleShape
-                )
-                .border(
-                    1.dp,
-                    if (numero % 2 == 1) Color(0xFF4CAF50) else Color(0xFF2196F3),
-                    androidx.compose.foundation.shape.CircleShape
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.Top
         ) {
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .background(
+                        color = if (esActiva) Color(0xFFFF9800) else
+                            if (esHorizontal) Color(0xFFC8E6C9) else Color(0xFFBBDEFB),
+                        shape = androidx.compose.foundation.shape.CircleShape
+                    )
+                    .border(
+                        1.dp,
+                        if (esActiva) Color.Red else
+                            if (esHorizontal) Color(0xFF4CAF50) else Color(0xFF2196F3),
+                        androidx.compose.foundation.shape.CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "$numero",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (esActiva) Color.White else
+                        if (esHorizontal) Color(0xFF2E7D32) else Color(0xFF1565C0)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
             Text(
-                text = "$numero",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (numero % 2 == 1) Color(0xFF2E7D32) else Color(0xFF1565C0)
+                text = texto,
+                fontSize = 15.sp,
+                color = if (esActiva) Color(0xFFE65100) else Color.Black,
+                modifier = Modifier.weight(1f)
             )
         }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(
-            text = texto,
-            fontSize = 15.sp,
-            color = Color.Black,
-            modifier = Modifier.weight(1f)
-        )
     }
 }
 
-// Función para crear el estado inicial de las celdas (igual que antes)
+// Función para crear el estado inicial de las celdas
 fun crearCeldasEstado(): List<CeldaEstado> {
     val celdas = mutableListOf<CeldaEstado>()
 
@@ -1028,7 +1056,7 @@ fun crearCeldasEstado(): List<CeldaEstado> {
     return celdas
 }
 
-// Funciones de verificación (igual que antes)
+// Funciones de verificación
 fun verificarHorizontal(
     numeroPista: Int,
     filaInicio: Int,
