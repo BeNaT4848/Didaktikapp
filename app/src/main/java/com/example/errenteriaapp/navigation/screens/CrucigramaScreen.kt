@@ -95,8 +95,7 @@ fun CrucigramaScreen(navController: NavController) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
     var mostrarDialogoExito by remember { mutableStateOf(false) }
-    var direccionActual by remember { mutableStateOf("HORIZONTAL") }
-    var palabraActiva by remember { mutableStateOf<PalabraInfo?>(null) }
+    val palabraActiva = remember { mutableStateOf<PalabraInfo?>(null) }
     val context = LocalContext.current
     var mostrarInstruccionesIniciales by remember { mutableStateOf(true) }
 
@@ -158,18 +157,15 @@ fun CrucigramaScreen(navController: NavController) {
     // Función para activar una palabra por su número
     fun activarPalabraPorNumero(numero: Int) {
         coroutineScope.launch {
-            delay(100)
-
             // Buscar la palabra por número
             val palabra = crucigramaEstado.mapaPalabrasPorNumero[numero]
             palabra?.let {
                 // Si la misma palabra ya está activa, desactivarla
-                if (palabraActiva?.numero == numero) {
-                    palabraActiva = null
+                if (palabraActiva.value?.numero == numero) {
+                    palabraActiva.value = null
                 } else {
                     // Activar la nueva palabra
-                    palabraActiva = it
-                    direccionActual = it.direccion
+                    palabraActiva.value = it
 
                     // Buscar la primera celda vacía de esta palabra y enfocarla
                     for (i in 0 until it.longitud) {
@@ -194,9 +190,7 @@ fun CrucigramaScreen(navController: NavController) {
 
     fun moverFocoASiguienteCelda(filaActual: Int, columnaActual: Int) {
         coroutineScope.launch {
-            delay(30)
-
-            val palabra = palabraActiva ?: return@launch
+            val palabra = palabraActiva.value ?: return@launch
 
             val posActual = if (palabra.direccion == "HORIZONTAL") {
                 columnaActual - palabra.columnaInicio
@@ -243,7 +237,7 @@ fun CrucigramaScreen(navController: NavController) {
         }
 
         // 2. Avanzar foco SOLO si hay palabra activa
-        palabraActiva?.let { palabra ->
+        palabraActiva.value?.let { palabra ->
             moverFocoASiguienteCelda(fila, columna)
         }
     }
@@ -254,9 +248,7 @@ fun CrucigramaScreen(navController: NavController) {
 
     fun moverFocoACeldaAnterior(filaActual: Int, columnaActual: Int) {
         coroutineScope.launch {
-            delay(30)
-
-            val palabra = palabraActiva ?: return@launch
+            val palabra = palabraActiva.value ?: return@launch
 
             val posActual = if (palabra.direccion == "HORIZONTAL") {
                 columnaActual - palabra.columnaInicio
@@ -295,7 +287,7 @@ fun CrucigramaScreen(navController: NavController) {
     }
 
     fun borrarYRetroceder(fila: Int, columna: Int) {
-        val palabra = palabraActiva ?: return
+        val palabra = palabraActiva.value ?: return
 
         // Posición relativa en la palabra
         val posActual = if (palabra.direccion == "HORIZONTAL") {
@@ -305,8 +297,6 @@ fun CrucigramaScreen(navController: NavController) {
         }
 
         coroutineScope.launch {
-            delay(30)
-
             // CASO 1: Borrar la celda actual si tiene contenido
             val celdaActual = obtenerCelda(fila, columna)
             if (celdaActual?.letraUsuario != null && !celdaActual.esCorrecta) {
@@ -326,7 +316,7 @@ fun CrucigramaScreen(navController: NavController) {
     // Función para verificar si una celda pertenece a la palabra activa
     fun esCeldaDePalabraActiva(fila: Int, columna: Int): Boolean {
         val palabrasEnCelda = crucigramaEstado.mapaCeldas[Pair(fila, columna)] ?: return false
-        return palabrasEnCelda.any { it.numero == palabraActiva?.numero }
+        return palabrasEnCelda.any { it.numero == palabraActiva.value?.numero }
     }
 
     // Función para verificar respuestas
@@ -378,7 +368,7 @@ fun CrucigramaScreen(navController: NavController) {
         )
 
         // Indicador de palabra activa
-        if (palabraActiva != null) {
+        if (palabraActiva.value != null) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -396,7 +386,7 @@ fun CrucigramaScreen(navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Palabra activa: ${palabraActiva!!.numero} ",
+                        text = "Palabra activa: ${palabraActiva.value!!.numero} ",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1565C0)
@@ -404,7 +394,7 @@ fun CrucigramaScreen(navController: NavController) {
 
                     Button(
                         onClick = {
-                            palabraActiva = null
+                            palabraActiva.value = null
                             focusManager.clearFocus()
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -433,7 +423,7 @@ fun CrucigramaScreen(navController: NavController) {
                 onEnterPressed(fila, columna)
             },
             focusManager = focusManager,
-            palabraActiva = palabraActiva,
+            palabraActiva = palabraActiva.value,
             crucigramaEstado = crucigramaEstado,
             onClickCelda = { fila, columna ->
                 // Al hacer clic en una celda, activar la primera palabra que contiene
@@ -473,7 +463,7 @@ fun CrucigramaScreen(navController: NavController) {
                 PistaClicableItem(
                     numero = 1,
                     texto = "Duela milaka urte kobazuloetan bizi ziren gizakiak.",
-                    esActiva = palabraActiva?.numero == 1,
+                    esActiva = palabraActiva.value?.numero == 1,
                     esHorizontal = true,
                     onClick = { activarPalabraPorNumero(1) }
                 )
@@ -484,7 +474,7 @@ fun CrucigramaScreen(navController: NavController) {
                 PistaClicableItem(
                     numero = 5,
                     texto = "Haria lantzeko erabilizen zuten tresna.",
-                    esActiva = palabraActiva?.numero == 5,
+                    esActiva = palabraActiva.value?.numero == 5,
                     esHorizontal = true,
                     onClick = { activarPalabraPorNumero(5) }
                 )
@@ -520,7 +510,7 @@ fun CrucigramaScreen(navController: NavController) {
                 PistaClicableItem(
                     numero = 2,
                     texto = "Historiaurrea ikertzen duen zientzialaria.",
-                    esActiva = palabraActiva?.numero == 2,
+                    esActiva = palabraActiva.value?.numero == 2,
                     esHorizontal = false,
                     onClick = { activarPalabraPorNumero(2) }
                 )
@@ -531,7 +521,7 @@ fun CrucigramaScreen(navController: NavController) {
                 PistaClicableItem(
                     numero = 4,
                     texto = "Aizpitarteko kobazuloak dauden herria.",
-                    esActiva = palabraActiva?.numero == 4,
+                    esActiva = palabraActiva.value?.numero == 4,
                     esHorizontal = false,
                     onClick = { activarPalabraPorNumero(4) }
                 )
@@ -542,7 +532,7 @@ fun CrucigramaScreen(navController: NavController) {
                 PistaClicableItem(
                     numero = 3,
                     texto = "Kobazuloetako hormetan margotzen zituzten animaliak eta sinboloak.",
-                    esActiva = palabraActiva?.numero == 3,
+                    esActiva = palabraActiva.value?.numero == 3,
                     esHorizontal = false,
                     onClick = { activarPalabraPorNumero(3) }
                 )
@@ -573,7 +563,6 @@ fun CrucigramaScreen(navController: NavController) {
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
-
 
         if (mostrarDialogoExito) {
             GameResultDialogs(
@@ -672,7 +661,6 @@ fun CrucigramaScreen(navController: NavController) {
                 shape = MaterialTheme.shapes.large
             )
         }
-
     }
 }
 
@@ -816,28 +804,40 @@ fun CeldaInteractivaUI(
                 textAlign = TextAlign.Center
             )
         } else {
-            // Celda editable
+            // Celda editable - Versión optimizada sin recomposiciones innecesarias
+            DisposableEffect(focusRequester) {
+                onDispose { }
+            }
+
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { newValue ->
+                    // Si es la misma letra, ignorar (evita recomposiciones innecesarias)
+                    if (newValue.text == textFieldValue.text) return@BasicTextField
+
                     // BACKSPACE - cuando el texto se hace vacío
                     if (newValue.text.isEmpty()) {
                         textFieldValue = TextFieldValue("", TextRange(0))
-                        onBorrar()  // Llama a borrarYRetroceder
+                        onBorrar()
                         return@BasicTextField
                     }
 
                     // Escribir una letra nueva (solo una letra permitida)
                     if (newValue.text.length == 1) {
-                        textFieldValue = newValue.copy(selection = TextRange(newValue.text.length))
-                        onLetraCambiada(newValue.text[0])
+                        val nuevaLetra = newValue.text.first().uppercaseChar()
+                        if (celda.letraUsuario != nuevaLetra) {
+                            textFieldValue = TextFieldValue(nuevaLetra.toString(), TextRange(1))
+                            onLetraCambiada(nuevaLetra)
+                        }
                     }
 
                     // Si es más de una letra (pegar texto), tomar solo la primera
                     else if (newValue.text.length > 1) {
-                        val primeraLetra = newValue.text.first().toString()
-                        textFieldValue = TextFieldValue(primeraLetra, TextRange(primeraLetra.length))
-                        onLetraCambiada(primeraLetra[0])
+                        val primeraLetra = newValue.text.first().uppercaseChar()
+                        if (celda.letraUsuario != primeraLetra) {
+                            textFieldValue = TextFieldValue(primeraLetra.toString(), TextRange(1))
+                            onLetraCambiada(primeraLetra)
+                        }
                     }
                 },
                 modifier = Modifier
@@ -885,6 +885,7 @@ fun CeldaInteractivaUI(
         }
     }
 }
+
 @Composable
 fun PistaClicableItem(numero: Int, texto: String, esActiva: Boolean, esHorizontal: Boolean, onClick: () -> Unit) {
     Card(
