@@ -163,9 +163,13 @@ fun CrucigramaScreen(navController: NavController) {
                 // Si la misma palabra ya está activa, desactivarla
                 if (palabraActiva.value?.numero == numero) {
                     palabraActiva.value = null
+                    focusManager.clearFocus()
                 } else {
                     // Activar la nueva palabra
                     palabraActiva.value = it
+
+                    // Pequeño delay para asegurar que la UI se actualice
+                    delay(50)
 
                     // Buscar la primera celda vacía de esta palabra y enfocarla
                     for (i in 0 until it.longitud) {
@@ -175,7 +179,7 @@ fun CrucigramaScreen(navController: NavController) {
                         val celda = obtenerCelda(fila, columna)
                         if (celda != null && !celda.esNegra && celda.letraUsuario == null) {
                             focusRequesters[Pair(fila, columna)]?.requestFocus()
-                            return@let
+                            return@launch
                         }
                     }
 
@@ -429,7 +433,11 @@ fun CrucigramaScreen(navController: NavController) {
                 // Al hacer clic en una celda, activar la primera palabra que contiene
                 val palabrasEnCelda = encontrarPalabraEnCelda(fila, columna)
                 if (palabrasEnCelda.isNotEmpty()) {
-                    activarPalabraPorNumero(palabrasEnCelda.first().numero)
+                    // Verificar que la celda no es negra ni correcta
+                    val celda = obtenerCelda(fila, columna)
+                    if (celda != null && !celda.esNegra && !celda.esCorrecta) {
+                        activarPalabraPorNumero(palabrasEnCelda.first().numero)
+                    }
                 }
             }
         )
@@ -749,12 +757,15 @@ fun CeldaInteractivaUI(
         )
     }
 
+    // Determinar si la celda es editable
+    val esEditable = !celda.esNegra && !celda.esCorrecta && estaActiva
+
     // Determinar color de fondo
     val backgroundColor = when {
         celda.esNegra -> Color.Black
         celda.esCorrecta -> Color(0xFFC8E6C9)
         estaActiva -> Color(0xFFFFF3E0) // Naranja claro para palabra activa
-        else -> Color.White
+        else -> Color(0xFFF5F5F5) // Gris claro para celdas no editables
     }
 
     // Determinar color del texto
@@ -762,7 +773,14 @@ fun CeldaInteractivaUI(
         celda.esNegra -> Color.White
         celda.esCorrecta -> Color(0xFF2E7D32)
         estaActiva -> Color(0xFFE65100) // Naranja oscuro para palabra activa
-        else -> Color.Black
+        else -> Color(0xFF757575) // Gris oscuro para celdas no editables
+    }
+
+    // Color del borde
+    val borderColor = when {
+        celda.esNegra -> Color.Gray
+        estaActiva -> Color(0xFFFF9800) // Naranja para palabra activa
+        else -> Color(0xFFE0E0E0) // Gris claro para no editables
     }
 
     Box(
@@ -770,11 +788,11 @@ fun CeldaInteractivaUI(
             .size(35.dp)
             .border(
                 width = if (estaActiva) 2.dp else 1.dp,
-                color = if (estaActiva) Color(0xFFFF9800) else Color.Gray
+                color = borderColor
             )
             .background(backgroundColor)
             .clickable(
-                enabled = !celda.esNegra && !celda.esCorrecta,
+                enabled = !celda.esNegra && !celda.esCorrecta, // Permitir clic siempre que no sea negra o correcta
                 onClick = onClickCelda
             ),
         contentAlignment = Alignment.Center
@@ -784,7 +802,8 @@ fun CeldaInteractivaUI(
             Text(
                 text = "${celda.numeroPista}",
                 fontSize = 10.sp,
-                color = if (estaActiva) Color.Red else Color.Blue,
+                color = if (estaActiva) Color.Red else
+                    if (!esEditable && !celda.esNegra) Color(0xFF9E9E9E) else Color.Blue,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -804,7 +823,7 @@ fun CeldaInteractivaUI(
                 textAlign = TextAlign.Center
             )
         } else {
-            // Celda editable - Versión optimizada sin recomposiciones innecesarias
+            // IMPORTANTE: Siempre mostrar BasicTextField, pero controlar su estado con 'enabled'
             DisposableEffect(focusRequester) {
                 onDispose { }
             }
@@ -812,13 +831,18 @@ fun CeldaInteractivaUI(
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { newValue ->
+                    // Solo procesar cambios si la celda es editable
+                    if (!esEditable) return@BasicTextField
+
                     // Si es la misma letra, ignorar (evita recomposiciones innecesarias)
                     if (newValue.text == textFieldValue.text) return@BasicTextField
 
                     // BACKSPACE - cuando el texto se hace vacío
                     if (newValue.text.isEmpty()) {
-                        textFieldValue = TextFieldValue("", TextRange(0))
+                        // Primero mover el foco a la celda anterior
                         onBorrar()
+                        // Luego limpiar el texto local
+                        textFieldValue = TextFieldValue("", TextRange(0))
                         return@BasicTextField
                     }
 
@@ -842,7 +866,11 @@ fun CeldaInteractivaUI(
                 },
                 modifier = Modifier
                     .size(30.dp)
-                    .focusRequester(focusRequester),
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        enabled = !celda.esNegra && !celda.esCorrecta,
+                        onClick = onClickCelda
+                    ),
                 textStyle = androidx.compose.ui.text.TextStyle(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -865,6 +893,8 @@ fun CeldaInteractivaUI(
                 ),
                 singleLine = true,
                 maxLines = 1,
+                enabled = esEditable, // IMPORTANTE: Solo editable si pertenece a palabra activa
+                readOnly = !esEditable, // Solo lectura si no es editable
                 decorationBox = { innerTextField ->
                     Box(
                         contentAlignment = Alignment.Center,
@@ -875,7 +905,7 @@ fun CeldaInteractivaUI(
                             Text(
                                 text = "",
                                 fontSize = 20.sp,
-                                color = Color.LightGray,
+                                color = if (esEditable) Color.LightGray else Color(0xFFE0E0E0),
                                 textAlign = TextAlign.Center
                             )
                         }
