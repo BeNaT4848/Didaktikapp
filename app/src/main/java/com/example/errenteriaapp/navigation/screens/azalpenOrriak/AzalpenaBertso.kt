@@ -33,12 +33,3 @@ fun AzalpenBertso(
         onNavigateToGame = onNavigateToGame
     )
 }
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
-@Composable
-fun AzalpenBertsoPreview() {
-    AzalpenBertso(
-        onClose = { },
-        onNavigateToGame = { }
-    )
-}

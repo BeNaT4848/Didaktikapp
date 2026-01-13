@@ -42,7 +42,6 @@ data class AzalpenContenido(
 
     // Botón obligatorio
     val textoBoton: String,
-
 )
 
 /**
@@ -81,9 +80,12 @@ fun AzalpenBase(
                 val currentPos = mediaPlayer?.currentPosition ?: 0
                 currentPosition = currentPos.toLong()
 
-                contenido.timelineAudio.forEach { (timeMs, imageIndex) ->
-                    if (currentPos >= timeMs && currentImageIndex < imageIndex) {
-                        currentImageIndex = imageIndex
+                // Solo procesar timeline si no está vacío
+                if (contenido.timelineAudio.isNotEmpty()) {
+                    contenido.timelineAudio.forEach { (timeMs, imageIndex) ->
+                        if (currentPos >= timeMs && currentImageIndex < imageIndex) {
+                            currentImageIndex = imageIndex
+                        }
                     }
                 }
 
@@ -96,7 +98,6 @@ fun AzalpenBase(
             }
         }
     }
-
 
     Column(
         modifier = Modifier
@@ -164,7 +165,8 @@ fun AzalpenBase(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        if (isPlaying) {
+                        // SOLUCIÓN: Solo mostrar imágenes si la lista no está vacía
+                        if (isPlaying && contenido.imagenesAudio.isNotEmpty()) {
                             Box(
                                 modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.Center
@@ -173,13 +175,16 @@ fun AzalpenBase(
                                     targetState = currentImageIndex,
                                     animationSpec = tween(1000)
                                 ) { index ->
-                                    Image(
-                                        painter = painterResource(id = contenido.imagenesAudio[index]),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(200.dp)
-                                            .clip(RoundedCornerShape(12.dp))
-                                    )
+                                    // Verificación adicional de índice
+                                    if (index < contenido.imagenesAudio.size) {
+                                        Image(
+                                            painter = painterResource(id = contenido.imagenesAudio[index]),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(200.dp)
+                                                .clip(RoundedCornerShape(12.dp))
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -190,22 +195,26 @@ fun AzalpenBase(
                             .fillMaxSize()
                             .padding(top = 20.dp)
                     ) {
-                        Text(
-                            text = contenido.tituloTexto,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        // Solo mostrar título si no está vacío
+                        if (contenido.tituloTexto.isNotEmpty()) {
+                            Text(
+                                text = contenido.tituloTexto,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = contenido.textoDidactico,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 14.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
+                        // Solo mostrar texto didáctico si no está vacío
+                        if (contenido.textoDidactico.isNotEmpty()) {
+                            Text(
+                                text = contenido.textoDidactico,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 14.sp
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
 
                         Button(
                             onClick = onNavigateToGame,
@@ -259,7 +268,7 @@ fun AudioPlayerCard(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(if (audioFinished) Color.White else Color.White,)
+                        .background(Color.White)
                         .clickable(enabled = !isLoading && !audioFinished, onClick = onPlayPauseClick),
                     contentAlignment = Alignment.Center
                 ) {
@@ -288,7 +297,7 @@ fun AudioPlayerCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "AUDIO DIDAKTIKOA",
-                        color = if (audioFinished) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
