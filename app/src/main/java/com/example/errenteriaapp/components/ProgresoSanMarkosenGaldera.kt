@@ -26,7 +26,7 @@ fun ProgressIndicator(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
+            .padding(bottom = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(

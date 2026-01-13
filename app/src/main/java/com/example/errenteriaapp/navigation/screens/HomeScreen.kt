@@ -50,7 +50,6 @@ fun HomeScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
     ) {
         val imageHeight = maxHeight * 0.6f
 

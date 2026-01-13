@@ -20,12 +20,6 @@ fun LoginPlaySection(
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        Text(
-            text = "ZOAZ JOLASTERA",
-            fontSize = 28.sp,
-            color = MaterialTheme.colorScheme.primary
-        )
-
         Spacer(Modifier.height(20.dp))
 
         if (showButton) {

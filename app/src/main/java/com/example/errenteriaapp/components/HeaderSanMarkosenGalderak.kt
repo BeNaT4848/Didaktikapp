@@ -21,7 +21,7 @@ fun QuizHeader() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp, top = 14.dp),
+            .padding(bottom = 1.dp, top = 18.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),
