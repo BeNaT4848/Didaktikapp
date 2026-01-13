@@ -82,6 +82,6 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-dash:1.2.1")
     implementation("org.osmdroid:osmdroid-android:6.1.20")
 
-
-
+    // Ubicación en tiempo real (Fused Location Provider)
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
