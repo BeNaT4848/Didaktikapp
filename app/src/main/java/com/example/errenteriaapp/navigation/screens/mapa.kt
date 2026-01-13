@@ -23,6 +23,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.ui.draw.clip
+import com.example.errenteriaapp.components.ReusableModalBottomSheet
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenCrucigrama
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenSanMarkos
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,18 +72,31 @@ fun MapaScreen(
         }
 
         // BOTÓN BERTSO - Abre Bottom Sheet
-        Button(
-            onClick = { showBertsoSheet = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("Juego Bertso Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenBertso(
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.BERTSOJOLASA_SCREEN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego Bertso Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         Button(
@@ -111,18 +127,32 @@ fun MapaScreen(
             Text("Juego Letra Sopa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
-        Button(
-            onClick = { navController.navigate(Routes.SANMARKOS_SCREEN) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("San Markoseko Galderak", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        // BOTÓN San Markos - Abre Bottom Sheet
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenSanMarkos(
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.SANMARKOS_SCREEN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego San Markos", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         Button(
@@ -139,8 +169,36 @@ fun MapaScreen(
             Text("Taula Arrastatu Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
+        // BOTÓN Crucigrama - Abre Bottom Sheet
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenCrucigrama (
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.CRUCIGRAMA_SCREEN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego Crucigrama", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
         Button(
-            onClick = { navController.navigate(Routes.CRUCIGRAMA_SCREEN) },
+            onClick = { navController.navigate(Routes.GPS_SCREEN) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -150,45 +208,7 @@ fun MapaScreen(
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Gurutzegrama Jokoa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        }
-    }
-
-    // BOTTOM SHEET
-    if (showBertsoSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBertsoSheet = false
-            },
-            sheetState = sheetState,
-            dragHandle = null,
-            containerColor = Color(0xFF0E1B14),
-            scrimColor = Color.Black.copy(alpha = 0.4f)
-        ) {
-            // CONTENIDO CON ALTURA FORZADA
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.48f)
-            ) {
-                AzalpenBertso(
-                    onClose = {
-                        scope.launch {
-                            sheetState.hide()
-                            delay(300)
-                            showBertsoSheet = false
-                        }
-                    },
-                    onNavigateToGame = {
-                        scope.launch {
-                            sheetState.hide()
-                            delay(300)
-                            showBertsoSheet = false
-                            navController.navigate(Routes.BERTSOJOLASA_SCREEN)
-                        }
-                    }
-                )
-            }
+            Text("GPS", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
