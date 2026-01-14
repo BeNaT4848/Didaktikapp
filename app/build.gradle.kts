@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.errenteriaapp"
-        minSdk = 31
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -82,4 +82,7 @@ dependencies {
 
     // Ubicación en tiempo real (Fused Location Provider)
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // Mapa (osmdroid)
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
 }

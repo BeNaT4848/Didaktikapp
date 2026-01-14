@@ -74,13 +74,8 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val density = LocalDensity.current
 
-    remember {
-        Configuration.getInstance().apply {
-            load(context, androidx.preference.PreferenceManager.getDefaultSharedPreferences(context))
-            userAgentValue = context.packageName
-        }
-        true
-    }
+    // Nota: osmdroid puede funcionar sin inicializar Configuration aquí.
+    // Si quieres cache/UA configurados, lo reintroducimos añadiendo la dependencia de Preference.
 
     // --- Permisos + estado de ubicación ---
     var hasLocationPermission by remember { mutableStateOf(false) }
