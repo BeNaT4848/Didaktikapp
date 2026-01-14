@@ -108,7 +108,7 @@ fun CrucigramaScreen(navController: NavController) {
                 keyboardController?.show()
             }
         }
-                Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         VerifyButton(
             onClick = {
