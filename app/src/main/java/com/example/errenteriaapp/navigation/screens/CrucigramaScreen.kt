@@ -100,8 +100,15 @@ fun CrucigramaScreen(navController: NavController) {
             palabraActiva = palabraActiva,
             onActivateWord = { numero -> viewModel.activarPalabraPorNumero(numero) }
         )
+        LaunchedEffect(palabraActiva) {
+            palabraActiva?.let { palabra ->
+                val posicion = Pair(palabra.filaInicio, palabra.columnaInicio)
 
-        Spacer(modifier = Modifier.height(16.dp))
+                focusRequesters[posicion]?.requestFocus()
+                keyboardController?.show()
+            }
+        }
+                Spacer(modifier = Modifier.height(16.dp))
 
         VerifyButton(
             onClick = {
