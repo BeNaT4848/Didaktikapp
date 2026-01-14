@@ -24,7 +24,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.ui.draw.clip
 import com.example.errenteriaapp.components.ReusableModalBottomSheet
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenArrastrar
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenCrucigrama
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenLetraZopa
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenOrdenatu
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenSanMarkos
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,19 +59,32 @@ fun MapaScreen(
     ) {
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Botones (todos igual excepto Bertso)
-        Button(
-            onClick = { navController.navigate(Routes.ORDENATUJOLASA_SCREEN) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("Juego Ordenatu Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        // BOTÓN Ordenatu - Abre Bottom Sheet
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenOrdenatu(
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.ORDENATUJOLASA_SCREEN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego Ordenatu", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         // BOTÓN BERTSO - Abre Bottom Sheet
@@ -113,18 +129,32 @@ fun MapaScreen(
             Text("Juego Basura", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
 
-        Button(
-            onClick = { navController.navigate(Routes.SOPALETRA_SCREEN) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("Juego Letra Sopa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        // BOTÓN LetraZopa - Abre Bottom Sheet
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenLetraZopa(
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.SOPALETRA_SCREEN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego LetraZopa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         // BOTÓN San Markos - Abre Bottom Sheet
@@ -155,24 +185,38 @@ fun MapaScreen(
             }
         }
 
-        Button(
-            onClick = { navController.navigate(Routes.TAULAARRASTRAR_SCRENN) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("Taula Arrastatu Jolasa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        // BOTÓN Arrastrar - Abre Bottom Sheet
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenArrastrar(
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.TAULAARRASTRAR_SCRENN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego Arrastrar", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         // BOTÓN Crucigrama - Abre Bottom Sheet
         ReusableModalBottomSheet(
             sheetContent = { onClose ->
-                AzalpenCrucigrama (
+                AzalpenCrucigrama(
                     onClose = onClose,
                     onNavigateToGame = {
                         // navega desde aquí si hace falta

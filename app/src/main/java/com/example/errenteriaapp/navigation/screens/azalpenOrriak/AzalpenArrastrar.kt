@@ -4,16 +4,19 @@ import androidx.compose.runtime.Composable
 import com.example.errenteriaapp.R
 
 @Composable
-fun AzalpenSanMarkos(
+fun AzalpenArrastrar(
     onClose: () -> Unit,
     onNavigateToGame: () -> Unit
 ) {
-    val contenidoSanMarkos = AzalpenContenido(
-        audioResource = R.raw.san_markoseko_gotorlekua_audioa,
+    val contenidoArrastrar = AzalpenContenido(
+        audioResource = R.raw.xanti_eta_maialen_audioa,
 
-        imagenesAudio = emptyList(),
-
-        timelineAudio = emptyList(),
+        imagenesAudio = listOf(
+            R.drawable.xanti_eta_maialen_erraldoiak
+        ),
+        timelineAudio = listOf(
+            1000L to 0
+        ),
 
         tituloTexto = "",
 
@@ -23,7 +26,7 @@ fun AzalpenSanMarkos(
     )
 
     AzalpenBase(
-        contenido = contenidoSanMarkos,
+        contenido = contenidoArrastrar,
         onClose = onClose,
         onNavigateToGame = onNavigateToGame
     )

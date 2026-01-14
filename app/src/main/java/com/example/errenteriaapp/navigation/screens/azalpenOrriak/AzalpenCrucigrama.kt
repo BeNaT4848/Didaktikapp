@@ -22,7 +22,7 @@ fun AzalpenCrucigrama(
 
         textoDidactico = "",
 
-        textoBoton = "Jarraitu"
+        textoBoton = "Jolasten hasi"
     )
 
     AzalpenBase(
