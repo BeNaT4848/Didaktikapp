@@ -3,14 +3,16 @@ package com.example.errenteriaapp.navigation.screens
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Looper
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewConfiguration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,14 +30,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.Kokapena
 import com.example.errenteriaapp.classes.nireKokapenak
 import com.example.errenteriaapp.components.AppScaffold
@@ -43,13 +48,10 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Overlay
-import org.osmdroid.library.R as OsmDroidR
 
 @Composable
 fun MapaOsmScreen(navController: NavController) {
@@ -73,9 +75,17 @@ fun MapaOsmScreen(navController: NavController) {
 fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val density = LocalDensity.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Nota: osmdroid puede funcionar sin inicializar Configuration aquí.
-    // Si quieres cache/UA configurados, lo reintroducimos añadiendo la dependencia de Preference.
+    // Configuración mínima recomendada de osmdroid.
+    // Importante para que el servidor acepte requests (evita tiles en blanco / raros en algunos casos).
+    SideEffect {
+        try {
+            org.osmdroid.config.Configuration.getInstance().userAgentValue = context.packageName
+        } catch (_: Throwable) {
+            // no-op
+        }
+    }
 
     // --- Permisos + estado de ubicación ---
     var hasLocationPermission by remember { mutableStateOf(false) }
@@ -90,7 +100,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
 
     // Fallback para evitar ver "el mundo" mientras llega el primer fix
     // (si no hay center/zoom inicial, osmdroid puede arrancar en vista global)
-    val startupCenter = GeoPoint(43.2687, -2.9337)
+    val startupCenter = GeoPoint(43.3129, -1.9018)
     val startupZoom = 14.0
 
     // NUEVO: para que el mapa "arranque" en tu ubicación y no en un punto fijo
@@ -129,7 +139,6 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
         onDispose { }
     }
 
-    // NUEVO: intentar centrar rápido usando la última ubicación conocida
     LaunchedEffect(hasLocationPermission) {
         if (!hasLocationPermission || hasInitialCentered) return@LaunchedEffect
 
@@ -144,8 +153,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                 }
             }
         } catch (_: SecurityException) {
-            // ignorar
-        }
+                }
 
         // 2) getCurrentLocation (puede ser más rápido que esperar al callback)
         try {
@@ -156,8 +164,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                     }
                 }
         } catch (_: SecurityException) {
-            // ignorar
-        }
+                }
     }
 
     // Updates de ubicación en tiempo real
@@ -212,41 +219,45 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
         mapView.invalidate()
     }
 
-    // Overlay simple para dibujar un "punto azul" (muy visible)
-    val myDotOverlay = remember {
-        object : Overlay() {
-            private val paintFill = Paint().apply {
-                isAntiAlias = true
-                style = Paint.Style.FILL
-                color = "#1E88E5".toColorInt() // azul
-            }
-            private val paintStroke = Paint().apply {
-                isAntiAlias = true
-                style = Paint.Style.STROKE
-                strokeWidth = 3f
-                color = Color.WHITE
-            }
-
-            override fun draw(c: android.graphics.Canvas?, osmv: MapView?, shadow: Boolean) {
-                if (shadow) return
-                val canvas = c ?: return
-                val mapView = osmv ?: return
-
-                val p = myLocation ?: return
-                val point = mapView.projection.toPixels(p, null)
-
-                // 8dp radio aprox
-                val radiusPx = with(density) { 8.dp.toPx() }
-                canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), radiusPx, paintFill)
-                canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), radiusPx, paintStroke)
-            }
-        }
+    // --- Util: crear un Drawable escalado a un tamaño fijo en dp ---
+    fun scaledDrawable(resId: Int, sizeDp: androidx.compose.ui.unit.Dp): Drawable? {
+        val base = ContextCompat.getDrawable(context, resId) ?: return null
+        val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        base.setBounds(0, 0, sizePx, sizePx)
+        base.draw(canvas)
+        return BitmapDrawable(context.resources, bitmap)
     }
 
-    // --- Icono azul para mi ubicación (Marker) ---
+    // Tamaños de iconos
+    // Queremos que los kokapenak tengan el mismo tamaño que el de mi ubicación.
+    val myLocationIconSize = 84.dp
+    val kokapenaIconSize = myLocationIconSize
+
+    // Icono por defecto para kokapenak
+    val kokapenaIconDefault = remember { scaledDrawable(R.drawable.ubinegra, kokapenaIconSize) }
+
+    // Icono al seleccionar (al pulsar)
+    val kokapenaIconSelected = remember { scaledDrawable(R.drawable.ubinlanca, kokapenaIconSize) }
+
+    // Guardamos qué marker está seleccionado para hacer toggle
+    val selectedKokapenaMarker = remember { mutableStateOf<Marker?>(null) }
+
+    // --- Icono para mi ubicación (Marker) ---
     val myLocationIcon: Drawable? = remember {
-        // Icono propio de osmdroid (azul)
-        ContextCompat.getDrawable(context, OsmDroidR.drawable.marker_default)
+        val base = ContextCompat.getDrawable(context, R.drawable.ubinegra) ?: return@remember null
+
+        val sizeDp = myLocationIconSize
+        val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)
+
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        base.setBounds(0, 0, sizePx, sizePx)
+        base.draw(canvas)
+
+        BitmapDrawable(context.resources, bitmap)
     }
 
     Box(modifier = modifier) {
@@ -255,40 +266,119 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                 MapView(it).apply {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
-                    isTilesScaledToDpi = true
 
-                    // Evitar vista global al arrancar: usamos un fallback hasta tener ubicación.
+                    // En algunos dispositivos, escalar tiles a DPI hace que se vean borrosos/pixelados.
+                    // Mejor dejarlos a tamaño nativo.
+                    isTilesScaledToDpi = false
+
+                    // Cargar más tiles por defecto para evitar el efecto “pixelado” mientras llega el zoom.
+                    // (Opcional, pero suele mejorar la nitidez al mover/zoomear)
+                    setUseDataConnection(true)
+
                     controller.setZoom(startupZoom)
                     controller.setCenter(startupCenter)
 
-                    // Cuando está fijado, no queremos que el usuario mueva el mapa.
-                    // Dejamos multiTouch y bloqueamos gestos con un overlay Compose encima.
-
-                    // Marcadores fijos una sola vez
+                    // Marcadores fijos (kokapenak) una sola vez
                     nireKokapenak.forEach { kokapena ->
-                        Marker(this).apply {
+                        val m = Marker(this).apply {
                             position = GeoPoint(kokapena.latitudea, kokapena.longitudea)
                             title = kokapena.izena
                             snippet = kokapena.deskribapena
-                            overlays.add(this)
+                            icon = kokapenaIconDefault
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                         }
+
+                        // Toggle de selección + mostrar InfoWindow
+                        m.setOnMarkerClickListener { marker, mapView ->
+                            val prev = selectedKokapenaMarker.value
+
+                            if (prev != null && prev != marker) {
+                                prev.icon = kokapenaIconDefault
+                                prev.closeInfoWindow()
+                            }
+
+                            if (prev == marker) {
+                                // Des-seleccionar
+                                marker.icon = kokapenaIconDefault
+                                marker.closeInfoWindow()
+                                selectedKokapenaMarker.value = null
+                            } else {
+                                // Seleccionar
+                                marker.icon = kokapenaIconSelected
+                                marker.showInfoWindow()
+                                selectedKokapenaMarker.value = marker
+                            }
+
+                            mapView?.invalidate()
+
+                            // false = dejamos que osmdroid procese el tap (mejor compatibilidad)
+                            false
+                        }
+
+                        overlays.add(m)
                     }
 
-                    overlays.add(myDotOverlay)
                     mapViewRef.value = this
                 }
             },
             update = { mapView ->
+                // --- Bloqueo de gestos cuando está "Fijado" ---
+                // Queremos permitir TAPs sobre marcadores, pero bloquear arrastre/zoom.
+                if (followMyLocation) {
+                    mapView.setMultiTouchControls(false)
+                    mapView.setOnTouchListener(object : View.OnTouchListener {
+                        private var downX = 0f
+                        private var downY = 0f
+                        private var moved = false
+                        private val slop = ViewConfiguration.get(mapView.context).scaledTouchSlop
+
+                        override fun onTouch(v: View?, event: MotionEvent): Boolean {
+                            when (event.actionMasked) {
+                                MotionEvent.ACTION_DOWN -> {
+                                    downX = event.x
+                                    downY = event.y
+                                    moved = false
+                                    // No consumimos: dejamos que osmdroid gestione el down
+                                    return false
+                                }
+
+                                MotionEvent.ACTION_MOVE -> {
+                                    val dx = kotlin.math.abs(event.x - downX)
+                                    val dy = kotlin.math.abs(event.y - downY)
+                                    if (dx > slop || dy > slop || event.pointerCount > 1) {
+                                        moved = true
+                                    }
+                                    // Si hay movimiento o multitouch, bloqueamos
+                                    return moved
+                                }
+
+                                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                    // Si NO se movió, es un tap -> no consumimos para que pueda clickar marcadores
+                                    // Si se movió, consumimos para evitar "fling"/pan
+                                    return moved
+                                }
+
+                                else -> return moved
+                            }
+                        }
+                    })
+                } else {
+                    mapView.setOnTouchListener(null)
+                    mapView.setMultiTouchControls(true)
+                }
+
+                // --- Actualización de mi ubicación ---
                 val point = myLocation
                 if (hasLocationPermission && point != null) {
                     val marker = myMarkerRef.value ?: Marker(mapView).also { created ->
                         created.title = "Mi ubicación"
-                        created.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        created.icon = myLocationIcon
+                        created.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                         myMarkerRef.value = created
                         mapView.overlays.add(created)
                     }
+
                     marker.position = point
+                    // Re-aplicar icono siempre por si cambia el tamaño/drawable
                     marker.icon = myLocationIcon
                 }
 
@@ -297,22 +387,21 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize()
         )
 
-        // NUEVO: cuando está fijado, ponemos una capa transparente que consume gestos,
-        // así no puede arrastrar/zoomear el mapa.
-        if (followMyLocation) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        awaitEachGesture {
-                            awaitFirstDown(requireUnconsumed = false)
-                            // Consumir eventos hasta levantar el dedo
-                            do {
-                                awaitPointerEvent()
-                            } while (true)
-                        }
-                    }
-            )
+        // Mantener ciclo de vida correcto del MapView para que recargue tiles bien.
+        DisposableEffect(lifecycleOwner) {
+            val mapView = mapViewRef.value
+            val observer = LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> mapView?.onResume()
+                    Lifecycle.Event.ON_PAUSE -> mapView?.onPause()
+                    else -> Unit
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+                mapView?.onPause()
+            }
         }
 
         // Botón para fijar/desfijar el seguimiento

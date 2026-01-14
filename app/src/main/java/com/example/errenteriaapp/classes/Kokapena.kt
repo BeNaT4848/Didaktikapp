@@ -10,8 +10,11 @@ data class Kokapena(
 
 // Datos de ejemplo
 val nireKokapenak = listOf(
-    Kokapena("Guggenheim Museoa", "Arte modernoko museoa", 43.2687, -2.9337),
-    Kokapena("San Mames", "Athletic Club-en futbol zelaia", 43.2642, -2.9497),
-    Kokapena("Alde Zaharra", "Bilboko erdigune historikoa", 43.2570, -2.9229),
-    Kokapena("Artxandako Funikularra", "Bista panoramikoak lortzeko", 43.2709, -2.9272)
+    Kokapena("Koldo Mitxelena Ikastetxea", "Errenteria", 43.31404559064167, -1.8999739279278425),
+    Kokapena("Xenpelar etxea", "Errenteria", 43.31192190936388, -1.9004965765201356),
+    Kokapena("Arramendi iturria", "Errenteria", 43.30762280468109, -1.9007732320843966),
+    Kokapena("Fanderiako errota", "Errenteria", 43.30890295279845, -1.8880250016062692),
+    Kokapena("Papresa", "Errenteria", 43.31252420825588, -1.89559828878411),
+    Kokapena("Herriko Plaza", "Errenteria", 43.3125029994187, -1.9012615941295046)
+
 )
