@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
+
 fun CrucigramaScreen(navController: NavController) {
     val viewModel: CrucigramaViewModel = viewModel()
     val celdas by viewModel.celdas
@@ -76,7 +77,14 @@ fun CrucigramaScreen(navController: NavController) {
             onBorrar = { fila, columna ->
                 onBorrarYRetroceder(fila, columna, viewModel, coroutineScope, focusRequesters)
             },
-            onEnterPressed = { _, _ -> },
+            onEnterPressed = { fila, columna ->
+                viewModel.moverFocoSiguienteDesdeEnter(
+                    fila,
+                    columna,
+                    coroutineScope,
+                    focusRequesters
+                )
+            },
             focusManager = focusManager,
             palabraActiva = palabraActiva,
             crucigramaEstado = crucigramaEstado,
@@ -100,6 +108,7 @@ fun CrucigramaScreen(navController: NavController) {
             palabraActiva = palabraActiva,
             onActivateWord = { numero -> viewModel.activarPalabraPorNumero(numero) }
         )
+
         LaunchedEffect(palabraActiva) {
             palabraActiva?.let { palabra ->
                 val posicion = Pair(palabra.filaInicio, palabra.columnaInicio)
@@ -108,6 +117,7 @@ fun CrucigramaScreen(navController: NavController) {
                 keyboardController?.show()
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         VerifyButton(
