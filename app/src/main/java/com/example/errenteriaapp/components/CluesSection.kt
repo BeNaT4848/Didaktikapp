@@ -62,7 +62,7 @@ fun CluesSection(
                     onClick = { onActivateWord(pista.numero) }
                 )
                 if (pista != pistasHorizontales.last()) {
-                    Spacer(modifier = Modifier.height(3.dp))
+                    Spacer(modifier = Modifier.height(1.dp))
                 }
             }
         }

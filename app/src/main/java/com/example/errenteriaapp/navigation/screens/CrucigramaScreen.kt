@@ -91,13 +91,14 @@ fun CrucigramaScreen(navController: NavController) {
 
         CluesSection(
             pistasHorizontales = listOf(
-                PistaInfo(1, "Duela milaka urte kobazuloetan bizi ziren gizakiak."),
-                PistaInfo(5, "Haria lantzeko erabiltzen zuten tresna.")
+                PistaInfo(1, "Kobazulo barruan agertzen diren gela desberdinak."),
+                PistaInfo(5, "Egitura harritsu bertikal eta luzanga, sabaitik haitzuloko lurreraino hedatzen dena, edo bertan bermatzen dena.")
             ),
             pistasVerticales = listOf(
-                PistaInfo(2, "Historiaurrea ikertzen duen zientzialaria."),
-                PistaInfo(4, "Aizpitarteko kobazuloak dauden herria."),
-                PistaInfo(3, "Kobazuloetako hormetan margotzen zituzten animaliak eta sinboloak.")
+                PistaInfo(2, "Kono irregularraren formako kareharri formazio, haitzulo baten lurretik gorantz hazten dena."),
+                PistaInfo(3, "Kobazulo baten sabaitik zintzirik dagoen egitura harritsua."),
+                PistaInfo(4, "Nola deitzen dira kobazuloetan aurkitzen diren irudiak? lehen gizakiek egindakoak.")
+
             ),
             palabraActiva = palabraActiva,
             onActivateWord = { numero -> viewModel.activarPalabraPorNumero(numero) }
