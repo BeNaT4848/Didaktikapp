@@ -83,7 +83,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
         try {
             org.osmdroid.config.Configuration.getInstance().userAgentValue = context.packageName
         } catch (_: Throwable) {
-            // no-op
+
         }
     }
 
@@ -136,7 +136,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
             )
         }
 
-        onDispose { }
+        onDispose { } 
     }
 
     LaunchedEffect(hasLocationPermission) {
@@ -285,7 +285,13 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                             title = kokapena.izena
                             snippet = kokapena.deskribapena
                             icon = kokapenaIconDefault
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+
+                            // Anclar el icono abajo-centro
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+
+                            // Acerca la InfoWindow al marker.
+                            // Si se ve demasiado abajo, baja Y.
+                            setInfoWindowAnchor(Marker.ANCHOR_CENTER, 0.30f)
                         }
 
                         // Toggle de selección + mostrar InfoWindow
@@ -373,6 +379,8 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                     val marker = myMarkerRef.value ?: Marker(mapView).also { created ->
                         created.title = "Mi ubicación"
                         created.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                        // Mantener una InfoWindow coherente (si algún día se muestra)
+                        created.setInfoWindowAnchor(Marker.ANCHOR_CENTER, 0.30f)
                         myMarkerRef.value = created
                         mapView.overlays.add(created)
                     }
