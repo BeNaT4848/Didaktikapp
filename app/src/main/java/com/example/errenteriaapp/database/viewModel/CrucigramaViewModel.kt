@@ -161,105 +161,104 @@ class CrucigramaViewModel : ViewModel() {
 
         return Pair(fila, columna)
     }
-    fun onBorrarYRetroceder(
-        fila: Int,
-        columna: Int,
-        viewModel: CrucigramaViewModel,
-        coroutineScope: CoroutineScope,
-        focusRequesters: Map<Pair<Int, Int>, FocusRequester>
-    ) {
-        val celda = viewModel.obtenerCelda(fila, columna)
+    // Función para obtener la celda anterior en TODO el crucigrama (no solo en palabra activa)
+    fun obtenerCeldaAnteriorCompleta(fila: Int, columna: Int): Pair<Int, Int>? {
+        val ultimaColumna = 7 // Tu grid tiene 8 columnas (0-7)
 
-        // Solo procesar si la celda no es negra y no es correcta
-        if (celda != null && !celda.esNegra && !celda.esCorrecta) {
-            // Usar el borrado inteligente
-            viewModel.borrarLetraInteligente(fila, columna)
+        // 1. Primero intentar la columna anterior en la misma fila
+        if (columna > 0) {
+            val prevCol = columna - 1
+            val celda = obtenerCelda(fila, prevCol)
+            if (celda != null && !celda.esNegra && !celda.esCorrecta) {
+                return Pair(fila, prevCol)
+            }
+        }
 
-            // Obtener la palabra activa actual
-            val palabraActiva = viewModel.crucigramaEstado.value.mapaCeldas[Pair(fila, columna)]
-                ?.firstOrNull { it.numero == viewModel.palabraActiva.value?.numero }
+        // 2. Si es la primera columna, ir a la última columna de la fila anterior
+        if (fila > 0) {
+            val prevFila = fila - 1
 
-            if (palabraActiva != null) {
-                // Buscar la última casilla con letra en la palabra activa
-                var ultimaCasillaConLetra: Pair<Int, Int>? = null
-
-                for (i in 0 until palabraActiva.longitud) {
-                    val currentFila = if (palabraActiva.direccion == "HORIZONTAL") {
-                        palabraActiva.filaInicio
-                    } else {
-                        palabraActiva.filaInicio + i
-                    }
-
-                    val currentColumna = if (palabraActiva.direccion == "HORIZONTAL") {
-                        palabraActiva.columnaInicio + i
-                    } else {
-                        palabraActiva.columnaInicio
-                    }
-
-                    val celdaActual = viewModel.obtenerCelda(currentFila, currentColumna)
-                    if (celdaActual?.letraUsuario != null && !celdaActual.esCorrecta) {
-                        ultimaCasillaConLetra = Pair(currentFila, currentColumna)
-                    }
-                }
-
-                // Mover el foco a la última casilla con letra, o a la primera si no hay ninguna
-                val siguienteFoco = ultimaCasillaConLetra ?:
-                Pair(palabraActiva.filaInicio, palabraActiva.columnaInicio)
-
-                coroutineScope.launch {
-                    delay(50)
-                    focusRequesters[siguienteFoco]?.requestFocus()
-                }
-            } else {
-                // Si no hay palabra activa, mover a la celda actual o anterior
-                val celdaAnterior = viewModel.obtenerCeldaAnterior(fila, columna)
-                celdaAnterior?.let { (prevFila, prevColumna) ->
-                    coroutineScope.launch {
-                        delay(50)
-                        focusRequesters[Pair(prevFila, prevColumna)]?.requestFocus()
-                    }
+            // Buscar desde la última columna hacia atrás
+            for (prevCol in ultimaColumna downTo 0) {
+                val celda = obtenerCelda(prevFila, prevCol)
+                if (celda != null && !celda.esNegra && !celda.esCorrecta) {
+                    return Pair(prevFila, prevCol)
                 }
             }
         }
+
+        // 3. Si no encontramos nada, buscar en toda la cuadrícula hacia atrás
+        var currentFila = fila
+        var currentColumna = columna - 1
+
+        while (currentFila >= 0) {
+            while (currentColumna >= 0) {
+                val celda = obtenerCelda(currentFila, currentColumna)
+                if (celda != null && !celda.esNegra && !celda.esCorrecta) {
+                    return Pair(currentFila, currentColumna)
+                }
+                currentColumna--
+            }
+            // Ir a la fila anterior, empezando por la última columna
+            currentFila--
+            currentColumna = ultimaColumna
+        }
+
+        return null
     }
-    fun onLetraCambiada(
+
+
+
+
+
+    fun obtenerAnteriorCeldaLlenaCompleta(fila: Int, columna: Int): Pair<Int, Int>? {
+        var currentFila = fila
+        var currentColumna = columna - 1
+        val ultimaColumna = 7
+
+        while (currentFila >= 0) {
+            while (currentColumna >= 0) {
+                val celda = obtenerCelda(currentFila, currentColumna)
+                if (celda != null &&
+                    !celda.esNegra &&
+                    !celda.esCorrecta &&
+                    celda.letraUsuario != null &&
+                    celda.letraUsuario != ' ') {
+                    return Pair(currentFila, currentColumna)
+                }
+                currentColumna--
+            }
+            currentFila--
+            currentColumna = ultimaColumna
+        }
+
+        return null
+    }
+
+    fun moverFocoAnteriorDesdeBorrar(
         fila: Int,
         columna: Int,
-        caracter: Char?,
-        viewModel: CrucigramaViewModel,
         coroutineScope: CoroutineScope,
         focusRequesters: Map<Pair<Int, Int>, FocusRequester>
     ) {
-        if (caracter != null) {
-            // Actualizar la letra
-            viewModel.onLetraCambiada(fila, columna, caracter)
+        // Estrategia: SIEMPRE ir a la celda anterior, sin importar si está llena o vacía
 
-            // Obtener la siguiente celda vacía en la palabra activa
-            val siguienteCelda = viewModel.obtenerSiguienteCeldaVacia(fila, columna)
+        // 1. Primero intentar buscar cualquier celda anterior (priorizando celdas con letra)
+        val anteriorLlena = obtenerAnteriorCeldaLlenaCompleta(fila, columna)
 
-            // Si hay siguiente celda vacía, mover el foco allí
-            siguienteCelda?.let { (nextFila, nextColumna) ->
-                coroutineScope.launch {
-                    delay(50)
-                    focusRequesters[Pair(nextFila, nextColumna)]?.requestFocus()
-                }
+        // 2. Si no hay celda llena, buscar cualquier celda anterior (vacía o lo que sea)
+        val anterior = anteriorLlena ?: obtenerCeldaAnteriorCompleta(fila, columna)
+
+        anterior?.let { (f, c) ->
+            coroutineScope.launch {
+                delay(50)
+                focusRequesters[Pair(f, c)]?.requestFocus()
             }
         }
     }
-    fun onClickCelda(
-        fila: Int,
-        columna: Int,
-        viewModel: CrucigramaViewModel
-    ) {
-        // Encontrar todas las palabras en esta celda
-        val palabrasEnCelda = viewModel.encontrarPalabraEnCelda(fila, columna)
 
-        if (palabrasEnCelda.isNotEmpty()) {
-            // Activar la primera palabra encontrada
-            val primeraPalabra = palabrasEnCelda.first()
-            viewModel.activarPalabraPorNumero(primeraPalabra.numero)
-        }
-    }
+
+
     fun onLetraCambiada(fila: Int, columna: Int, nuevoCaracter: Char?) {
         if (nuevoCaracter == null) return
 
@@ -274,21 +273,8 @@ class CrucigramaViewModel : ViewModel() {
         }
     }
 
-    fun borrarLetra(fila: Int, columna: Int) {
-        val celdaActual = obtenerCelda(fila, columna)
-        if (celdaActual?.letraUsuario != null && !celdaActual.esCorrecta) {
-            actualizarCelda(fila, columna) { it.copy(letraUsuario = null, esCorrecta = false) }
-        }
-    }
 
-    // Función para verificar si una celda pertenece a la palabra activa
-    fun esCeldaDePalabraActiva(fila: Int, columna: Int): Boolean {
-        val palabrasEnCelda = _crucigramaEstado.value.mapaCeldas[Pair(fila, columna)] ?: return false
-        return palabrasEnCelda.any { it.numero == _palabraActiva.value?.numero }
-    }
-    // Añade esta función en tu CrucigramaViewModel
 
-    // Función para encontrar la siguiente celda vacía en la palabra activa
     fun obtenerSiguienteCeldaVacia(filaActual: Int, columnaActual: Int): Pair<Int, Int>? {
         val palabra = _palabraActiva.value ?: return null
 
@@ -321,39 +307,7 @@ class CrucigramaViewModel : ViewModel() {
         return null
     }
 
-    // Función para obtener la celda anterior en la palabra activa
-    fun obtenerCeldaAnterior(filaActual: Int, columnaActual: Int): Pair<Int, Int>? {
-        val palabra = _palabraActiva.value ?: return null
 
-        val posActual = if (palabra.direccion == "HORIZONTAL") {
-            columnaActual - palabra.columnaInicio
-        } else {
-            filaActual - palabra.filaInicio
-        }
-
-        // Buscar la casilla anterior
-        if (posActual > 0) {
-            val prevFila = if (palabra.direccion == "HORIZONTAL") {
-                palabra.filaInicio
-            } else {
-                palabra.filaInicio + (posActual - 1)
-            }
-
-            val prevColumna = if (palabra.direccion == "HORIZONTAL") {
-                palabra.columnaInicio + (posActual - 1)
-            } else {
-                palabra.columnaInicio
-            }
-
-            val celda = obtenerCelda(prevFila, prevColumna)
-            if (celda != null && !celda.esNegra && !celda.esCorrecta) {
-                return Pair(prevFila, prevColumna)
-            }
-        }
-
-        // Si no hay anterior, devolver la primera
-        return Pair(palabra.filaInicio, palabra.columnaInicio)
-    }
 
     // Función para verificar respuestas
     fun verificarRespuestas() {

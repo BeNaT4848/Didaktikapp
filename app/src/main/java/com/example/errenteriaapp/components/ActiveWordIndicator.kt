@@ -42,7 +42,7 @@ fun ActiveWordIndicator(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Palabra activa: ${palabraActiva.numero} ",
+                text = "Letra Aukeratua (${palabraActiva.numero}) ",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1565C0)
@@ -56,7 +56,7 @@ fun ActiveWordIndicator(
                 ),
                 modifier = Modifier.height(36.dp)
             ) {
-                Text("Desactivar", fontSize = 12.sp)
+                Text("Desaktibatu", fontSize = 12.sp)
             }
         }
     }
