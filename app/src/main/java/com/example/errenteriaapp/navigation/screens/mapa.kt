@@ -28,6 +28,7 @@ import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenArrastr
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenCrucigrama
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenLetraZopa
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenOrdenatu
+import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenPapresa
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenSanMarkos
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,18 +116,32 @@ fun MapaScreen(
             }
         }
 
-        Button(
-            onClick = { navController.navigate(Routes.BASURA_SCREEN) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800),
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("Juego Basura", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        // BOTÓN Papresa - Abre Bottom Sheet
+        ReusableModalBottomSheet(
+            sheetContent = { onClose ->
+                AzalpenPapresa (
+                    onClose = onClose,
+                    onNavigateToGame = {
+                        // navega desde aquí si hace falta
+                        onClose()
+                        navController.navigate(Routes.PUZZLE_SCREEN)
+                    }
+                )
+            }
+        ) { openSheet ->
+            Button(
+                onClick = openSheet,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF9800),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Juego Papresa", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
         }
 
         // BOTÓN LetraZopa - Abre Bottom Sheet

@@ -28,11 +28,11 @@ import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
 /**
- * CONTENIDO BÁSICO - Solo los campos necesarios
+ * CONTENIDO BÁSICO - Audio opcional
  */
 data class AzalpenContenido(
-    // Audio obligatorio
-    val audioResource: Int,
+    // Audio ahora es opcional
+    val audioResource: Int? = null,
     val imagenesAudio: List<Int>,
     val timelineAudio: List<Pair<Long, Int>>,
 
@@ -58,11 +58,16 @@ fun AzalpenBase(
 
     var isPlaying by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    var audioFinished by remember { mutableStateOf(false) }
+    // Si no hay audio, marcamos como terminado desde el inicio
+    var audioFinished by remember {
+        mutableStateOf(contenido.audioResource == null)
+    }
     var currentImageIndex by remember { mutableStateOf(0) }
     var currentPosition by remember { mutableStateOf(0L) }
     var totalDuration by remember { mutableStateOf(0L) }
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
+
+    val tieneAudio = contenido.audioResource != null
 
     DisposableEffect(Unit) {
         onDispose {
@@ -115,7 +120,8 @@ fun AzalpenBase(
                 transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(300)) },
                 label = "PlayerToText"
             ) { finished ->
-                if (!finished) {
+                // Si no está terminado Y hay audio, mostrar player
+                if (!finished && tieneAudio) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -127,6 +133,7 @@ fun AzalpenBase(
                             currentPosition = currentPosition,
                             totalDuration = totalDuration,
                             audioFinished = audioFinished,
+                            tieneAudio = tieneAudio,
                             onPlayPauseClick = {
                                 if (isPlaying) {
                                     mediaPlayer?.pause()
@@ -135,7 +142,7 @@ fun AzalpenBase(
                                     if (mediaPlayer == null) {
                                         isLoading = true
                                         try {
-                                            val mp = MediaPlayer.create(context, contenido.audioResource)
+                                            val mp = MediaPlayer.create(context, contenido.audioResource!!)
                                             mp.setOnPreparedListener {
                                                 isLoading = false
                                                 it.start()
@@ -165,7 +172,7 @@ fun AzalpenBase(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // SOLUCIÓN: Solo mostrar imágenes si la lista no está vacía
+                        // Solo mostrar imágenes si la lista no está vacía
                         if (isPlaying && contenido.imagenesAudio.isNotEmpty()) {
                             Box(
                                 modifier = Modifier.fillMaxWidth(),
@@ -190,6 +197,7 @@ fun AzalpenBase(
                         }
                     }
                 } else {
+                    // MOSTRAR TEXTO Y BOTÓN (con o sin audio)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -249,6 +257,7 @@ fun AudioPlayerCard(
     currentPosition: Long,
     totalDuration: Long,
     audioFinished: Boolean,
+    tieneAudio: Boolean,
     onPlayPauseClick: () -> Unit
 ) {
     fun formatTime(milliseconds: Long): String {
@@ -264,53 +273,62 @@ fun AudioPlayerCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(Color.White)
-                        .clickable(enabled = !isLoading && !audioFinished, onClick = onPlayPauseClick),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 3.dp
-                        )
-                    } else {
-                        val iconRes = when {
-                            isPlaying -> com.example.errenteriaapp.R.drawable.pause
-                            audioFinished -> com.example.errenteriaapp.R.drawable.check
-                            else -> com.example.errenteriaapp.R.drawable.play_arrow
+                // Solo mostrar botón de play si hay audio
+                if (tieneAudio) {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(Color.White)
+                            .clickable(enabled = !isLoading && !audioFinished, onClick = onPlayPauseClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 3.dp
+                            )
+                        } else {
+                            val iconRes = when {
+                                isPlaying -> com.example.errenteriaapp.R.drawable.pause
+                                audioFinished -> com.example.errenteriaapp.R.drawable.check
+                                else -> com.example.errenteriaapp.R.drawable.play_arrow
+                            }
+                            Image(
+                                painter = painterResource(id = iconRes),
+                                contentDescription = if (isPlaying) "Pausar" else "Reproducir",
+                                modifier = Modifier.size(28.dp)
+                            )
                         }
-                        Image(
-                            painter = painterResource(id = iconRes),
-                            contentDescription = if (isPlaying) "Pausar" else "Reproducir",
-                            modifier = Modifier.size(28.dp)
-                        )
                     }
-                }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "AUDIO DIDAKTIKOA",
+                        text = if (tieneAudio) "AUDIO DIDAKTIKOA" else "AZALPENA",
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = if (isPlaying) "Entzuten... ${formatTime(currentPosition)}"
-                        else if (audioFinished) "Audioa amaitu da"
-                        else "Audioa entzun",
+                        text = if (tieneAudio) {
+                            when {
+                                isPlaying -> "Entzuten... ${formatTime(currentPosition)}"
+                                audioFinished -> "Audioa amaitu da"
+                                else -> "Audioa entzun"
+                            }
+                        } else {
+                            "Irakurri azalpena"
+                        },
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 14.sp
                     )
                 }
 
-                if (isPlaying) {
+                if (tieneAudio && isPlaying) {
                     Text(
                         text = formatTime(totalDuration - currentPosition),
                         color = MaterialTheme.colorScheme.onPrimary,
@@ -320,7 +338,7 @@ fun AudioPlayerCard(
                 }
             }
 
-            if (isPlaying && totalDuration > 0) {
+            if (tieneAudio && isPlaying && totalDuration > 0) {
                 Spacer(modifier = Modifier.height(12.dp))
                 LinearProgressIndicator(
                     progress = currentPosition.toFloat() / totalDuration.toFloat(),
