@@ -13,12 +13,33 @@ import android.view.View
 import android.view.ViewConfiguration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -30,13 +51,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.errenteriaapp.R
@@ -56,11 +81,236 @@ import org.osmdroid.views.overlay.Marker
 @Composable
 fun MapaOsmScreen(navController: NavController) {
     AppScaffold(navController = navController) {
+        // Rail solo de UI (no navega a ningún sitio)
+        var railSelectedIndex by rememberSaveable { mutableStateOf(0) }
+
+        // Nuevo: colapsado/expandido tipo Gmail
+        var railExpanded by rememberSaveable { mutableStateOf(false) }
+
+        // Forzamos colores muy contrastados para descartar tema/alpha.
+        val railContainer = MaterialTheme.colorScheme.surfaceVariant
+        val railSelected = MaterialTheme.colorScheme.primary
+        val railUnselected = MaterialTheme.colorScheme.onSurfaceVariant
+        val railIndicator = MaterialTheme.colorScheme.secondaryContainer
+
+        // Un poco más estrecho en modo colapsado
+        val targetRailWidth = if (railExpanded) 112.dp else 64.dp
+        val railWidth by animateDpAsState(
+            targetValue = targetRailWidth,
+            animationSpec = tween(durationMillis = 180),
+            label = "railWidth"
+        )
+
+        // Labels: animación ligera (solo alpha) para evitar recompos/layout caros
+        val labelAlpha by animateFloatAsState(
+            targetValue = if (railExpanded) 1f else 0f,
+            animationSpec = tween(durationMillis = 140),
+            label = "railLabelAlpha"
+        )
+
+        // Swipe gesture: umbral en px (ajustado a densidad)
+        val density = LocalDensity.current
+        val swipeThresholdPx = with(density) { 32.dp.toPx() }
+
+        // --- Swipe (fallback compatible): capa Android para detectar swipe desde el borde ---
+        // Importante: no depende de pointerInput (que en tu setup está dando Unresolved reference).
+        val swipeDetectorWidth = 24.dp
+
         Box(modifier = Modifier.fillMaxSize()) {
-            OsmMapView(
-                nireKokapenak = nireKokapenak,
-                modifier = Modifier.fillMaxSize()
+            // Detector de swipe en el borde izquierdo
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(swipeDetectorWidth)
+                    .zIndex(3f),
+                factory = { ctx ->
+                    View(ctx).apply {
+                        setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                        isClickable = true
+
+                        val touchSlop = ViewConfiguration.get(ctx).scaledTouchSlop
+                        val thresholdPx = swipeThresholdPx
+
+                        var downX = 0f
+                        var sumDx = 0f
+                        var tracking = false
+
+                        setOnTouchListener { _, event ->
+                            when (event.actionMasked) {
+                                MotionEvent.ACTION_DOWN -> {
+                                    downX = event.x
+                                    sumDx = 0f
+                                    tracking = true
+                                    true
+                                }
+
+                                MotionEvent.ACTION_MOVE -> {
+                                    if (!tracking) return@setOnTouchListener false
+                                    val dx = event.x - downX
+                                    if (kotlin.math.abs(dx) > touchSlop) {
+                                        sumDx = dx
+                                    }
+                                    true
+                                }
+
+                                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                    if (!tracking) return@setOnTouchListener false
+                                    tracking = false
+                                    if (sumDx > thresholdPx) {
+                                        railExpanded = true
+                                    }
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        }
+                    }
+                }
             )
+
+            // Contenido normal
+            Row(modifier = Modifier.fillMaxSize()) {
+                Surface(
+                    color = railContainer,
+                    tonalElevation = 2.dp,
+                    shadowElevation = 0.dp,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(railWidth)
+                        .zIndex(2f)
+                        .clip(RoundedCornerShape(0.dp))
+                ) {
+                    CompositionLocalProvider(LocalContentColor provides railUnselected) {
+                        NavigationRail(
+                            containerColor = railContainer,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            // Botón superior para expandir/colapsar
+                            NavigationRailItem(
+                                selected = false,
+                                onClick = { railExpanded = !railExpanded },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Expandir/colapsar",
+                                        tint = railUnselected
+                                    )
+                                },
+                                // Siempre ponemos label, pero lo hacemos invisible con alpha cuando está colapsado.
+                                label = {
+                                    Text(
+                                        "Menú",
+                                        modifier = Modifier
+                                            .padding(top = 4.dp)
+                                            .graphicsLayer { alpha = labelAlpha }
+                                    )
+                                },
+                                alwaysShowLabel = true,
+                                colors = NavigationRailItemDefaults.colors(
+                                    selectedIconColor = railUnselected,
+                                    selectedTextColor = railUnselected,
+                                    indicatorColor = Color.Transparent,
+                                    unselectedIconColor = railUnselected,
+                                    unselectedTextColor = railUnselected,
+                                )
+                            )
+
+                            // Más separación para que el header no quede pegado
+                            Spacer(modifier = Modifier.padding(top = 12.dp))
+
+                            val itemColors = NavigationRailItemDefaults.colors(
+                                selectedIconColor = railSelected,
+                                selectedTextColor = railSelected,
+                                indicatorColor = railIndicator,
+                                unselectedIconColor = railUnselected,
+                                unselectedTextColor = railUnselected,
+                            )
+
+                            NavigationRailItem(
+                                selected = railSelectedIndex == 0,
+                                onClick = { railSelectedIndex = 0 },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = "Inicio",
+                                        tint = if (railSelectedIndex == 0) railSelected else railUnselected
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        "Inicio",
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha }
+                                    )
+                                },
+                                alwaysShowLabel = true,
+                                colors = itemColors
+                            )
+                            NavigationRailItem(
+                                selected = railSelectedIndex == 1,
+                                onClick = { railSelectedIndex = 1 },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = "Ubicación",
+                                        tint = if (railSelectedIndex == 1) railSelected else railUnselected
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        "GPS",
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha }
+                                    )
+                                },
+                                alwaysShowLabel = true,
+                                colors = itemColors
+                            )
+                            NavigationRailItem(
+                                selected = railSelectedIndex == 2,
+                                onClick = { railSelectedIndex = 2 },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Ajustes",
+                                        tint = if (railSelectedIndex == 2) railSelected else railUnselected
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        "Ajustes",
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha }
+                                    )
+                                },
+                                alwaysShowLabel = true,
+                                colors = itemColors
+                            )
+                        }
+                    }
+                }
+
+                // Separador
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(1.dp)
+                        .background(MaterialTheme.colorScheme.outlineVariant)
+                        .zIndex(2f)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .zIndex(1f)
+                ) {
+                    OsmMapView(
+                        nireKokapenak = nireKokapenak,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
