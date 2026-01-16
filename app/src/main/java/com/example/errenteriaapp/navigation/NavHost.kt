@@ -24,10 +24,11 @@ import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.MapaOsmScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
-import com.example.errenteriaapp.navigation.screens.RankinScreen
+
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
 import com.example.errenteriaapp.navigation.screens.TaulaArrastrarScreen
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenBertso
+import com.example.errenteriaapp.screens.ranking.RankinScreen
 
 @Composable
 fun AppNavigation(
