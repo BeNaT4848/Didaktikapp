@@ -207,10 +207,10 @@ class CrucigramaViewModel : ViewModel() {
         return null
     }
 
+    // Función que busca la celda vacía anterior en TODO el crucigrama
 
 
-
-
+   
     fun obtenerAnteriorCeldaLlenaCompleta(fila: Int, columna: Int): Pair<Int, Int>? {
         var currentFila = fila
         var currentColumna = columna - 1
