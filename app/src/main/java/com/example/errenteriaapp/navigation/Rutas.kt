@@ -14,6 +14,8 @@ object Routes {
     const val TAULAARRASTRAR_SCRENN = "taula_arrastrar_screen"
 
     const val GPS_SCREEN = "gps_screen"
+    const val RANKIN_SCREEN = "rankin_screen"
+
 
 
 }

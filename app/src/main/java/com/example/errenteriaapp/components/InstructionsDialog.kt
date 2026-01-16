@@ -22,7 +22,7 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "¡Bienvenido al Crucigrama!",
+                text = "Ongi etorri Gurutzegrama!",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2196F3)
@@ -31,16 +31,16 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
         text = {
             Column {
                 Text(
-                    text = "Instrucciones:",
+                    text = "Argibideak:",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                InstructionItem("Haz clic en el NÚMERO de una pista para activar esa palabra")
-                InstructionItem("Solo puedes escribir en la palabra activa (se marca en naranja)")
-                InstructionItem("Presiona EGIAZTATU para verificar tus respuestas")
+                InstructionItem("Klik egin pista baten **ZENBAKIAN**  aktibatzeko hitz hori")
+                InstructionItem("Aktibo dagoen hitzean soilik idatzi dezakezu (laranjaz markatuta dago)")
+                InstructionItem("Sakatu **EGIAZTATU** zure erantzunak egiaztatzeko")
             }
         },
         confirmButton = {
@@ -50,7 +50,7 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
                     containerColor = Color(0xFF2196F3)
                 )
             ) {
-                Text("¡Entendido!")
+                Text("Ulertuta!")
             }
         },
         containerColor = Color.White,
