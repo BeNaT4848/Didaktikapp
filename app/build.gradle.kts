@@ -85,4 +85,8 @@ dependencies {
 
     // Mapa (osmdroid)
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    //Animations
+    implementation("androidx.compose.animation:animation:1.5.0")
+    implementation("androidx.compose.animation:animation-graphics:1.5.0")
 }

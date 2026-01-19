@@ -27,7 +27,7 @@ fun InstrumentoItem(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (encontrado) color.copy(alpha = 0.2f) else MaterialTheme.colorScheme.onPrimary
+            containerColor = if (encontrado) Color(0xFFC8E6C9) else MaterialTheme.colorScheme.onPrimary
         ),
         border = BorderStroke(
             1.dp,

@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +24,7 @@ fun CeldaSopa(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colorFondo = if (encontrada) Color.Yellow.copy(alpha = 0.8f) else Color.Transparent
+    val colorFondo = if (encontrada) Color(0xFFC8E6C9)else Color.Transparent
     val colorTexto = if (encontrada) Color.Black else Color.Black
 
     Box(
