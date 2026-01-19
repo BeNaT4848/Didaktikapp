@@ -118,7 +118,7 @@ fun PodiumItem(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Nombre completo
+            // Izen Osoa
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
