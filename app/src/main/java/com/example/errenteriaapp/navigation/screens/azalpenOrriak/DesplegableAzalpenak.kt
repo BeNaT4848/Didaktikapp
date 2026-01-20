@@ -104,149 +104,184 @@ fun AzalpenBase(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
     ) {
-        Box(
+        // Botón de SKIP en la esquina superior derecha
+        if (!audioFinished && tieneAudio) {
+            Text(
+                text = "SKIP",
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                        RoundedCornerShape(8.dp)
+                    )
+                    .clickable {
+                        // Parar el audio si está reproduciéndose
+                        mediaPlayer?.stop()
+                        mediaPlayer?.release()
+                        mediaPlayer = null
+                        isPlaying = false
+
+                        // Saltar directamente al juego
+                        onNavigateToGame()
+                    }
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(configuration.screenHeightDp.dp * 0.45f)
+                .padding(16.dp)
+                .padding(top = if (!audioFinished && tieneAudio) 60.dp else 0.dp)
         ) {
-            AnimatedContent(
-                targetState = audioFinished,
-                transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(300)) },
-                label = "PlayerToText"
-            ) { finished ->
-                // Si no está terminado Y hay audio, mostrar player
-                if (!finished && tieneAudio) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 20.dp)
-                    ) {
-                        AudioPlayerCard(
-                            isPlaying = isPlaying,
-                            isLoading = isLoading,
-                            currentPosition = currentPosition,
-                            totalDuration = totalDuration,
-                            audioFinished = audioFinished,
-                            tieneAudio = tieneAudio,
-                            onPlayPauseClick = {
-                                if (isPlaying) {
-                                    mediaPlayer?.pause()
-                                    isPlaying = false
-                                } else {
-                                    if (mediaPlayer == null) {
-                                        isLoading = true
-                                        try {
-                                            val mp = MediaPlayer.create(context, contenido.audioResource!!)
-                                            mp.setOnPreparedListener {
-                                                isLoading = false
-                                                it.start()
-                                                isPlaying = true
-                                                audioFinished = false
-                                                totalDuration = it.duration.toLong()
-                                            }
-                                            mp.setOnCompletionListener {
-                                                isPlaying = false
-                                                audioFinished = true
-                                                it.release()
-                                                mediaPlayer = null
-                                            }
-                                            mediaPlayer = mp
-                                        } catch (e: Exception) {
-                                            isLoading = false
-                                            e.printStackTrace()
-                                        }
-                                    } else {
-                                        mediaPlayer?.start()
-                                        isPlaying = true
-                                        audioFinished = false
-                                    }
-                                }
-                            }
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Solo mostrar imágenes si la lista no está vacía
-                        if (isPlaying && contenido.imagenesAudio.isNotEmpty()) {
-                            Box(
-                                modifier = Modifier.fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Crossfade(
-                                    targetState = currentImageIndex,
-                                    animationSpec = tween(1000)
-                                ) { index ->
-                                    // Verificación adicional de índice
-                                    if (index < contenido.imagenesAudio.size) {
-                                        Image(
-                                            painter = painterResource(id = contenido.imagenesAudio[index]),
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(200.dp)
-                                                .clip(RoundedCornerShape(12.dp))
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // MOSTRAR TEXTO Y BOTÓN (con o sin audio)
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 20.dp)
-                    ) {
-                        // Solo mostrar título si no está vacío
-                        if (contenido.tituloTexto.isNotEmpty()) {
-                            Text(
-                                text = contenido.tituloTexto,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-
-                        // Solo mostrar texto didáctico si no está vacío
-                        if (contenido.textoDidactico.isNotEmpty()) {
-                            Text(
-                                text = contenido.textoDidactico,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 14.sp
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-
-                        Button(
-                            onClick = onNavigateToGame,
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(configuration.screenHeightDp.dp * 0.45f)
+            ) {
+                AnimatedContent(
+                    targetState = audioFinished,
+                    transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(300)) },
+                    label = "PlayerToText"
+                ) { finished ->
+                    // Si no está terminado Y hay audio, mostrar player
+                    if (!finished && tieneAudio) {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(54.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            shape = RoundedCornerShape(28.dp)
+                                .fillMaxSize()
+                                .padding(top = 20.dp)
                         ) {
-                            Text(
-                                text = contenido.textoBoton,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                            AudioPlayerCard(
+                                isPlaying = isPlaying,
+                                isLoading = isLoading,
+                                currentPosition = currentPosition,
+                                totalDuration = totalDuration,
+                                audioFinished = audioFinished,
+                                tieneAudio = tieneAudio,
+                                onPlayPauseClick = {
+                                    if (isPlaying) {
+                                        mediaPlayer?.pause()
+                                        isPlaying = false
+                                    } else {
+                                        if (mediaPlayer == null) {
+                                            isLoading = true
+                                            try {
+                                                val mp = MediaPlayer.create(context, contenido.audioResource!!)
+                                                mp.setOnPreparedListener {
+                                                    isLoading = false
+                                                    it.start()
+                                                    isPlaying = true
+                                                    audioFinished = false
+                                                    totalDuration = it.duration.toLong()
+                                                }
+                                                mp.setOnCompletionListener {
+                                                    isPlaying = false
+                                                    audioFinished = true
+                                                    it.release()
+                                                    mediaPlayer = null
+                                                }
+                                                mediaPlayer = mp
+                                            } catch (e: Exception) {
+                                                isLoading = false
+                                                e.printStackTrace()
+                                            }
+                                        } else {
+                                            mediaPlayer?.start()
+                                            isPlaying = true
+                                            audioFinished = false
+                                        }
+                                    }
+                                }
                             )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            // Solo mostrar imágenes si la lista no está vacía
+                            if (isPlaying && contenido.imagenesAudio.isNotEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Crossfade(
+                                        targetState = currentImageIndex,
+                                        animationSpec = tween(1000)
+                                    ) { index ->
+                                        // Verificación adicional de índice
+                                        if (index < contenido.imagenesAudio.size) {
+                                            Image(
+                                                painter = painterResource(id = contenido.imagenesAudio[index]),
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(200.dp)
+                                                    .clip(RoundedCornerShape(12.dp))
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // MOSTRAR TEXTO Y BOTÓN (con o sin audio)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 20.dp)
+                        ) {
+                            // Solo mostrar título si no está vacío
+                            if (contenido.tituloTexto.isNotEmpty()) {
+                                Text(
+                                    text = contenido.tituloTexto,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+
+                            // Solo mostrar texto didáctico si no está vacío
+                            if (contenido.textoDidactico.isNotEmpty()) {
+                                Text(
+                                    text = contenido.textoDidactico,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 14.sp
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+
+                            Button(
+                                onClick = onNavigateToGame,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(54.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                ),
+                                shape = RoundedCornerShape(28.dp)
+                            ) {
+                                Text(
+                                    text = contenido.textoBoton,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+        }
     }
 }
 
