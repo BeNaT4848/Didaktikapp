@@ -269,5 +269,18 @@ fun MapaScreen(
         ) {
             Text("GPS", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
+        Button(
+            onClick = { navController.navigate(Routes.RANKIN_SCREEN) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF9800),
+                contentColor = Color.White
+            ),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text("Ranking", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }

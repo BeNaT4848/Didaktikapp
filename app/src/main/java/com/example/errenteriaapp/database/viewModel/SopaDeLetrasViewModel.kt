@@ -112,19 +112,6 @@ class SopaDeLetrasViewModel : ViewModel() {
             }
         }
     }
-
-    fun resetGame() {
-        _gameState.update {
-            SopaGameState(
-                palabrasEncontradas = emptyList(),
-                showSuccessDialog = false,
-                showWrongDialog = false,
-                mostrarExito = false,
-                mostrarPista = false
-            )
-        }
-    }
-
     fun hideSuccessDialog() {
         _gameState.update { it.copy(mostrarExito = false) }
     }

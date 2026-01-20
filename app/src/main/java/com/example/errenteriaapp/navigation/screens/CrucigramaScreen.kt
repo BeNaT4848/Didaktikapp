@@ -2,18 +2,12 @@ package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.ActiveWordIndicator
 import com.example.errenteriaapp.components.CluesSection
@@ -34,6 +28,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
+
 fun CrucigramaScreen(navController: NavController) {
     val viewModel: CrucigramaViewModel = viewModel()
     val celdas by viewModel.celdas
@@ -76,7 +71,14 @@ fun CrucigramaScreen(navController: NavController) {
             onBorrar = { fila, columna ->
                 onBorrarYRetroceder(fila, columna, viewModel, coroutineScope, focusRequesters)
             },
-            onEnterPressed = { _, _ -> },
+            onEnterPressed = { fila, columna ->
+                viewModel.moverFocoSiguienteDesdeEnter(
+                    fila,
+                    columna,
+                    coroutineScope,
+                    focusRequesters
+                )
+            },
             focusManager = focusManager,
             palabraActiva = palabraActiva,
             crucigramaEstado = crucigramaEstado,
@@ -89,17 +91,27 @@ fun CrucigramaScreen(navController: NavController) {
 
         CluesSection(
             pistasHorizontales = listOf(
-                PistaInfo(1, "Duela milaka urte kobazuloetan bizi ziren gizakiak."),
-                PistaInfo(5, "Haria lantzeko erabiltzen zuten tresna.")
+                PistaInfo(1, "Kobazulo barruan agertzen diren gela desberdinak."),
+                PistaInfo(5, "Egitura harritsu bertikal eta luzanga, sabaitik haitzuloko lurreraino hedatzen dena, edo bertan bermatzen dena.")
             ),
             pistasVerticales = listOf(
-                PistaInfo(2, "Historiaurrea ikertzen duen zientzialaria."),
-                PistaInfo(4, "Aizpitarteko kobazuloak dauden herria."),
-                PistaInfo(3, "Kobazuloetako hormetan margotzen zituzten animaliak eta sinboloak.")
+                PistaInfo(2, "Kono irregularraren formako kareharri formazio, haitzulo baten lurretik gorantz hazten dena."),
+                PistaInfo(3, "Kobazulo baten sabaitik zintzirik dagoen egitura harritsua."),
+                PistaInfo(4, "Nola deitzen dira kobazuloetan aurkitzen diren irudiak? lehen gizakiek egindakoak.")
+
             ),
             palabraActiva = palabraActiva,
             onActivateWord = { numero -> viewModel.activarPalabraPorNumero(numero) }
         )
+
+        LaunchedEffect(palabraActiva) {
+            palabraActiva?.let { palabra ->
+                val posicion = Pair(palabra.filaInicio, palabra.columnaInicio)
+
+                focusRequesters[posicion]?.requestFocus()
+                keyboardController?.show()
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

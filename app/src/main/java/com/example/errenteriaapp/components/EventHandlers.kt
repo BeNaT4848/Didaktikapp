@@ -40,18 +40,21 @@ fun onBorrarYRetroceder(
     columna: Int,
     viewModel: CrucigramaViewModel,
     coroutineScope: CoroutineScope,
-    focusRequesters: MutableMap<Pair<Int, Int>, FocusRequester>
+    focusRequesters: Map<Pair<Int, Int>, FocusRequester>
 ) {
-    coroutineScope.launch {
-        viewModel.borrarLetra(fila, columna)
-
-        val anteriorCelda = viewModel.obtenerCeldaAnterior(fila, columna)
-        anteriorCelda?.let { (prevFila, prevColumna) ->
-            focusRequesters[Pair(prevFila, prevColumna)]?.requestFocus()
-        } ?: run {
-            focusRequesters[Pair(fila, columna)]?.requestFocus()
-        }
+    // 1. Primero borra la letra de la celda ACTUAL si tiene
+    val celda = viewModel.obtenerCelda(fila, columna)
+    if (celda != null && !celda.esNegra && !celda.esCorrecta && celda.letraUsuario != null) {
+        viewModel.borrarLetraInteligente(fila, columna)
     }
+
+    // 2. Luego mueve el foco a la celda anterior (según la lógica inteligente)
+    viewModel.moverFocoAnteriorDesdeBorrar(
+        fila,
+        columna,
+        coroutineScope,
+        focusRequesters
+    )
 }
 
 fun onClickCelda(

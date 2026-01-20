@@ -19,6 +19,8 @@ appcompat = "1.7.1"
 uiTextGoogleFonts = "1.10.0"
 ui = "1.10.0"
 uiText = "1.10.0"
+firebaseFirestoreKtx = "26.0.2"
+playServicesMaps = "19.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

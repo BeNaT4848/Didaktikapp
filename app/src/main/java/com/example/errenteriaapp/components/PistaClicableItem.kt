@@ -5,61 +5,107 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
-
 @Composable
-fun PistaClicableItem(numero: Int, texto: String, esActiva: Boolean, esHorizontal: Boolean, onClick: () -> Unit) {
-    Card(
+fun PistaClicableItem(
+    numero: Int,
+    texto: String,
+    esActiva: Boolean,
+    esHorizontal: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    // Determinar colores según horizontal/vertical
+    val (colorPrincipal, colorContenedor, colorSobreContenedor) = if (esHorizontal) {
+        Triple(
+            colorScheme.secondary,
+            colorScheme.secondaryContainer,
+            colorScheme.onSecondaryContainer
+        )
+    } else {
+        Triple(
+            colorScheme.tertiary,
+            colorScheme.tertiaryContainer,
+            colorScheme.onTertiaryContainer
+        )
+    }
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = if (esActiva) Color(0xFFFFF3E0) else Color.Transparent
-        ),
-        border = if (esActiva) BorderStroke(2.dp, Color(0xFFFF9800)) else null
+            .clickable { onClick() },
+        color = if (esActiva) colorPrincipal else colorContenedor,
+        contentColor = if (esActiva) colorScheme.onSecondary else colorSobreContenedor,
+        shape = MaterialTheme.shapes.small,
+        tonalElevation = if (esActiva) 4.dp else 1.dp,
+        border = if (esActiva) BorderStroke(1.dp, colorPrincipal) else null
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.Top
+                .padding(vertical = 10.dp, horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .background(
-                        color = if (esActiva) Color(0xFFFF9800) else
-                            if (esHorizontal) Color(0xFFC8E6C9) else Color(0xFFBBDEFB),
-                        shape = androidx.compose.foundation.shape.CircleShape
-                    )
-                    .border(
-                        1.dp,
-                        if (esActiva) Color.Red else
-                            if (esHorizontal) Color(0xFF4CAF50) else Color(0xFF2196F3),
-                        androidx.compose.foundation.shape.CircleShape
-                    ),
-                contentAlignment = Alignment.Center
+            // Indicador visual H/V
+            Surface(
+                shape = MaterialTheme.shapes.extraSmall,
+                color = if (esActiva) colorScheme.onSecondary else colorPrincipal,
+                contentColor = if (esActiva) colorPrincipal else colorScheme.onSecondary,
+                modifier = Modifier.size(20.dp)
             ) {
-                Text(
-                    text = "$numero",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (esActiva) Color.White else
-                        if (esHorizontal) Color(0xFF2E7D32) else Color(0xFF1565C0)
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = if (esHorizontal) "→" else "↓",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
+            // Número de pista
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = if (esActiva) colorScheme.onSecondary else colorScheme.surface,
+                contentColor = if (esActiva) colorPrincipal else colorPrincipal,
+                modifier = Modifier.size(26.dp),
+                tonalElevation = 2.dp
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "$numero",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Texto de la pista
             Text(
                 text = texto,
-                fontSize = 15.sp,
-                color = if (esActiva) Color(0xFFE65100) else Color.Black,
+                fontSize = 14.sp,
+                fontWeight = if (esActiva) FontWeight.Bold else FontWeight.Medium,
                 modifier = Modifier.weight(1f)
             )
+
+            // Indicador de activo
+            if (esActiva) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(colorScheme.surface)
+                )
+            }
         }
     }
 }

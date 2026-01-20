@@ -24,10 +24,11 @@ import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.MapaOsmScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
-import com.example.errenteriaapp.navigation.screens.PuzzleScreen
+
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
 import com.example.errenteriaapp.navigation.screens.TaulaArrastrarScreen
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.AzalpenBertso
+import com.example.errenteriaapp.screens.ranking.RankinScreen
 
 @Composable
 fun AppNavigation(
@@ -100,14 +101,6 @@ fun AppNavigation(
                 navController = navController
             )
         }
-        composable(Routes.PUZZLE_SCREEN) {
-            PuzzleScreen(
-                onBack = { navController.navigateUp() },
-                onPuzzleComplete = {
-                    navController.navigate(Routes.BASURA_SCREEN)
-                }
-            )
-        }
         composable(Routes.SOPALETRA_SCREEN) {
             LetraSopaScreen(
                 navController = navController
@@ -125,6 +118,11 @@ fun AppNavigation(
         }
         composable(Routes.GPS_SCREEN) {
             MapaOsmScreen(
+                navController = navController
+            )
+        }
+        composable(Routes.RANKIN_SCREEN) {
+            RankinScreen(
                 navController = navController
             )
         }

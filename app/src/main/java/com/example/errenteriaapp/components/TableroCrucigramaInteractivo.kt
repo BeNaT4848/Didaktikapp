@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.clip
 import com.example.errenteriaapp.classes.*
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
@@ -35,6 +36,8 @@ fun TableroCrucigramaInteractivo(
     crucigramaEstado: CrucigramaEstado,
     onClickCelda: (Int, Int) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     // Organizar celdas en grid
     val grid = Array(11) { Array<CeldaEstado?>(8) { null } }
 
@@ -46,8 +49,8 @@ fun TableroCrucigramaInteractivo(
 
     Column(
         modifier = Modifier
-            .border(3.dp, Color.Black)
-            .background(Color.White)
+            .border(3.dp, colorScheme.outline)
+            .background(colorScheme.surface)
             .padding(1.dp)
     ) {
         for (fila in 0 until 11) {
@@ -98,6 +101,8 @@ fun CeldaInteractivaUI(
     estaActiva: Boolean,
     onClickCelda: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     var textFieldValue by remember(celda.letraUsuario) {
         mutableStateOf(
             TextFieldValue(
@@ -110,27 +115,36 @@ fun CeldaInteractivaUI(
     // Determinar si la celda es editable
     val esEditable = !celda.esNegra && !celda.esCorrecta && estaActiva
 
-    // Determinar color de fondo
+    // Determinar color de fondo usando los colores del tema
     val backgroundColor = when {
-        celda.esNegra -> Color.Black
-        celda.esCorrecta -> Color(0xFFC8E6C9)
-        estaActiva -> Color(0xFFFFF3E0) // Naranja claro para palabra activa
-        else -> Color(0xFFF5F5F5) // Gris claro para celdas no editables
+        celda.esNegra -> Color.Black  // Mantenemos negro para celdas negras
+        celda.esCorrecta -> Color(0xFFC8E6C9) // Usamos tertiaryContainer para correctas
+        estaActiva -> colorScheme.primaryContainer  // Usamos primaryContainer para activas
+        else -> colorScheme.surfaceContainer  // Usamos surfaceContainer para normales
     }
 
-    // Determinar color del texto
+    // Determinar color del texto usando los colores del tema
     val textColor = when {
-        celda.esNegra -> Color.White
-        celda.esCorrecta -> Color(0xFF2E7D32)
-        estaActiva -> Color(0xFFE65100) // Naranja oscuro para palabra activa
-        else -> Color(0xFF757575) // Gris oscuro para celdas no editables
+        celda.esNegra -> colorScheme.onSurface  // Texto claro sobre negro
+        celda.esCorrecta -> colorScheme.onTertiaryContainer  // Texto sobre tertiaryContainer
+        estaActiva -> colorScheme.onPrimaryContainer  // Texto sobre primaryContainer
+        else -> colorScheme.onSurfaceVariant  // Texto sutil para normales
     }
 
-    // Color del borde
+    // Color del borde usando los colores del tema
     val borderColor = when {
-        celda.esNegra -> Color.Gray
-        estaActiva -> Color(0xFFFF9800) // Naranja para palabra activa
-        else -> Color(0xFFE0E0E0) // Gris claro para no editables
+        celda.esNegra -> colorScheme.outlineVariant  // Borde sutil para negras
+        estaActiva -> colorScheme.primary  // Borde primary para activas
+        celda.esCorrecta -> colorScheme.tertiary  // Borde tertiary para correctas
+        else -> colorScheme.outlineVariant  // Borde sutil para normales
+    }
+
+    // Color del número de pista usando los colores del tema
+    val numeroPistaColor = when {
+        estaActiva -> colorScheme.error  // Error para destacar en activas
+        !esEditable && !celda.esNegra -> colorScheme.outline  // Outline para no editables
+        celda.esCorrecta -> colorScheme.onTertiaryContainer  // Color de texto correcto
+        else -> colorScheme.primary  // Primary para normales
     }
 
     Box(
@@ -152,8 +166,7 @@ fun CeldaInteractivaUI(
             Text(
                 text = "${celda.numeroPista}",
                 fontSize = 10.sp,
-                color = if (estaActiva) Color.Red else
-                    if (!esEditable && !celda.esNegra) Color(0xFF9E9E9E) else Color.Blue,
+                color = numeroPistaColor,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -162,7 +175,7 @@ fun CeldaInteractivaUI(
         }
 
         if (celda.esNegra) {
-            // Celda negra - no editable
+            // Celda negra - solo fondo negro
         } else if (celda.esCorrecta) {
             // Celda correcta - mostrar letra pero no editable
             Text(
@@ -173,7 +186,6 @@ fun CeldaInteractivaUI(
                 textAlign = TextAlign.Center
             )
         } else {
-            // IMPORTANTE: Siempre mostrar BasicTextField, pero controlar su estado con 'enabled'
             DisposableEffect(focusRequester) {
                 onDispose { }
             }
@@ -184,19 +196,17 @@ fun CeldaInteractivaUI(
                     // Solo procesar cambios si la celda es editable
                     if (!esEditable) return@BasicTextField
 
-                    // Si es la misma letra, ignorar (evita recomposiciones innecesarias)
+                    // Si es la misma letra, ignorar
                     if (newValue.text == textFieldValue.text) return@BasicTextField
 
                     // BACKSPACE - cuando el texto se hace vacío
                     if (newValue.text.isEmpty()) {
-                        // Primero mover el foco a la celda anterior
                         onBorrar()
-                        // Luego limpiar el texto local
                         textFieldValue = TextFieldValue("", TextRange(0))
                         return@BasicTextField
                     }
 
-                    // Escribir una letra nueva (solo una letra permitida)
+                    // Escribir una letra nueva
                     if (newValue.text.length == 1) {
                         val nuevaLetra = newValue.text.first().uppercaseChar()
                         if (celda.letraUsuario != nuevaLetra) {
@@ -204,7 +214,6 @@ fun CeldaInteractivaUI(
                             onLetraCambiada(nuevaLetra)
                         }
                     }
-
                     // Si es más de una letra (pegar texto), tomar solo la primera
                     else if (newValue.text.length > 1) {
                         val primeraLetra = newValue.text.first().uppercaseChar()
@@ -251,12 +260,13 @@ fun CeldaInteractivaUI(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         innerTextField()
+                        // Placeholder sutil cuando está vacío
                         if (textFieldValue.text.isEmpty()) {
-                            Text(
-                                text = "",
-                                fontSize = 20.sp,
-                                color = if (esEditable) Color.LightGray else Color(0xFFE0E0E0),
-                                textAlign = TextAlign.Center
+                            Box(
+                                modifier = Modifier
+                                    .size(4.dp)
+                                    .clip(androidx.compose.foundation.shape.CircleShape)
+                                    .background(colorScheme.outlineVariant)
                             )
                         }
                     }
