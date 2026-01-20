@@ -24,6 +24,7 @@ import com.example.errenteriaapp.navigation.screens.LetraSopaScreen
 import com.example.errenteriaapp.navigation.screens.MapaOsmScreen
 import com.example.errenteriaapp.navigation.screens.OrdenatuJolasaScreen
 import com.example.errenteriaapp.navigation.screens.PapresaScreen
+import com.example.errenteriaapp.navigation.screens.PuzzleScreen
 
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
 import com.example.errenteriaapp.navigation.screens.TaulaArrastrarScreen
@@ -99,6 +100,14 @@ fun AppNavigation(
         composable(Routes.BASURA_SCREEN) {
             PapresaScreen(
                 navController = navController
+            )
+        }
+        composable(Routes.PUZZLE_SCREEN) {
+            PuzzleScreen(
+                onBack = { navController.navigateUp() },
+                onPuzzleComplete = {
+                    navController.navigate(Routes.BASURA_SCREEN)
+                }
             )
         }
         composable(Routes.SOPALETRA_SCREEN) {
