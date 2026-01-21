@@ -111,7 +111,7 @@ fun OrdenatuJolasaScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black), // fondo que cubre toda la pantalla
+                .background(Color.White), // fondo que cubre toda la pantalla
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
