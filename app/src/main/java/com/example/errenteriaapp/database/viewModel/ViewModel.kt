@@ -5,13 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.database.Ikasle
 import com.example.errenteriaapp.database.IkasleDao
 import com.example.errenteriaapp.database.IrakasleDao
+import com.example.errenteriaapp.database.Partida
+import com.example.errenteriaapp.database.PartidaDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class LoginViewModel(
     private val ikasleDao: IkasleDao,
-    private val irakasleDao: IrakasleDao
+    private val irakasleDao: IrakasleDao,
+    private val partidaDao: PartidaDao
 ) : ViewModel() {
 
     private val _isSaving = MutableStateFlow(false)
@@ -44,9 +49,21 @@ class LoginViewModel(
                 } else {
                     val nuevoIkasle = Ikasle(
                         izenaAbizena = nombreCompleto.trim(),
-                        rol = "Default"
+                        rol = "Ikasle"
                     )
                     ikasleDao.insert(nuevoIkasle)
+
+                    // 2. Crear nueva partida con hora actual
+                    val horaActual = LocalDateTime.now()
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    val horaFormateada = horaActual.format(formatter)
+
+                    val nuevaPartida = Partida(
+                        izenaAbizena = nombreCompleto.trim(),
+                        ordua = horaFormateada
+                    )
+                    partidaDao.insert(nuevaPartida)
+
                     _loginSuccess.value = true
                 }
             } catch (e: Exception) {

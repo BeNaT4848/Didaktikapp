@@ -55,13 +55,14 @@ fun AppNavigation(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "errenteria_database"
-                ).build()
+                )   .build()
             }
             val ikasleDao = remember { db.ikasleDao() }
             val irakasleDao = remember { db.irakasleDao() }
+            val partidaDao = remember { db.partidaDao() }
 
             val loginViewModelFactory = remember {
-                LoginViewModelFactory(ikasleDao, irakasleDao)
+                LoginViewModelFactory(ikasleDao, irakasleDao,partidaDao)
             }
 
             val loginViewModel: LoginViewModel = viewModel(factory = loginViewModelFactory)
