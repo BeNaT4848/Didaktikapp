@@ -3,8 +3,10 @@ package com.example.errenteriaapp.database.viewModel
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -14,6 +16,7 @@ import com.example.errenteriaapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.max
 
 data class PuzzlePiece(
     val id: Int,
@@ -21,7 +24,8 @@ data class PuzzlePiece(
     val correctSlot: Int,      // Slot correcto (0-8)
     var currentSlot: Int? = null, // Slot actual (null si no está colocado)
     var offsetX: Float = 0f,   // Offset X para posición libre
-    var offsetY: Float = 0f    // Offset Y para posición libre
+    var offsetY: Float = 0f,   // Offset Y para posición libre
+    var isVisible: Boolean = false  // Nueva: si la pieza es visible abajo
 )
 
 class PuzzleViewModel : ViewModel() {
@@ -44,6 +48,10 @@ class PuzzleViewModel : ViewModel() {
     // Estados
     val isLoading = mutableStateOf(true)
 
+    // Nueva: índice de la siguiente pieza a mostrar
+    var nextPieceIndex by mutableStateOf(0)
+        private set
+
     // Imagen completa para mostrar al final
     val fullPuzzleImageRes: Int = R.drawable.papresa_azalpena
 
@@ -55,6 +63,9 @@ class PuzzleViewModel : ViewModel() {
 
     // ¿Está el puzzle completo?
     val isPuzzleComplete: Boolean get() = correctCount == totalPieces
+
+    // Variable para trackear qué pieza se está arrastrando
+    var draggingPieceId by mutableStateOf<Int?>(null)
 
     // Inicializar puzzle
     fun initializePuzzle(context: Context) {
@@ -80,7 +91,11 @@ class PuzzleViewModel : ViewModel() {
                         _pieces.addAll(piecesList)
                         _slots.clear()
                         repeat(totalPieces) { _slots.add(null) }
-                        placePiecesRandomly(context)
+                        nextPieceIndex = 0
+
+                        // Solo mostrar la primera pieza
+                        showNextPiece(context)
+
                         isLoading.value = false
                     }
                 } catch (e: Exception) {
@@ -110,30 +125,39 @@ class PuzzleViewModel : ViewModel() {
                     PuzzlePiece(
                         id = pieceId,
                         bitmap = pieceBitmap,
-                        correctSlot = row * cols + col
+                        correctSlot = row * cols + col,
+                        isVisible = false  // Inicialmente ninguna es visible
                     )
                 )
                 pieceId++
             }
         }
-        return pieces
+        return pieces.shuffled()  // Mezclar las piezas
     }
 
-    private fun placePiecesRandomly(context: Context) {
-        val displayMetrics = context.resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels.toFloat()
+    // Mostrar la siguiente pieza disponible
+    private fun showNextPiece(context: Context) {
+        if (nextPieceIndex < _pieces.size) {
+            // Hacer visible la siguiente pieza
+            val pieceIndex = nextPieceIndex
+            _pieces[pieceIndex] = _pieces[pieceIndex].copy(isVisible = true)
 
-        // Área inferior para piezas
-        val areaStartY = displayMetrics.heightPixels.toFloat() - 500f
+            // Posicionarla en la parte inferior (sola en el centro)
+            val displayMetrics = context.resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels.toFloat()
+            val screenHeight = displayMetrics.heightPixels.toFloat()
 
-        _pieces.forEachIndexed { index, piece ->
-            // Distribuir en 3 columnas en la parte inferior
-            val col = index % 3
-            val row = index / 3
+            val pieceSize = 100f
+            val posX = (screenWidth - pieceSize) / 3  // Centrada
+            val posY = screenHeight - 420f  // Un poco arriba del borde inferior
 
-            piece.offsetX = 30f + col * 110f
-            piece.offsetY = areaStartY + row * 110f
-            piece.currentSlot = null
+            _pieces[pieceIndex] = _pieces[pieceIndex].copy(
+                offsetX = posX,
+                offsetY = posY,
+                currentSlot = null
+            )
+
+            nextPieceIndex++
         }
     }
 
@@ -142,40 +166,57 @@ class PuzzleViewModel : ViewModel() {
         return _pieces.find { it.id == pieceId } ?: throw Exception("Pieza no encontrada")
     }
 
-    // Colocar pieza en slot
+    // Método para intercambiar piezas
+    fun swapPieces(pieceId1: Int, pieceId2: Int): Boolean {
+        val piece1 = getPieceById(pieceId1)
+        val piece2 = getPieceById(pieceId2)
+
+        if (piece1.currentSlot == null || piece2.currentSlot == null) {
+            return false
+        }
+
+        val slot1 = piece1.currentSlot!!
+        val slot2 = piece2.currentSlot!!
+
+        // Intercambiar en los slots
+        _slots[slot1] = pieceId2
+        _slots[slot2] = pieceId1
+
+        // Actualizar las piezas
+        val piece1Index = _pieces.indexOfFirst { it.id == pieceId1 }
+        val piece2Index = _pieces.indexOfFirst { it.id == pieceId2 }
+
+        _pieces[piece1Index] = piece1.copy(currentSlot = slot2)
+        _pieces[piece2Index] = piece2.copy(currentSlot = slot1)
+
+        return true
+    }
+
+    // Colocar pieza en slot (con soporte para intercambio)
     fun placePieceInSlot(pieceId: Int, slotIndex: Int): Boolean {
         val piece = getPieceById(pieceId)
 
-        // Si el slot ya tiene una pieza, intercambiar
+        // Si hay una pieza en el slot destino
         val existingPieceId = _slots[slotIndex]
 
-        if (existingPieceId != null && existingPieceId != pieceId) {
-            // Intercambiar
-            val existingPiece = getPieceById(existingPieceId)
-            val existingPieceIndex = _pieces.indexOfFirst { it.id == existingPieceId }
+        if (existingPieceId != null) {
+            // Intercambiar las piezas
+            return swapPieces(pieceId, existingPieceId)
+        }
 
-            // Mover pieza existente a la posición de la nueva
-            _pieces[existingPieceIndex] = existingPiece.copy(
-                currentSlot = piece.currentSlot,
-                offsetX = piece.offsetX,
-                offsetY = piece.offsetY
-            )
-
-            // Actualizar slot de la pieza existente
-            if (piece.currentSlot != null) {
-                _slots[piece.currentSlot!!] = existingPieceId
-            }
-        } else if (piece.currentSlot != null) {
-            // Liberar el slot anterior
+        // Si el slot está vacío...
+        // Si la pieza ya estaba en otro slot, liberarlo
+        if (piece.currentSlot != null) {
             _slots[piece.currentSlot!!] = null
         }
 
-        // Colocar nueva pieza en slot
+        // Colocar en nuevo slot
         val pieceIndex = _pieces.indexOfFirst { it.id == pieceId }
         _pieces[pieceIndex] = piece.copy(
             currentSlot = slotIndex,
             offsetX = 0f,
-            offsetY = 0f
+            offsetY = 0f,
+            isVisible = true
         )
 
         _slots[slotIndex] = pieceId
@@ -205,6 +246,28 @@ class PuzzleViewModel : ViewModel() {
                 offsetY = offsetY
             )
         }
+    }
+
+    // Nueva: cuando se coloca una pieza, mostrar la siguiente
+    fun onPiecePlaced(context: Context) {
+        // Contar cuántas piezas están colocadas
+        val placedPieces = _pieces.count { it.currentSlot != null }
+
+        // Mostrar siguiente pieza solo si es una nueva colocación (no intercambio)
+        // Y si hay más piezas por mostrar
+        if (nextPieceIndex < totalPieces) {
+            showNextPiece(context)
+        }
+    }
+
+    // Obtener piezas visibles (las que están abajo)
+    fun getVisiblePieces(): List<PuzzlePiece> {
+        return _pieces.filter { it.isVisible && it.currentSlot == null }
+    }
+
+    // Método para obtener pieza en un slot
+    fun getPieceInSlot(slotIndex: Int): PuzzlePiece? {
+        return _slots[slotIndex]?.let { getPieceById(it) }
     }
 
     // Extensión para contar con índice

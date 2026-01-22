@@ -22,6 +22,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 
@@ -46,6 +47,7 @@ fun GameSlot(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .aspectRatio(1f)
+            .padding(all = 5.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(
                 when {

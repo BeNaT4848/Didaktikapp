@@ -20,6 +20,7 @@ fun ReusableModalBottomSheet(
     sheetContainerColor: Color = Color(0xFF0E1B14),
     scrimAlpha: Float = 0.4f,
     sheetHeightFraction: Float = 0.48f,
+    onDismiss: () -> Unit = {},
     sheetContent: @Composable (onClose: () -> Unit) -> Unit,
     content: @Composable (openSheet: () -> Unit) -> Unit
 ) {
@@ -43,7 +44,10 @@ fun ReusableModalBottomSheet(
     // Modal cuando es true
     if (showSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
+            onDismissRequest = {
+                showSheet = false
+                onDismiss()
+            },
             sheetState = sheetState,
             containerColor = sheetContainerColor,
             scrimColor = Color.Black.copy(alpha = scrimAlpha)

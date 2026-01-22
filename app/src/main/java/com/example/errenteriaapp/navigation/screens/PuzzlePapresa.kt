@@ -132,16 +132,24 @@ fun PuzzleScreen(
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Image(
-                    painter = painterResource(id = viewModel.fullPuzzleImageRes),
-                    contentDescription = "Puzzlea osatuta",
-                    contentScale = ContentScale.Fit,
+                // IMAGEN CENTRADA
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
-                )
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = viewModel.fullPuzzleImageRes),
+                        contentDescription = "Puzzlea osatuta",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -153,16 +161,6 @@ fun PuzzleScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { showCompleteScreen = false },
-                    modifier = Modifier.fillMaxWidth(0.7f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Text("Puzzle-ra itzuli", fontSize = 18.sp)
-                }
             }
         } else {
             // PANTALLA DE JUEGO
@@ -230,11 +228,12 @@ fun PuzzleScreen(
                     }
                 }
 
-                // CUADRICULA DE SLOTS (con piezas colocadas)
+                // CUADRICULA DE SLOTS
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1.5f),
+                        .weight(1f)
+                        .padding(bottom = 8.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f)
                     ),
@@ -243,7 +242,7 @@ fun PuzzleScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(12.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         LazyVerticalGrid(
@@ -261,12 +260,6 @@ fun PuzzleScreen(
                                     viewModel = viewModel,
                                     onSlotPositioned = { bounds ->
                                         slotBounds[index] = bounds
-                                    },
-                                    onTap = { pieceId ->
-                                        // Quitar pieza del slot para arrastrar
-                                        viewModel.removePieceFromSlot(pieceId)
-                                        draggingPieceId = pieceId
-                                        dragOffset = Offset.Zero
                                     }
                                 )
                             }
@@ -274,105 +267,169 @@ fun PuzzleScreen(
                     }
                 }
 
-                // BOTÓN
-                Button(
-                    onClick = { if (viewModel.isPuzzleComplete) showCompleteScreen = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = viewModel.isPuzzleComplete,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (viewModel.isPuzzleComplete) {
-                            Color.Green
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        }
-                    )
+               // ESPACIO PARA LA(S) PIEZA(S) SUELTA(S)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(0.4f)
+                        .padding(bottom = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = if (viewModel.isPuzzleComplete) {
-                            "Puzzlea osatuta - Egiaztatu"
-                        } else {
-                            "${viewModel.totalPieces - viewModel.correctCount} pieza falta"
-                        },
-                        fontSize = 16.sp
-                    )
+                    if (viewModel.getVisiblePieces().isEmpty()) {
+                        Text(
+                            text = "",
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
             }
 
-            // RENDERIZAR PIEZAS NO COLOCADAS (las que se están arrastrando o en el área inferior)
-            viewModel.pieces.forEach { piece ->
-                if (piece.currentSlot == null || draggingPieceId == piece.id) {
-                    SlowDraggablePiece(
-                        piece = piece,
-                        isDragging = draggingPieceId == piece.id,
-                        dragOffset = if (draggingPieceId == piece.id) dragOffset else Offset.Zero,
-                        onDragStart = {
-                            draggingPieceId = piece.id
-                            dragOffset = Offset.Zero
-                        },
-                        onDrag = { dragAmount ->
-                            if (draggingPieceId == piece.id) {
-                                dragOffset += dragAmount
-                                // Actualizar posición en tiempo real
+            // RENDERIZAR PIEZAS SUELTAS (abajo del todo)
+            val loosePieces = viewModel.pieces.filter {
+                it.currentSlot == null && it.isVisible
+            }
+
+            loosePieces.forEach { piece ->
+                val isDragging = draggingPieceId == piece.id
+
+                SlowDraggablePiece(
+                    piece = piece,
+                    isDragging = isDragging,
+                    dragOffset = if (isDragging) dragOffset else Offset.Zero,
+                    onDragStart = {
+                        draggingPieceId = piece.id
+                        dragOffset = Offset.Zero
+                    },
+                    onDrag = { dragAmount ->
+                        if (draggingPieceId == piece.id) {
+                            dragOffset += dragAmount
+                            // Actualizar posición en tiempo real
+                            viewModel.updatePiecePosition(
+                                piece.id,
+                                piece.offsetX + dragOffset.x,
+                                piece.offsetY + dragOffset.y
+                            )
+                        }
+                    },
+                    onDragEnd = {
+                        if (draggingPieceId == piece.id) {
+                            val currentPiece = viewModel.getPieceById(piece.id)
+                            val pieceSizePx = with(density) { 100.dp.toPx() }
+
+                            val centerX = currentPiece.offsetX + dragOffset.x + pieceSizePx / 2
+                            val centerY = currentPiece.offsetY + dragOffset.y + pieceSizePx / 2
+
+                            // Buscar slot donde cayó
+                            var targetSlot: Int? = null
+                            slotBounds.forEach { (slotIndex, bounds) ->
+                                val dropPoint = Offset(centerX, centerY)
+                                if (bounds.contains(dropPoint)) {
+                                    targetSlot = slotIndex
+                                }
+                            }
+
+                            if (targetSlot != null) {
+                                // Intentar colocar o intercambiar
+                                val success = viewModel.placePieceInSlot(piece.id, targetSlot)
+                                if (success) {
+                                    // Si se colocó con éxito, mostrar siguiente pieza
+                                    viewModel.onPiecePlaced(context)
+                                }
+                            } else {
+                                // Si no cayó en un slot, mantener posición actual
                                 viewModel.updatePiecePosition(
                                     piece.id,
-                                    piece.offsetX + dragOffset.x,
-                                    piece.offsetY + dragOffset.y
+                                    currentPiece.offsetX + dragOffset.x,
+                                    currentPiece.offsetY + dragOffset.y
                                 )
                             }
-                        },
-                        onDragEnd = {
-                            if (draggingPieceId == piece.id) {
-                                // Calcular posición final del centro de la pieza
-                                val pieceSize = 100.dp
-                                val pieceSizePx = with(density) { pieceSize.toPx() }
 
-                                // ¡IMPORTANTE! Necesitamos la posición ACTUAL de la pieza
-                                val currentPiece = viewModel.getPieceById(piece.id)
+                            draggingPieceId = null
+                            dragOffset = Offset.Zero
+                        }
+                    }
+                )
+            }
 
-                                val centerX = currentPiece.offsetX + dragOffset.x + pieceSizePx / 2
-                                val centerY = currentPiece.offsetY + dragOffset.y + pieceSizePx / 2
+            // RENDERIZAR PIEZAS COLOCADAS QUE SE ESTÁN ARRASTRANDO
+            val draggingPlacedPiece = viewModel.pieces.firstOrNull {
+                it.currentSlot != null && draggingPieceId == it.id
+            }
 
-                                // Buscar slot donde cayó
-                                var targetSlot: Int? = null
-                                slotBounds.forEach { (slotIndex, bounds) ->
-                                    // Crear un Offset con las coordenadas
-                                    val dropPoint = Offset(centerX, centerY)
-                                    if (bounds.contains(dropPoint)) {
-                                        targetSlot = slotIndex
+            draggingPlacedPiece?.let { piece ->
+                SlowDraggablePiece(
+                    piece = piece,
+                    isDragging = true,
+                    dragOffset = dragOffset,
+                    onDragStart = {
+                        // El arrastre ya empezó
+                    },
+                    onDrag = { dragAmount ->
+                        if (draggingPieceId == piece.id) {
+                            dragOffset += dragAmount
+                            // Actualizar posición en tiempo real
+                            viewModel.updatePiecePosition(
+                                piece.id,
+                                piece.offsetX + dragOffset.x,
+                                piece.offsetY + dragOffset.y
+                            )
+                        }
+                    },
+                    onDragEnd = {
+                        if (draggingPieceId == piece.id) {
+                            val currentPiece = viewModel.getPieceById(piece.id)
+                            val pieceSizePx = with(density) { 100.dp.toPx() }
+
+                            val centerX = currentPiece.offsetX + dragOffset.x + pieceSizePx / 2
+                            val centerY = currentPiece.offsetY + dragOffset.y + pieceSizePx / 2
+
+                            // Buscar slot donde cayó
+                            var targetSlot: Int? = null
+                            slotBounds.forEach { (slotIndex, bounds) ->
+                                val dropPoint = Offset(centerX, centerY)
+                                if (bounds.contains(dropPoint)) {
+                                    targetSlot = slotIndex
+                                }
+                            }
+
+                            if (targetSlot != null) {
+                                // Intentar colocar o intercambiar
+                                val success = viewModel.placePieceInSlot(piece.id, targetSlot)
+                                if (!success) {
+                                    // Si no se pudo intercambiar, volver al slot original
+                                    // Primero restaurar en el slot original
+                                    val originalSlot = piece.currentSlot
+                                    if (originalSlot != null) {
+                                        viewModel.placePieceInSlot(piece.id, originalSlot)
                                     }
                                 }
-
-                                if (targetSlot != null) {
-                                    // Colocar en slot
-                                    viewModel.placePieceInSlot(piece.id, targetSlot)
-                                } else {
-                                    // Actualizar posición libre
-                                    viewModel.updatePiecePosition(
-                                        piece.id,
-                                        currentPiece.offsetX + dragOffset.x,
-                                        currentPiece.offsetY + dragOffset.y
-                                    )
+                            } else {
+                                // Si no cayó en un slot, volver al slot original
+                                val originalSlot = piece.currentSlot
+                                if (originalSlot != null) {
+                                    viewModel.placePieceInSlot(piece.id, originalSlot)
                                 }
-
-                                draggingPieceId = null
-                                dragOffset = Offset.Zero
                             }
+
+                            draggingPieceId = null
+                            dragOffset = Offset.Zero
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }
 }
 
-// COMPOSABLE PARA SLOT (con o sin pieza)
+// COMPOSABLE PARA SLOT (sin gestos de tap)
 @Composable
 fun SlotComposable(
     slotIndex: Int,
     pieceId: Int?,
     viewModel: PuzzleViewModel,
-    onSlotPositioned: (Rect) -> Unit,
-    onTap: (Int) -> Unit
+    onSlotPositioned: (Rect) -> Unit
 ) {
     val piece = pieceId?.let { viewModel.getPieceById(it) }
     val isCorrect = pieceId?.let { viewModel.getPieceById(it).correctSlot == slotIndex } ?: false
@@ -386,7 +443,7 @@ fun SlotComposable(
                 color = when {
                     piece != null && isCorrect -> Color.Green
                     piece != null && !isCorrect -> Color.Red
-                    else -> Color.Gray.copy(alpha = 0.3f)
+                    else -> Color.Gray.copy(alpha = 0.5f)
                 },
                 shape = RoundedCornerShape(8.dp)
             )
@@ -394,7 +451,7 @@ fun SlotComposable(
                 color = when {
                     piece != null && isCorrect -> Color.Green.copy(alpha = 0.1f)
                     piece != null && !isCorrect -> Color.Red.copy(alpha = 0.1f)
-                    else -> Color.LightGray.copy(alpha = 0.1f)
+                    else -> Color.LightGray.copy(alpha = 0.2f)
                 },
                 shape = RoundedCornerShape(8.dp)
             )
@@ -403,11 +460,19 @@ fun SlotComposable(
                 onSlotPositioned(bounds)
             }
             .pointerInput(slotIndex) {
+                // Gesto para iniciar arrastre desde una pieza colocada
                 if (pieceId != null) {
-                    detectTapGestures(
-                        onTap = {
-                            onTap(pieceId)
-                        }
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            // Cuando empiezan a arrastrar una pieza colocada
+                            // No hacemos nada aquí, el drag se maneja en el composable principal
+                        },
+                        onDrag = { change, dragAmount ->
+                            // Consumir el evento pero no hacer nada
+                            change.consume()
+                        },
+                        onDragEnd = {},
+                        onDragCancel = {}
                     )
                 }
             },
@@ -434,17 +499,18 @@ fun SlotComposable(
                     .border(1.dp, Color.White, RoundedCornerShape(6.dp))
             )
         } else {
-            // Número del slot (solo para debugging)
+            // Número del slot
             Text(
                 text = (slotIndex + 1).toString(),
-                color = Color.Gray.copy(alpha = 0.5f),
-                fontSize = 12.sp
+                color = Color.Gray.copy(alpha = 0.8f),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
 }
 
-// COMPOSABLE PARA PIEZA ARRASTRABLE LENTA (VERSIÓN MÁS SUAVE)
+// COMPOSABLE PARA PIEZA ARRASTRABLE
 @Composable
 fun SlowDraggablePiece(
     piece: com.example.errenteriaapp.database.viewModel.PuzzlePiece,
@@ -486,7 +552,7 @@ fun SlowDraggablePiece(
                     onDrag = { change: PointerInputChange, dragAmount: Offset ->
                         change.consume()
 
-                        // REDUCIR VELOCIDAD - Solo el 60% del movimiento original
+                        // REDUCIR VELOCIDAD
                         val slowFactor = 0.6f
                         val slowDragAmount = Offset(
                             x = dragAmount.x * slowFactor,

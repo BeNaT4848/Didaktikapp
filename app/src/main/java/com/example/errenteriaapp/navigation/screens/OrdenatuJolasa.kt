@@ -42,7 +42,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.example.errenteriaapp.ui.theme.backgroundLight
 
 @Composable
 fun OrdenatuJolasaScreen(
@@ -112,7 +111,7 @@ fun OrdenatuJolasaScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundLight), // fondo que cubre toda la pantalla
+                .background(Color.White), // fondo que cubre toda la pantalla
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

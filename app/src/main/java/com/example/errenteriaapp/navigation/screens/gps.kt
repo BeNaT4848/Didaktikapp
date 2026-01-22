@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
@@ -68,15 +69,19 @@ import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.Kokapena
 import com.example.errenteriaapp.classes.nireKokapenak
 import com.example.errenteriaapp.components.AppScaffold
+import com.example.errenteriaapp.components.KokapenaAzalpen
+import com.example.errenteriaapp.components.ReusableModalBottomSheet
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import kotlin.math.abs
 
 @Composable
 fun MapaOsmScreen(navController: NavController) {
@@ -116,6 +121,10 @@ fun MapaOsmScreen(navController: NavController) {
         // Importante: no depende de pointerInput (que en tu setup está dando Unresolved reference).
         val swipeDetectorWidth = 24.dp
 
+        // ** NUEVO: estado para el marcador seleccionado **
+        var selectedKokapena by remember { mutableStateOf<Kokapena?>(null) }
+
+
         Box(modifier = Modifier.fillMaxSize()) {
             // Detector de swipe en el borde izquierdo
             AndroidView(
@@ -147,7 +156,7 @@ fun MapaOsmScreen(navController: NavController) {
                                 MotionEvent.ACTION_MOVE -> {
                                     if (!tracking) return@setOnTouchListener false
                                     val dx = event.x - downX
-                                    if (kotlin.math.abs(dx) > touchSlop) {
+                                    if (abs(dx) > touchSlop) {
                                         sumDx = dx
                                     }
                                     true
@@ -166,8 +175,7 @@ fun MapaOsmScreen(navController: NavController) {
                             }
                         }
                     }
-                }
-            )
+                })
 
             // Contenido normal
             Row(modifier = Modifier.fillMaxSize()) {
@@ -205,8 +213,7 @@ fun MapaOsmScreen(navController: NavController) {
                                         "Menú",
                                         modifier = Modifier
                                             .padding(top = 4.dp)
-                                            .graphicsLayer { alpha = labelAlpha }
-                                    )
+                                            .graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
                                 colors = NavigationRailItemDefaults.colors(
@@ -234,54 +241,53 @@ fun MapaOsmScreen(navController: NavController) {
                                 onClick = { railSelectedIndex = 0 },
                                 icon = {
                                     Icon(
-                                        imageVector = Icons.Default.Home,
-                                        contentDescription = "Inicio",
+                                        Icons.Default.Home,
+                                        "Inicio",
                                         tint = if (railSelectedIndex == 0) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
                                         "Inicio",
-                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha }
-                                    )
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
                                 colors = itemColors
                             )
+
                             NavigationRailItem(
                                 selected = railSelectedIndex == 1,
                                 onClick = { railSelectedIndex = 1 },
                                 icon = {
                                     Icon(
-                                        imageVector = Icons.Default.LocationOn,
-                                        contentDescription = "Ubicación",
+                                        Icons.Default.LocationOn,
+                                        "Ubicación",
                                         tint = if (railSelectedIndex == 1) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
                                         "GPS",
-                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha }
-                                    )
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
                                 colors = itemColors
                             )
+
                             NavigationRailItem(
                                 selected = railSelectedIndex == 2,
                                 onClick = { railSelectedIndex = 2 },
                                 icon = {
                                     Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Ajustes",
+                                        Icons.Default.Settings,
+                                        "Ajustes",
                                         tint = if (railSelectedIndex == 2) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
                                         "Ajustes",
-                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha }
-                                    )
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
                                 colors = itemColors
@@ -307,13 +313,44 @@ fun MapaOsmScreen(navController: NavController) {
                 ) {
                     OsmMapView(
                         nireKokapenak = nireKokapenak,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                        modifier = Modifier.fillMaxSize(),
+                        onKokapenaClick = { kokapena ->
+                            // ** NUEVO: abrir modal al pulsar un marcador **
+                            selectedKokapena = kokapena
+                        })
+                }
+            }
+
+            // ** NUEVO: modal para mostrar KokapenaAzalpen **
+            if (selectedKokapena != null) {
+                val currentKokapena = selectedKokapena
+                ReusableModalBottomSheet(
+                    onDismiss = { selectedKokapena = null },
+                    sheetContent = { onClose ->
+                        KokapenaAzalpen(
+                            kokapena = currentKokapena!!,
+                            navController = navController,
+                            onClose = {
+                                selectedKokapena = null
+                                onClose()
+                            },
+                            onNavigateToGame = { route ->
+                                selectedKokapena = null
+                                onClose()
+                                navController.navigate(route)
+                            }
+                        )
+                    }
+                ) { openSheet ->
+                    LaunchedEffect(Unit) { openSheet() }
                 }
             }
         }
+
+
     }
 }
+
 
 /**
  * Contrato:
@@ -322,7 +359,11 @@ fun MapaOsmScreen(navController: NavController) {
  */
 @SuppressLint("MissingPermission")
 @Composable
-fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
+fun OsmMapView(
+    nireKokapenak: List<Kokapena>,
+    modifier: Modifier = Modifier,
+    onKokapenaClick: (Kokapena) -> Unit = {}
+) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -331,7 +372,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
     // Importante para que el servidor acepte requests (evita tiles en blanco / raros en algunos casos).
     SideEffect {
         try {
-            org.osmdroid.config.Configuration.getInstance().userAgentValue = context.packageName
+            Configuration.getInstance().userAgentValue = context.packageName
         } catch (_: Throwable) {
 
         }
@@ -360,19 +401,16 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
         hasLocationPermission =
-            (result[Manifest.permission.ACCESS_FINE_LOCATION] == true) ||
-                (result[Manifest.permission.ACCESS_COARSE_LOCATION] == true)
+            (result[Manifest.permission.ACCESS_FINE_LOCATION] == true) || (result[Manifest.permission.ACCESS_COARSE_LOCATION] == true)
     }
 
     DisposableEffect(Unit) {
         val fineGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
         val coarseGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            context, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
         hasLocationPermission = fineGranted || coarseGranted
@@ -386,7 +424,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
             )
         }
 
-        onDispose { } 
+        onDispose { }
     }
 
     LaunchedEffect(hasLocationPermission) {
@@ -403,7 +441,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                 }
             }
         } catch (_: SecurityException) {
-                }
+        }
 
         // 2) getCurrentLocation (puede ser más rápido que esperar al callback)
         try {
@@ -414,7 +452,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                     }
                 }
         } catch (_: SecurityException) {
-                }
+        }
     }
 
     // Updates de ubicación en tiempo real
@@ -426,11 +464,8 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
 
             // Ajuste: primer fix más rápido + luego precisión alta
             val request = LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                1500L
-            )
-                .setMinUpdateIntervalMillis(800L)
-                .build()
+                Priority.PRIORITY_HIGH_ACCURACY, 1500L
+            ).setMinUpdateIntervalMillis(800L).build()
 
             val callback = object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {
@@ -470,7 +505,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
     }
 
     // --- Util: crear un Drawable escalado a un tamaño fijo en dp ---
-    fun scaledDrawable(resId: Int, sizeDp: androidx.compose.ui.unit.Dp): Drawable? {
+    fun scaledDrawable(resId: Int, sizeDp: Dp): Drawable? {
         val base = ContextCompat.getDrawable(context, resId) ?: return null
         val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
@@ -528,41 +563,35 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                     controller.setZoom(startupZoom)
                     controller.setCenter(startupCenter)
 
-                    // Marcadores fijos (kokapenak) una sola vez
+                    // Marcadores kokapenak
                     nireKokapenak.forEach { kokapena ->
                         val m = Marker(this).apply {
                             position = GeoPoint(kokapena.latitudea, kokapena.longitudea)
                             title = kokapena.izena
                             snippet = kokapena.deskribapena
                             icon = kokapenaIconDefault
-
-                            // Anclar el icono abajo-centro
                             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-
-                            // Acerca la InfoWindow al marker.
-                            // Si se ve demasiado abajo, baja Y.
                             setInfoWindowAnchor(Marker.ANCHOR_CENTER, 0.30f)
                         }
 
                         // Toggle de selección + mostrar InfoWindow
                         m.setOnMarkerClickListener { marker, mapView ->
                             val prev = selectedKokapenaMarker.value
-
                             if (prev != null && prev != marker) {
                                 prev.icon = kokapenaIconDefault
                                 prev.closeInfoWindow()
                             }
 
                             if (prev == marker) {
-                                // Des-seleccionar
                                 marker.icon = kokapenaIconDefault
                                 marker.closeInfoWindow()
                                 selectedKokapenaMarker.value = null
                             } else {
-                                // Seleccionar
                                 marker.icon = kokapenaIconSelected
                                 marker.showInfoWindow()
                                 selectedKokapenaMarker.value = marker
+                                // ** NUEVO: callback para modal **
+                                onKokapenaClick(kokapena)
                             }
 
                             mapView?.invalidate()
@@ -576,8 +605,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
 
                     mapViewRef.value = this
                 }
-            },
-            update = { mapView ->
+            }, update = { mapView ->
                 // --- Bloqueo de gestos cuando está "Fijado" ---
                 // Queremos permitir TAPs sobre marcadores, pero bloquear arrastre/zoom.
                 if (followMyLocation) {
@@ -599,8 +627,8 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                                 }
 
                                 MotionEvent.ACTION_MOVE -> {
-                                    val dx = kotlin.math.abs(event.x - downX)
-                                    val dy = kotlin.math.abs(event.y - downY)
+                                    val dx = abs(event.x - downX)
+                                    val dy = abs(event.y - downY)
                                     if (dx > slop || dy > slop || event.pointerCount > 1) {
                                         moved = true
                                     }
@@ -641,8 +669,7 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
                 }
 
                 mapView.invalidate()
-            },
-            modifier = Modifier.fillMaxSize()
+            }, modifier = Modifier.fillMaxSize()
         )
 
         // Mantener ciclo de vida correcto del MapView para que recargue tiles bien.
@@ -677,13 +704,17 @@ fun OsmMapView(nireKokapenak: List<Kokapena>, modifier: Modifier = Modifier) {
         if (!hasLocationPermission) {
             Text(
                 text = "Activa permisos de ubicación",
-                modifier = Modifier.align(Alignment.TopCenter).padding(12.dp),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(12.dp),
                 color = MaterialTheme.colorScheme.onSurface
             )
         } else if (myLocation == null) {
             Text(
                 text = "Buscando tu ubicación…",
-                modifier = Modifier.align(Alignment.TopCenter).padding(12.dp),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(12.dp),
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
