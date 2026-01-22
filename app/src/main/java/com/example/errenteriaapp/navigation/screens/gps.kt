@@ -126,7 +126,7 @@ fun MapaOsmScreen(navController: NavController) {
 
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Detector de swipe en el borde izquierdo
+            // Detector de swipe en el borde izquierdo (abre el rail)
             AndroidView(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -141,13 +141,18 @@ fun MapaOsmScreen(navController: NavController) {
                         val thresholdPx = swipeThresholdPx
 
                         var downX = 0f
+                        var downY = 0f
                         var sumDx = 0f
                         var tracking = false
 
-                        setOnTouchListener { _, event ->
+                        setOnTouchListener { v, event ->
+                            // Si ya está abierto, este detector no hace nada.
+                            if (railExpanded) return@setOnTouchListener false
+
                             when (event.actionMasked) {
                                 MotionEvent.ACTION_DOWN -> {
                                     downX = event.x
+                                    downY = event.y
                                     sumDx = 0f
                                     tracking = true
                                     true
@@ -156,18 +161,29 @@ fun MapaOsmScreen(navController: NavController) {
                                 MotionEvent.ACTION_MOVE -> {
                                     if (!tracking) return@setOnTouchListener false
                                     val dx = event.x - downX
-                                    if (abs(dx) > touchSlop) {
+                                    val dy = event.y - downY
+
+                                    // Solo nos interesa gesto principalmente horizontal.
+                                    if (abs(dx) > touchSlop && abs(dx) > abs(dy) * 1.2f) {
                                         sumDx = dx
                                     }
                                     true
                                 }
 
-                                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                MotionEvent.ACTION_UP -> {
                                     if (!tracking) return@setOnTouchListener false
                                     tracking = false
+
                                     if (sumDx > thresholdPx) {
                                         railExpanded = true
+                                        // No es un click, pero para accesibilidad evitamos warning.
+                                        v?.performClick()
                                     }
+                                    true
+                                }
+
+                                MotionEvent.ACTION_CANCEL -> {
+                                    tracking = false
                                     true
                                 }
 
@@ -175,7 +191,80 @@ fun MapaOsmScreen(navController: NavController) {
                             }
                         }
                     }
-                })
+                }
+            )
+
+            // Detector de swipe sobre el rail cuando está expandido (cierra al swipar a la izquierda)
+            if (railExpanded) {
+                AndroidView(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(railWidth)
+                        .zIndex(3f),
+                    factory = { ctx ->
+                        View(ctx).apply {
+                            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+
+                            val touchSlop = ViewConfiguration.get(ctx).scaledTouchSlop
+                            val thresholdPx = swipeThresholdPx
+
+                            var downX = 0f
+                            var downY = 0f
+                            var sumDx = 0f
+                            var tracking = false
+                            var moved = false
+
+                            setOnTouchListener { v, event ->
+                                when (event.actionMasked) {
+                                    MotionEvent.ACTION_DOWN -> {
+                                        downX = event.x
+                                        downY = event.y
+                                        sumDx = 0f
+                                        moved = false
+                                        tracking = true
+                                        // No consumimos: dejamos que el rail reciba taps si finalmente no hay swipe.
+                                        false
+                                    }
+
+                                    MotionEvent.ACTION_MOVE -> {
+                                        if (!tracking) return@setOnTouchListener false
+                                        val dx = event.x - downX
+                                        val dy = event.y - downY
+
+                                        if (abs(dx) > touchSlop && abs(dx) > abs(dy) * 1.2f) {
+                                            sumDx = dx
+                                            moved = true
+                                        }
+
+                                        // Si estamos swipando horizontal, consumimos para evitar clicks raros.
+                                        moved
+                                    }
+
+                                    MotionEvent.ACTION_UP -> {
+                                        if (!tracking) return@setOnTouchListener false
+                                        tracking = false
+
+                                        if (sumDx < -thresholdPx) {
+                                            railExpanded = false
+                                            v?.performClick()
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    }
+
+                                    MotionEvent.ACTION_CANCEL -> {
+                                        tracking = false
+                                        false
+                                    }
+
+                                    else -> false
+                                }
+                            }
+                        }
+                    }
+                )
+            }
 
             // Contenido normal
             Row(modifier = Modifier.fillMaxSize()) {
@@ -317,7 +406,12 @@ fun MapaOsmScreen(navController: NavController) {
                         onKokapenaClick = { kokapena ->
                             // ** NUEVO: abrir modal al pulsar un marcador **
                             selectedKokapena = kokapena
-                        })
+                        },
+                        onUserMapGestureStart = {
+                            // Si el usuario empieza a mover/zoomear el mapa y el rail está abierto, lo cerramos.
+                            if (railExpanded) railExpanded = false
+                        }
+                    )
                 }
             }
 
@@ -362,7 +456,8 @@ fun MapaOsmScreen(navController: NavController) {
 fun OsmMapView(
     nireKokapenak: List<Kokapena>,
     modifier: Modifier = Modifier,
-    onKokapenaClick: (Kokapena) -> Unit = {}
+    onKokapenaClick: (Kokapena) -> Unit = {},
+    onUserMapGestureStart: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -517,8 +612,10 @@ fun OsmMapView(
 
     // Tamaños de iconos
     // Queremos que los kokapenak tengan el mismo tamaño que el de mi ubicación.
-    val myLocationIconSize = 84.dp
-    val kokapenaIconSize = myLocationIconSize
+    // Mi ubicación más pequeño para que no tape el mapa.
+    val myLocationIconSize = 48.dp
+    // Mantén los kokapenak como estaban (grandes).
+    val kokapenaIconSize = 84.dp
 
     // Icono por defecto para kokapenak
     val kokapenaIconDefault = remember { scaledDrawable(R.drawable.ubinegra, kokapenaIconSize) }
@@ -531,7 +628,7 @@ fun OsmMapView(
 
     // --- Icono para mi ubicación (Marker) ---
     val myLocationIcon: Drawable? = remember {
-        val base = ContextCompat.getDrawable(context, R.drawable.ubinegra) ?: return@remember null
+        val base = ContextCompat.getDrawable(context, R.drawable.ic_my_location_person) ?: return@remember null
 
         val sizeDp = myLocationIconSize
         val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)
@@ -605,16 +702,20 @@ fun OsmMapView(
 
                     mapViewRef.value = this
                 }
-            }, update = { mapView ->
+            },
+            update = { mapView ->
+                // --- Notificar gesto real de mapa (pan/zoom) para autocerrar el rail ---
+                // Esto no debe dispararse en taps (para no romper selección de marcadores).
+                var gestureNotified = false
+                val gestureSlop = ViewConfiguration.get(mapView.context).scaledTouchSlop
+
                 // --- Bloqueo de gestos cuando está "Fijado" ---
-                // Queremos permitir TAPs sobre marcadores, pero bloquear arrastre/zoom.
                 if (followMyLocation) {
                     mapView.setMultiTouchControls(false)
                     mapView.setOnTouchListener(object : View.OnTouchListener {
                         private var downX = 0f
                         private var downY = 0f
                         private var moved = false
-                        private val slop = ViewConfiguration.get(mapView.context).scaledTouchSlop
 
                         override fun onTouch(v: View?, event: MotionEvent): Boolean {
                             when (event.actionMasked) {
@@ -622,23 +723,32 @@ fun OsmMapView(
                                     downX = event.x
                                     downY = event.y
                                     moved = false
-                                    // No consumimos: dejamos que osmdroid gestione el down
+                                    gestureNotified = false
                                     return false
                                 }
 
                                 MotionEvent.ACTION_MOVE -> {
                                     val dx = abs(event.x - downX)
                                     val dy = abs(event.y - downY)
-                                    if (dx > slop || dy > slop || event.pointerCount > 1) {
+                                    if ((dx > gestureSlop || dy > gestureSlop || event.pointerCount > 1)) {
                                         moved = true
+                                        if (!gestureNotified) {
+                                            gestureNotified = true
+                                            onUserMapGestureStart()
+                                        }
                                     }
-                                    // Si hay movimiento o multitouch, bloqueamos
                                     return moved
                                 }
 
-                                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                                    // Si NO se movió, es un tap -> no consumimos para que pueda clickar marcadores
-                                    // Si se movió, consumimos para evitar "fling"/pan
+                                MotionEvent.ACTION_UP -> {
+                                    // Si NO se movió, es un tap -> dejamos que osmdroid lo procese.
+                                    if (!moved) v?.performClick()
+                                    gestureNotified = false
+                                    return moved
+                                }
+
+                                MotionEvent.ACTION_CANCEL -> {
+                                    gestureNotified = false
                                     return moved
                                 }
 
@@ -647,8 +757,52 @@ fun OsmMapView(
                         }
                     })
                 } else {
-                    mapView.setOnTouchListener(null)
+                    // Libre: dejamos gestos del mapa, pero detectamos cuando realmente empieza un pan/zoom.
                     mapView.setMultiTouchControls(true)
+                    mapView.setOnTouchListener(object : View.OnTouchListener {
+                        private var downX = 0f
+                        private var downY = 0f
+                        private var moved = false
+
+                        override fun onTouch(v: View?, event: MotionEvent): Boolean {
+                            when (event.actionMasked) {
+                                MotionEvent.ACTION_DOWN -> {
+                                    downX = event.x
+                                    downY = event.y
+                                    moved = false
+                                    gestureNotified = false
+                                    return false
+                                }
+
+                                MotionEvent.ACTION_MOVE -> {
+                                    val dx = abs(event.x - downX)
+                                    val dy = abs(event.y - downY)
+                                    if (!moved && (dx > gestureSlop || dy > gestureSlop || event.pointerCount > 1)) {
+                                        moved = true
+                                        if (!gestureNotified) {
+                                            gestureNotified = true
+                                            onUserMapGestureStart()
+                                        }
+                                    }
+                                    return false
+                                }
+
+                                MotionEvent.ACTION_UP -> {
+                                    // Tap (sin mover) -> accesibilidad
+                                    if (!moved) v?.performClick()
+                                    gestureNotified = false
+                                    return false
+                                }
+
+                                MotionEvent.ACTION_CANCEL -> {
+                                    gestureNotified = false
+                                    return false
+                                }
+
+                                else -> return false
+                            }
+                        }
+                    })
                 }
 
                 // --- Actualización de mi ubicación ---
