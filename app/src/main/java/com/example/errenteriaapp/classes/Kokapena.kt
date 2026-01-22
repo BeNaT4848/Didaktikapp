@@ -17,7 +17,7 @@ val nireKokapenak = listOf(
         "Errenteria",
         43.31404559064167,
         -1.8999739279278425,
-        route = Routes.BERTSOJOLASA_SCREEN
+        route = Routes.TAULAARRASTRAR_SCRENN
         //este de aqui realmente es la explicacion inicial que sale al abrir la app
     ),
     Kokapena(

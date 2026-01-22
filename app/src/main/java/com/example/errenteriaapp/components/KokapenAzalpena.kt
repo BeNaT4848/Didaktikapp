@@ -48,5 +48,10 @@ fun KokapenaAzalpen(
             onClose = onClose,
             onNavigateToGame = { onNavigateToGame(Routes.CRUCIGRAMA_SCREEN) }
         )
+
+        Routes.BASURA_SCREEN -> AzalpenPapresa(
+            onClose = onClose,
+            onNavigateToGame = { onNavigateToGame(Routes.PUZZLE_SCREEN) }
+        )
     }
 }
