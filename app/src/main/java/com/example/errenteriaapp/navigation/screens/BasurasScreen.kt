@@ -23,6 +23,7 @@ import com.example.errenteriaapp.navigation.Routes
 @Composable
 fun PapresaScreen(
     navController: NavController,
+    userName: String?,
     viewModel: PapresaViewModel = viewModel()
 ) {
     val currentIndex = viewModel.currentIndex

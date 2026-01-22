@@ -36,25 +36,27 @@ fun RestOfRankingSection(
     rankingData: List<RankingItem>,
     onSurfaceColor: Color
 ) {
-    val restItems = remember { rankingData.drop(3) }
+
     var showTitle by remember { mutableStateOf(false) }
     val visibleItems = remember { mutableStateListOf<Boolean>() }
 
-    // Inicializar estados de visibilidad
-    LaunchedEffect(Unit) {
-        visibleItems.addAll(List(restItems.size) { false })
+
+    // Inicializar la lista de visibilidad
+    LaunchedEffect(rankingData) {
+        visibleItems.clear()
+        visibleItems.addAll(List(rankingData.size) { false })
     }
 
     // Controlar animaciones escalonadas
     LaunchedEffect(isScreenLoaded) {
         if (isScreenLoaded) {
-            delay(200) // Pequeño delay después del podio
+            delay(200)
             showTitle = true
             delay(100)
 
-            // Animar items uno por uno muy rápido
-            restItems.forEachIndexed { index, _ ->
-                delay(25) // MUY RÁPIDO - solo 25ms entre items
+            // Animar items uno por uno
+            rankingData.forEachIndexed { index, _ ->
+                delay(25)
                 if (index < visibleItems.size) {
                     visibleItems[index] = true
                 }
@@ -96,10 +98,9 @@ fun RestOfRankingSection(
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             itemsIndexed(
-                items = restItems,
+                items = rankingData,
                 key = { _, item -> item.name }
             ) { index, item ->
-                // Animación individual optimizada
                 AnimatedVisibility(
                     visible = index < visibleItems.size && visibleItems[index],
                     enter = fadeIn(
@@ -110,7 +111,7 @@ fun RestOfRankingSection(
                     )
                 ) {
                     RankingCard(
-                        position = index + 4,
+                        position = index + 4, // Empieza desde la posición 4
                         item = item,
                         modifier = Modifier
                             .padding(horizontal = 8.dp, vertical = 6.dp)

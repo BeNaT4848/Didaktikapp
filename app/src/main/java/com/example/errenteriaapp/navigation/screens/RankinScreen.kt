@@ -3,33 +3,53 @@ package com.example.errenteriaapp.screens.ranking
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.classes.RankingItem
-import com.example.errenteriaapp.ui.theme.onSurfaceLight
+import com.example.errenteriaapp.database.viewModel.RankingViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun RankinScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: RankingViewModel = viewModel()
 ) {
     // Estados para controlar animaciones progresivas
     var isScreenLoaded by remember { mutableStateOf(false) }
-    val rankingData = remember { RankingDataProvider.getRankingData() }
 
-    // Animar entrada progresiva
+    // Obtener datos REALES del ViewModel
+    val rankingData by viewModel.rankingData.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    // Convertir datos REALES de la base de datos a RankingItem
+    val rankingItems = remember(rankingData) {
+        rankingData.mapIndexed { index, puntuazio ->
+            val totalPoints = viewModel.calculateTotalPoints(puntuazio)
+            RankingItem(
+                name = puntuazio.izenaAbizena, // Esto ahora debería funcionar
+                points = totalPoints,
+                color =Color.Red ,
+            )
+        }
+    }
+
     LaunchedEffect(Unit) {
-        delay(100) // Muy corto para que cargue rápido
+        // Cargar datos REALES al iniciar
+        viewModel.loadRanking()
+        delay(100)
         isScreenLoaded = true
     }
 
     Scaffold(
         topBar = {
             AnimatedVisibility(
-                visible = isScreenLoaded,
+                visible = isScreenLoaded && !isLoading,
                 enter = fadeIn(animationSpec = tween(200)) +
                         slideInVertically(
                             animationSpec = tween(250, easing = FastOutSlowInEasing),
@@ -43,21 +63,33 @@ fun RankinScreen(
             }
         }
     ) { paddingValues ->
-        RankingContent(
-            isScreenLoaded = isScreenLoaded,
-            rankingData = rankingData,
-            paddingValues = paddingValues
-        )
+        if (isLoading) {
+            // Mostrar indicador de carga mientras se cargan los datos
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            RankingContent(
+                isScreenLoaded = isScreenLoaded,
+                rankingItems = rankingItems, // Usamos los datos REALES convertidos
+                paddingValues = paddingValues
+            )
+        }
     }
 }
 
 @Composable
 private fun RankingContent(
     isScreenLoaded: Boolean,
-    rankingData: List<RankingItem>,
+    rankingItems: List<RankingItem>, // Solo necesitamos esta lista
     paddingValues: PaddingValues
 ) {
-    val onSurfaceColor = onSurfaceLight
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     // Fondo inmediato
     RankingBackground(
@@ -66,22 +98,21 @@ private fun RankingContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // PODIO - Aparece primero
-            PodiumSection(
-                isVisible = isScreenLoaded,
-                rankingData = rankingData,
-                onSurfaceColor = onSurfaceColor
-            )
+
+
+                PodiumSection(
+                    isVisible = isScreenLoaded,
+                    rankingData = rankingItems.take(3), // Usamos los datos REALES
+                    onSurfaceColor = onSurfaceColor
+                )
+
 
             // RESTO DEL RANKING - Aparece después
             RestOfRankingSection(
                 isScreenLoaded = isScreenLoaded,
-                rankingData = rankingData,
+                rankingData = rankingItems.drop(3),
                 onSurfaceColor = onSurfaceColor
             )
         }
+        }
     }
-}
-
-
-

@@ -25,7 +25,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LetraSopaScreen(
-    navController: NavController
+    navController: NavController,
+    userName: String?,
 ) {
     val viewModel: SopaDeLetrasViewModel = viewModel()
     val gameState by viewModel.gameState.collectAsState()

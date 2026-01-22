@@ -5,9 +5,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.R
+import com.example.errenteriaapp.database.Puntuazioa
+import com.example.errenteriaapp.database.PuntuazioaDao
+import kotlinx.coroutines.launch
 
-class OrdenatuJolasaViewModel : ViewModel() {
+class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewModel() {
     // Mapeo foto -> número correcto
     val photoNumberMap = mapOf(
         R.drawable.errota_prozesua_1 to 1,
@@ -31,6 +35,9 @@ class OrdenatuJolasaViewModel : ViewModel() {
     var showWrongDialog by mutableStateOf(false)
         private set
 
+    // Añade esta variable para el nombre del usuario
+    var currentUserName: String? = null
+
     init {
         initGame(shuffle = true)
     }
@@ -42,7 +49,6 @@ class OrdenatuJolasaViewModel : ViewModel() {
         showSuccessDialog = false
         showWrongDialog = false
     }
-
 
     // Asignar una foto a un slot (desde drag desde panel de fotos)
     fun assignPhotoToSlot(photoRes: Int, targetIndex: Int) {
@@ -69,7 +75,6 @@ class OrdenatuJolasaViewModel : ViewModel() {
         checkCompletion()
     }
 
-
     private val correctCount: Int
         get() = slotAssignments.withIndex().count { (slotIndex, photoRes) ->
             photoRes != null && photoNumberMap[photoRes] == slotIndex + 1
@@ -80,11 +85,7 @@ class OrdenatuJolasaViewModel : ViewModel() {
 
     private fun checkCompletion() {
         if (!isComplete) return
-        if (correctCount >= 3) {
-            showSuccessDialog = true
-        } else {
-            showWrongDialog = true
-        }
+        verificarCompletado()
     }
 
     fun resetGame() {
@@ -94,5 +95,62 @@ class OrdenatuJolasaViewModel : ViewModel() {
     fun dismissDialogs() {
         showSuccessDialog = false
         showWrongDialog = false
+    }
+
+    fun guardarPuntuacion(puntos: Int) {
+        viewModelScope.launch {
+            currentUserName?.let { nombreUsuario ->
+                puntuazioaDao?.let { dao ->
+                    val puntuazioActual = dao.getByName(nombreUsuario)
+
+                    if (puntuazioActual != null) {
+                        val nuevaPuntuazio = puntuazioActual.copy(
+                            puntuazioaArrastrar = puntuazioActual.puntuazioaArrastrar + puntos
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    } else {
+                        val nuevaPuntuazio = Puntuazioa(
+                            izenaAbizena = nombreUsuario,
+                            puntuazioaBertso = 0,
+                            puntuazioaGalderak = 0,
+                            puntuazioaGurutzegrama = 0,
+                            puntuazioaErrotaProzezua = 0,
+                            puntuazioaPapresa = 0,
+                            puntuazioaArrastrar = puntos,
+                            puntuazioaSopaLetra = 0
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    }
+                }
+            }
+        }
+    }
+
+    // Función que verifica si el juego está completado
+    private fun verificarCompletado() {
+        val puntosCorrectos = calcularPuntos()
+        if (puntosCorrectos >= 3) { // Según tu mensaje "gutxienez 3 ondo"
+            // Guardar puntos cuando el juego se completa exitosamente
+            guardarPuntuacion(puntosCorrectos)
+            showSuccessDialog = true
+        } else {
+            showWrongDialog = true
+        }
+    }
+
+    private fun calcularPuntos(): Int {
+        // Lógica para calcular cuántas fotos están en la posición correcta
+        var puntos = 0
+        slotAssignments.forEachIndexed { index, photoRes ->
+            if (photoRes != null && photoNumberMap[photoRes] == index + 1) {
+                puntos++
+            }
+        }
+        return puntos
+    }
+
+    // Método para establecer el usuario
+    fun setUsuario(nombre: String) {
+        currentUserName = nombre
     }
 }

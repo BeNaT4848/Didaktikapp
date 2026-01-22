@@ -25,6 +25,7 @@ import com.example.errenteriaapp.navigation.Routes
 @Composable
 fun BertsoJolasaScreen(
     navController: NavController,
+    userName: String?,
     puntuakViewModel: PuntuakViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -203,6 +204,6 @@ fun BertsoJolasaScreen(
 @Preview(showBackground = true)
 @Composable
 private fun BertsoJolasaPreview() {
-    BertsoJolasaScreen(navController = rememberNavController()
+    BertsoJolasaScreen(navController = rememberNavController(), userName = "User"
     )
 }

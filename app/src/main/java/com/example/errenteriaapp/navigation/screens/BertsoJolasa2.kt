@@ -25,6 +25,7 @@ import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
 @Suppress("UNUSED_PARAMETER")
 fun BertsoJolasaScreen2(
     navController: NavController,
+    userName: String?,
     puntuakViewModel: PuntuakViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -148,5 +149,5 @@ fun BertsoJolasaScreen2(
 @Preview(showBackground = true)
 @Composable
 private fun BertsoJolasa2Preview() {
-    BertsoJolasaScreen2(rememberNavController())
+    BertsoJolasaScreen2(rememberNavController(), userName = "User")
 }

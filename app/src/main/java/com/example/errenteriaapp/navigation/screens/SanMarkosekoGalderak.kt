@@ -13,7 +13,8 @@ import com.example.errenteriaapp.components.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SanMarkosekoGalderak(
-    navController: NavController
+    navController: NavController,
+    userName: String?,
 ) {
     var galderaIndex by remember { mutableIntStateOf(0) }
     var aukeraHautatua by remember { mutableIntStateOf(-1) }

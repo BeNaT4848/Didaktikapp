@@ -29,7 +29,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 
-fun CrucigramaScreen(navController: NavController) {
+fun CrucigramaScreen(navController: NavController,
+                     userName: String?,) {
     val viewModel: CrucigramaViewModel = viewModel()
     val celdas by viewModel.celdas
     val crucigramaEstado by viewModel.crucigramaEstado

@@ -17,6 +17,7 @@ import com.example.errenteriaapp.viewmodel.DragGameViewModel
 @Composable
 fun TaulaArrastrarScreen(
     navController: NavController,
+    userName: String?,
     viewModel: DragGameViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
