@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,9 +19,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.errenteriaapp.components.ClickableTextFunction
+import com.example.errenteriaapp.components.GameResultDialogs
 import com.example.errenteriaapp.components.ParagraphCard
 import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
+import com.example.errenteriaapp.navigation.Routes
 
 @Composable
 @Suppress("UNUSED_PARAMETER")
@@ -27,21 +31,43 @@ fun BertsoJolasaScreen2(
     navController: NavController,
     puntuakViewModel: PuntuakViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val totalItems = 5
+    val requiredCorrect = 3
     val attempt = puntuakViewModel.attempt
+    val showSuccess = remember { mutableStateOf(false) }
+    val showWrong = remember { mutableStateOf(false) }
 
-    fun handleProgress(onAfterAnswer: (() -> Unit)? = null) {
+    fun handleAnswer(isCorrect: Boolean) {
+        if (showSuccess.value || showWrong.value) return
+        if (isCorrect) {
+            puntuakViewModel.registerCorrect()
+        }
         val answered = puntuakViewModel.registerAnswer()
-        onAfterAnswer?.invoke()
         if (answered == totalItems) {
-            if (puntuakViewModel.correctCount > 3) {
-                puntuakViewModel.restartAttempt()
+            if (puntuakViewModel.correctCount >= requiredCorrect) {
+                showSuccess.value = true
             } else {
-                puntuakViewModel.restartAttempt()
+                showWrong.value = true
             }
         }
     }
+
+    GameResultDialogs(
+        showSuccess = showSuccess.value,
+        showWrong = showWrong.value,
+        onDismissSuccess = { showSuccess.value = false },
+        onDismissWrong = { showWrong.value = false },
+        onSuccessButton = {
+            showSuccess.value = false
+            puntuakViewModel.restartAttempt()
+            navController.navigate(Routes.MAPA_SCREEN)
+        },
+        onWrongButton = {
+            showWrong.value = false
+            puntuakViewModel.restartAttempt()
+            navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
+        }
+    )
 
     LazyColumn(
         modifier = Modifier
@@ -68,8 +94,10 @@ fun BertsoJolasaScreen2(
                     bct = "serbitzen",
                     cct = "zerbitzaz",
                     correctAnswer = "serbitzen",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
-                    onAnswered = { handleProgress() },
+                    onCorrect = { handleAnswer(true) },
+                    onWrong = { handleAnswer(false) },
+                    onAnswered = {},
+                    isLocked = showSuccess.value || showWrong.value,
                     attemptKey = attempt,
                     resetOnAttempt = true
                 )
@@ -81,8 +109,10 @@ fun BertsoJolasaScreen2(
                     bct = "biltzar",
                     cct = "biltzer",
                     correctAnswer = "biltzen",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
-                    onAnswered = { handleProgress() },
+                    onCorrect = { handleAnswer(true) },
+                    onWrong = { handleAnswer(false) },
+                    onAnswered = {},
+                    isLocked = showSuccess.value || showWrong.value,
                     attemptKey = attempt,
                     resetOnAttempt = true
                 )
@@ -106,8 +136,10 @@ fun BertsoJolasaScreen2(
                     bct = "gara",
                     cct = "geure",
                     correctAnswer = "gera",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
-                    onAnswered = { handleProgress() },
+                    onCorrect = { handleAnswer(true) },
+                    onWrong = { handleAnswer(false) },
+                    onAnswered = {},
+                    isLocked = showSuccess.value || showWrong.value,
                     attemptKey = attempt,
                     resetOnAttempt = true
                 )
@@ -119,8 +151,10 @@ fun BertsoJolasaScreen2(
                     bct = "etxera",
                     cct = "plazara",
                     correctAnswer = "kalera",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
-                    onAnswered = { handleProgress() },
+                    onCorrect = { handleAnswer(true) },
+                    onWrong = { handleAnswer(false) },
+                    onAnswered = {},
+                    isLocked = showSuccess.value || showWrong.value,
                     attemptKey = attempt,
                     resetOnAttempt = true
                 )
@@ -134,8 +168,10 @@ fun BertsoJolasaScreen2(
                     bct = "bisigu",
                     cct = "bisitan",
                     correctAnswer = "bisita",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
-                    onAnswered = { handleProgress() },
+                    onCorrect = { handleAnswer(true) },
+                    onWrong = { handleAnswer(false) },
+                    onAnswered = {},
+                    isLocked = showSuccess.value || showWrong.value,
                     attemptKey = attempt,
                     resetOnAttempt = true
                 )

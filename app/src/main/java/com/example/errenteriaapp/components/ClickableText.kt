@@ -29,6 +29,7 @@ fun ClickableTextFunction(
     cct: String,
     correctAnswer: String,
     onCorrect: (() -> Unit)? = null,
+    onWrong: (() -> Unit)? = null,
     onAnswered: (() -> Unit)? = null,
     isLocked: Boolean = false,
     attemptKey: Int = 0,
@@ -55,6 +56,8 @@ fun ClickableTextFunction(
 
         if (isCorrect) {
             onCorrect?.invoke()
+        } else {
+            onWrong?.invoke()
         }
         onAnswered?.invoke()
 
