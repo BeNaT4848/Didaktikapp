@@ -18,7 +18,7 @@ fun AzalpenPapresa(
                 "❶ **PUZLEA**: Papresa fabrikaren historia ikasiko duzu. " +
                 "Puzzlea osatu eta irakurri fabrikaren historia." +
                 "\n\n" +
-                "❷ **BIRZIKLATZEA**: Puzzlea amaitutakoan, objektuak paperera egokian sartu beharko dituzu.",
+                "❷ **BIRZIKLATZEA**: Puzzlea amaitutakoan, objektuak edukiontzi egokian sartu beharko dituzu.",
         textoBoton = "Puzzlea hasi"
     )
 
