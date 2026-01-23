@@ -1,5 +1,7 @@
+// app/src/main/java/com/example/errenteriaapp/navigation/screens/BertsoJolasaScreen2.kt
 package com.example.errenteriaapp.navigation.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,29 +20,25 @@ import androidx.navigation.compose.rememberNavController
 import com.example.errenteriaapp.components.ClickableTextFunction
 import com.example.errenteriaapp.components.ParagraphCard
 import com.example.errenteriaapp.components.textoBertsoa
-import com.example.errenteriaapp.database.viewModel.PuntuakViewModel
+
+import com.example.errenteriaapp.components.GameResultDialogs
+import com.example.errenteriaapp.database.viewModel.BertsoViewModel
+import com.example.errenteriaapp.navigation.Routes
 
 @Composable
 @Suppress("UNUSED_PARAMETER")
 fun BertsoJolasaScreen2(
     navController: NavController,
     userName: String?,
-    puntuakViewModel: PuntuakViewModel = viewModel()
+    viewModel: BertsoViewModel
 ) {
-    val context = LocalContext.current
-    val totalItems = 5
-    val attempt = puntuakViewModel.attempt
+    val attempt = viewModel.attempt
+    val showSuccess = viewModel.showSuccessDialog
+    val showWrong = viewModel.showWrongDialog
 
-    fun handleProgress(onAfterAnswer: (() -> Unit)? = null) {
-        val answered = puntuakViewModel.registerAnswer()
-        onAfterAnswer?.invoke()
-        if (answered == totalItems) {
-            if (puntuakViewModel.correctCount > 3) {
-                puntuakViewModel.restartAttempt()
-            } else {
-                puntuakViewModel.restartAttempt()
-            }
-        }
+    fun handleProgress() {
+        viewModel.registerAnswer()
+        viewModel.checkBertso2Completion()
     }
 
     LazyColumn(
@@ -49,7 +46,6 @@ fun BertsoJolasaScreen2(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .navigationBarsPadding(),
-        // más espacio entre cards
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 24.dp)
     ) {
@@ -69,7 +65,7 @@ fun BertsoJolasaScreen2(
                     bct = "serbitzen",
                     cct = "zerbitzaz",
                     correctAnswer = "serbitzen",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
+                    onCorrect = { viewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     attemptKey = attempt,
                     resetOnAttempt = true
@@ -82,7 +78,7 @@ fun BertsoJolasaScreen2(
                     bct = "biltzar",
                     cct = "biltzer",
                     correctAnswer = "biltzen",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
+                    onCorrect = { viewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     attemptKey = attempt,
                     resetOnAttempt = true
@@ -107,7 +103,7 @@ fun BertsoJolasaScreen2(
                     bct = "gara",
                     cct = "geure",
                     correctAnswer = "gera",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
+                    onCorrect = { viewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     attemptKey = attempt,
                     resetOnAttempt = true
@@ -120,7 +116,7 @@ fun BertsoJolasaScreen2(
                     bct = "etxera",
                     cct = "plazara",
                     correctAnswer = "kalera",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
+                    onCorrect = { viewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     attemptKey = attempt,
                     resetOnAttempt = true
@@ -135,7 +131,7 @@ fun BertsoJolasaScreen2(
                     bct = "bisigu",
                     cct = "bisitan",
                     correctAnswer = "bisita",
-                    onCorrect = { puntuakViewModel.registerCorrect() },
+                    onCorrect = { viewModel.registerCorrect() },
                     onAnswered = { handleProgress() },
                     attemptKey = attempt,
                     resetOnAttempt = true
@@ -143,11 +139,41 @@ fun BertsoJolasaScreen2(
             }
         }
     }
+
+    // Diálogo de éxito
+    if (showSuccess) {
+        GameResultDialogs(
+            showSuccess = true,
+            showWrong = false,
+            onDismissSuccess = { viewModel.dismissSuccessDialog() },
+            onDismissWrong = { },
+            onSuccessButton = {
+                viewModel.dismissSuccessDialog()
+                navController.navigate(Routes.MAPA_SCREEN)
+            },
+            onWrongButton = { }
+        )
+    }
+
+    // Diálogo de error
+    if (showWrong) {
+        GameResultDialogs(
+            showSuccess = false,
+            showWrong = true,
+            onDismissSuccess = { },
+            onDismissWrong = { viewModel.dismissWrongDialog() },
+            onSuccessButton = { },
+            onWrongButton = {
+                viewModel.dismissWrongDialog()
+            }
+        )
+    }
 }
 
-
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 private fun BertsoJolasa2Preview() {
-    BertsoJolasaScreen2(rememberNavController(), userName = "User")
+    val viewModel = BertsoViewModel(null)
+    BertsoJolasaScreen2(rememberNavController(), userName = "User", viewModel = viewModel)
 }

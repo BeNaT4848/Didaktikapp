@@ -27,8 +27,13 @@ import kotlinx.coroutines.launch
 fun LetraSopaScreen(
     navController: NavController,
     userName: String?,
+    viewModel: SopaDeLetrasViewModel
 ) {
-    val viewModel: SopaDeLetrasViewModel = viewModel()
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
+        }
+    }
     val gameState by viewModel.gameState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()

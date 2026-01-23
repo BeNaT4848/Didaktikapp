@@ -19,7 +19,7 @@ import androidx.room.PrimaryKey
     val puntuazioaBertso: Int,
     val puntuazioaGalderak: Int,
     val puntuazioaGurutzegrama: Int,
-    val puntuazioaErrotaProzezua: Int,
+    val puntuazioaArropaBuruHandiak: Int,
     val puntuazioaPapresa: Int,
     val puntuazioaArrastrar: Int,
     val puntuazioaSopaLetra: Int

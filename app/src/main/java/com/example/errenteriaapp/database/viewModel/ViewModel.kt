@@ -73,7 +73,7 @@ class LoginViewModel(
                             puntuazioaBertso = 0,
                             puntuazioaGalderak = 0,
                             puntuazioaGurutzegrama = 0,
-                            puntuazioaErrotaProzezua = 0,
+                            puntuazioaArropaBuruHandiak = 0,
                             puntuazioaPapresa = 0,
                             puntuazioaArrastrar = 0,
                             puntuazioaSopaLetra = 0

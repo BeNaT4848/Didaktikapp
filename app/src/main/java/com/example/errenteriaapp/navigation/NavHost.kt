@@ -145,31 +145,119 @@ fun AppNavigation(
         }
 
         composable(Routes.BERTSOJOLASA_SCREEN) {
-            BertsoJolasaScreen(
+            val db = appDatabase
+            if (db != null) {
+                val puntuazioaDao = remember { db.puntuazioaDao() }
+
+                // Usar el factory que ya tienes
+                val viewModel: BertsoViewModel = viewModel(
+                    factory = BertsoViewModelFactory(puntuazioaDao)
+                )
+
+                LaunchedEffect(currentUserName) {
+                    currentUserName?.let {
+                        viewModel.setUsuario(it)
+                    }
+                }
+                BertsoJolasaScreen(
                 navController = navController,
-                userName = currentUserName
-            )
+                userName = currentUserName,
+                viewModel = viewModel
+                )
+            } else {
+                // Si no hay base de datos, redirigir al login
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN_SCREEN)
+                }
+
+            }
         }
 
         composable(Routes.BERTSOJOLASA2_SCREEN) {
-            BertsoJolasaScreen2(
-                navController = navController,
-                userName = currentUserName
-            )
+            val db = appDatabase
+            if (db != null) {
+
+                val puntuazioaDao = remember { db.puntuazioaDao() }
+                // Usar el factory que ya tienes
+                val viewModel: BertsoViewModel = viewModel(
+                    factory = BertsoViewModelFactory(puntuazioaDao)
+                )
+
+
+                LaunchedEffect(currentUserName) {
+                    currentUserName?.let {
+                        viewModel.setUsuario(it)
+                    }
+                }
+
+                BertsoJolasaScreen2(
+                    navController = navController,
+                    userName = currentUserName,
+                    viewModel = viewModel
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN_SCREEN)
+                }
+            }
+
         }
 
         composable(Routes.CRUCIGRAMA_SCREEN) {
-            CrucigramaScreen(
-                navController = navController,
-                userName = currentUserName
-            )
+            val db = appDatabase
+            if (db != null) {
+
+                    val puntuazioaDao = remember { db.puntuazioaDao() }
+                    // Usar el factory que ya tienes
+                    val viewModel: CrucigramaViewModel = viewModel(
+                        factory = CrucigramaViewModelFactory(puntuazioaDao)
+                    )
+                    LaunchedEffect(currentUserName) {
+                        currentUserName?.let {
+                            viewModel.setUsuario(it)
+                        }
+                    }
+                CrucigramaScreen(
+                    navController = navController,
+                    userName = currentUserName,
+                    viewModel = viewModel
+                )
+            } else {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Routes.LOGIN_SCREEN)
+                    }
+                }
         }
 
+
         composable(Routes.BASURA_SCREEN) {
-            PapresaScreen(
-                navController = navController,
-                userName = currentUserName
-            )
+            // Usar la base de datos ya creada
+            val db = appDatabase
+            if (db != null) {
+                val puntuazioaDao = remember { db.puntuazioaDao() }
+
+                // Usar el factory de Papresa
+                val viewModel: PapresaViewModel = viewModel(
+                    factory = PapresaViewModelFactory(puntuazioaDao)
+                )
+
+                LaunchedEffect(currentUserName) {
+                    currentUserName?.let {
+                        viewModel.setUsuario(it)
+                    }
+                }
+
+                PapresaScreen(
+                    navController = navController,
+                    userName = currentUserName,
+                    viewModel = viewModel
+                )
+            } else {
+                // Si no hay base de datos, redirigir al login
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN_SCREEN)
+                }
+            }
         }
 
         composable(Routes.PUZZLE_SCREEN) {
@@ -183,25 +271,81 @@ fun AppNavigation(
         }
 
         composable(Routes.SOPALETRA_SCREEN) {
-            LetraSopaScreen(
-                navController = navController,
-                userName = currentUserName
-            )
-        }
+            val db = appDatabase
+                if (db != null) {
+                    val puntuazioaDao = remember { db.puntuazioaDao() }
+
+                    // Usar el factory de Papresa
+                    val viewModel: SopaDeLetrasViewModel = viewModel(
+                        factory = SopaDeLetrasViewModelFactory(puntuazioaDao)
+                    )
+
+                    LaunchedEffect(currentUserName) {
+                        currentUserName?.let {
+                            viewModel.setUsuario(it)
+                        }
+                    }
+                    LetraSopaScreen(
+                        navController = navController,
+                        userName = currentUserName,
+                        viewModel = viewModel
+                    )
+                } else {
+                    // Si no hay base de datos, redirigir al login
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Routes.LOGIN_SCREEN)
+                    }
+                }
+            }
 
         composable(Routes.SANMARKOS_SCREEN) {
+            val db = appDatabase
+            if (db != null) {
+                val puntuazioaDao = remember { db.puntuazioaDao() }
+
+
+                // Usar el factory de Papresa
+                val viewModel: SanMarkosViewModel = viewModel(
+                    factory = SanMarkosViewModelFactory(puntuazioaDao)
+                )
             SanMarkosekoGalderak(
                 navController = navController,
-                userName = currentUserName
+                userName = currentUserName,
+                viewModel = viewModel
             )
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN_SCREEN)
+                }
+            }
         }
 
         composable(Routes.TAULAARRASTRAR_SCRENN) {
+            val db = appDatabase
+            if (db != null) {
+                val puntuazioaDao = remember { db.puntuazioaDao() }
+
+
+                // Usar el factory de Papresa
+                val viewModel: ArropaBuruHandiakViewModel = viewModel(
+                    factory = ArropaBuruHandiakFactory(puntuazioaDao)
+                )
+            LaunchedEffect(currentUserName) {
+                currentUserName?.let {
+                    viewModel.setUsuario(it)
+                }
+            }
             TaulaArrastrarScreen(
                 navController = navController,
-                userName = currentUserName
+                userName = currentUserName,
+                viewModel = viewModel
             )
+        } else {
+        LaunchedEffect(Unit) {
+            navController.navigate(Routes.LOGIN_SCREEN)
         }
+    }
+    }
 
         composable(Routes.GPS_SCREEN) {
             MapaOsmScreen(

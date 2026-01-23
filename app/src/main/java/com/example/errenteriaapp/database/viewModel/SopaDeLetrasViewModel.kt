@@ -1,25 +1,51 @@
+// app/src/main/java/com/example/errenteriaapp/database/viewModel/SopaDeLetrasViewModel.kt
 package com.example.errenteriaapp.database.viewModel
 
-import com.example.errenteriaapp.classes.PalabraSopa
-
-
-
 import androidx.lifecycle.ViewModel
-
-
+import androidx.lifecycle.viewModelScope
+import com.example.errenteriaapp.classes.PalabraSopa
+import com.example.errenteriaapp.database.Puntuazioa
+import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class SopaGameState(
     val palabrasEncontradas: List<String> = emptyList(),
     val showSuccessDialog: Boolean = false,
     val showWrongDialog: Boolean = false,
     val mostrarExito: Boolean = false,
-    val mostrarPista: Boolean = false
+    val mostrarPista: Boolean = false,
+    val puntos: Int = 0
 )
 
-class SopaDeLetrasViewModel : ViewModel() {
+class SopaDeLetrasViewModel(
+    private val puntuazioaDao: PuntuazioaDao?,
+    private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_SOPA
+) : ViewModel() {
+
+    data class ConfigJuego(
+        val minPalabrasRequeridas: Int,
+        val puntosPorPalabra: Int = 5,
+        val puntosPorLetra: Int = 1,
+        val puntosExtraPerfecto: Int = 1,
+        val puntosExtraTodasPalabras: Int = 2
+    ) {
+        companion object {
+            val DEFAULT_SOPA = ConfigJuego(
+                minPalabrasRequeridas = 5, // Mínimo 5 de las 8 palabras
+                puntosPorPalabra = 5,
+                puntosPorLetra = 1,
+                puntosExtraPerfecto = 1,
+                puntosExtraTodasPalabras = 2
+            )
+        }
+    }
+
+    // Añade esta variable para el nombre del usuario
+    var currentUserName: String? = null
+
     private val _gameState = MutableStateFlow(SopaGameState())
     val gameState = _gameState.asStateFlow()
 
@@ -101,18 +127,135 @@ class SopaDeLetrasViewModel : ViewModel() {
         charArrayOf('M', 'Z', 'X', 'C', 'T', 'T', 'R', 'O', 'N', 'B', 'O', 'I', 'A', 'T')
     )
 
+    // Calcular puntuación total
+    private fun calcularPuntuacion(): Int {
+        val palabrasEncontradas = _gameState.value.palabrasEncontradas.size
+        var puntos = 0
+
+        // Puntos por palabras encontradas
+        puntos += palabrasEncontradas * configJuego.puntosPorPalabra
+
+        // Puntos por letras en las palabras encontradas
+        val totalLetras = palabras.sumOf { if (it.texto in _gameState.value.palabrasEncontradas) it.texto.length else 0 }
+        puntos += totalLetras * configJuego.puntosPorLetra
+
+        // Bonus por encontrar todas las palabras
+        if (palabrasEncontradas == palabras.size) {
+            puntos += configJuego.puntosExtraTodasPalabras
+        }
+
+        // Bonus extra si se encuentra una cantidad significativa
+        if (palabrasEncontradas >= configJuego.minPalabrasRequeridas * 1.5) {
+            puntos += configJuego.puntosExtraPerfecto
+        }
+
+        return puntos
+    }
+
     fun marcarPalabraEncontrada(palabra: String) {
         if (!_gameState.value.palabrasEncontradas.contains(palabra)) {
             val nuevasEncontradas = _gameState.value.palabrasEncontradas + palabra
-            _gameState.update { it.copy(palabrasEncontradas = nuevasEncontradas) }
+
+            // Calcular nuevos puntos
+            val nuevosPuntos = calcularPuntuacionParaPalabra(palabra)
+
+            _gameState.update {
+                it.copy(
+                    palabrasEncontradas = nuevasEncontradas,
+                    puntos = it.puntos + nuevosPuntos
+                )
+            }
 
             // Verificar si se completó el juego
             if (nuevasEncontradas.size == palabras.size) {
+                // Guardar puntos cuando se completan todas las palabras
+                guardarPuntuacionFinal()
                 _gameState.update { it.copy(mostrarExito = true) }
+            } else if (nuevasEncontradas.size >= configJuego.minPalabrasRequeridas) {
+                // Si alcanza el mínimo, guardar puntos parciales
+                guardarPuntuacionParcial(nuevasEncontradas.size)
             }
         }
     }
+
+    private fun calcularPuntuacionParaPalabra(palabra: String): Int {
+        val palabraInfo = palabras.find { it.texto == palabra }
+        return if (palabraInfo != null) {
+            // Puntos por palabra + puntos por letras
+            configJuego.puntosPorPalabra + (palabraInfo.texto.length * configJuego.puntosPorLetra)
+        } else {
+            0
+        }
+    }
+
+    private fun guardarPuntuacionParcial(palabrasEncontradas: Int) {
+        viewModelScope.launch {
+            currentUserName?.let { nombreUsuario ->
+                puntuazioaDao?.let { dao ->
+                    val puntuazioActual = dao.getByName(nombreUsuario)
+                    val puntosParciales = calcularPuntuacion()
+
+                    if (puntuazioActual != null) {
+                        // Si ya hay puntos, sumar los nuevos
+                        val nuevaPuntuazio = puntuazioActual.copy(
+                            puntuazioaSopaLetra = puntosParciales
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    } else {
+                        val nuevaPuntuazio = Puntuazioa(
+                            izenaAbizena = nombreUsuario,
+                            puntuazioaBertso = 0,
+                            puntuazioaGalderak = 0,
+                            puntuazioaGurutzegrama = 0,
+                            puntuazioaArropaBuruHandiak = 0,
+                            puntuazioaPapresa = 0,
+                            puntuazioaArrastrar = 0,
+                            puntuazioaSopaLetra = puntosParciales
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun guardarPuntuacionFinal() {
+        viewModelScope.launch {
+            currentUserName?.let { nombreUsuario ->
+                puntuazioaDao?.let { dao ->
+                    val puntuazioActual = dao.getByName(nombreUsuario)
+                    val puntosFinales = calcularPuntuacion()
+
+                    if (puntuazioActual != null) {
+                        val nuevaPuntuazio = puntuazioActual.copy(
+                            puntuazioaSopaLetra = puntosFinales
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    } else {
+                        val nuevaPuntuazio = Puntuazioa(
+                            izenaAbizena = nombreUsuario,
+                            puntuazioaBertso = 0,
+                            puntuazioaGalderak = 0,
+                            puntuazioaGurutzegrama = 0,
+                            puntuazioaArropaBuruHandiak = 0,
+                            puntuazioaPapresa = 0,
+                            puntuazioaArrastrar = 0,
+                            puntuazioaSopaLetra = puntosFinales
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    }
+                }
+            }
+        }
+    }
+
     fun hideSuccessDialog() {
         _gameState.update { it.copy(mostrarExito = false) }
     }
+
+    // Método para establecer el usuario
+    fun setUsuario(nombre: String) {
+        currentUserName = nombre
+    }
 }
+

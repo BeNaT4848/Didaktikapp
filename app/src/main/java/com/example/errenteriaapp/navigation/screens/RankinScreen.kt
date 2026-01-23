@@ -98,21 +98,26 @@ private fun RankingContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-
+            val podiumItems = rankingItems.take(3)
+            if (podiumItems.isNotEmpty()) {
 
                 PodiumSection(
                     isVisible = isScreenLoaded,
-                    rankingData = rankingItems.take(3), // Usamos los datos REALES
-                    onSurfaceColor = onSurfaceColor
+                    rankingData = podiumItems,
+                    onSurfaceColor = onSurfaceColor,
+                    totalItemsCount = rankingItems.size
                 )
-
+            }
 
             // RESTO DEL RANKING - Aparece después
-            RestOfRankingSection(
-                isScreenLoaded = isScreenLoaded,
-                rankingData = rankingItems.drop(3),
-                onSurfaceColor = onSurfaceColor
-            )
-        }
+                val remainingItems = rankingItems.drop(3)
+                if (remainingItems.isNotEmpty()) {
+                    RestOfRankingSection(
+                        isScreenLoaded = isScreenLoaded,
+                        rankingData = remainingItems,
+                        onSurfaceColor = onSurfaceColor
+                    )
+                }
+            }
         }
     }

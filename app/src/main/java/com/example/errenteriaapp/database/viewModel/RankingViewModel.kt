@@ -39,7 +39,7 @@ class RankingViewModel(
         return puntuazio.puntuazioaBertso +
                 puntuazio.puntuazioaGalderak +
                 puntuazio.puntuazioaGurutzegrama +
-                puntuazio.puntuazioaErrotaProzezua +
+                puntuazio.puntuazioaArropaBuruHandiak +
                 puntuazio.puntuazioaPapresa +
                 puntuazio.puntuazioaArrastrar +
                 puntuazio.puntuazioaSopaLetra

@@ -9,6 +9,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,8 +33,11 @@ import kotlinx.coroutines.delay
 fun PodiumSection(
     isVisible: Boolean,
     rankingData: List<RankingItem>,
-    onSurfaceColor: Color
+    onSurfaceColor: Color,
+    totalItemsCount: Int? = null
 ) {
+
+
     // Estados para animar cada elemento del podio individualmente
     var showTitle by remember { mutableStateOf(false) }
     var showFirstPlace by remember { mutableStateOf(false) }
@@ -60,7 +64,7 @@ fun PodiumSection(
     ) {
         // Título del podio
         AnimatedVisibility(
-            visible = showTitle,
+            visible = showTitle && rankingData.isNotEmpty(),
             enter = fadeIn(animationSpec = tween(200)) +
                     slideInVertically(
                         animationSpec = tween(250, easing = FastOutSlowInEasing),
@@ -77,75 +81,154 @@ fun PodiumSection(
         }
 
         // Podio con animaciones individuales más rápidas
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .height(280.dp)
-                .padding(top = 20.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            // SEGUNDO lugar (izquierda)
-            AnimatedVisibility(
-                visible = showSecondPlace,
-                enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
-                        scaleIn(
-                            animationSpec = tween(250, easing = FastOutSlowInEasing),
-                            initialScale = 0.9f
-                        ),
-                modifier = Modifier.weight(1f)
+        // Solo mostramos el podio si hay al menos un elemento
+        if (rankingData.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(280.dp)
+                    .padding(top = 20.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.Bottom
             ) {
-                PodiumItem(
-                    position = 2,
-                    item = rankingData[1],
-                    height = 160.dp,
-                    color = Color(0xFF9E9E9E),
-                    textColor = onSurfaceColor,
-                    pointsTextSize = 20.sp,
-                    modifier = Modifier.fillMaxHeight()
-                )
-            }
+                // Manejar diferentes casos basados en el número de elementos
+                when (rankingData.size) {
+                    1 -> {
+                        // Caso 1: Solo hay un elemento - mostrar solo el primer lugar centrado
+                        Spacer(modifier = Modifier.weight(1f))
 
-            // PRIMER lugar (centro) - Aparece primero y más grande
-            AnimatedVisibility(
-                visible = showFirstPlace,
-                enter = fadeIn(animationSpec = tween(200)) +
-                        scaleIn(
-                            animationSpec = tween(300, easing = FastOutSlowInEasing),
-                            initialScale = 0.85f
-                        ),
-                modifier = Modifier.weight(1f)
-            ) {
-                PodiumItem(
-                    position = 1,
-                    item = rankingData[0],
-                    height = 200.dp,
-                    color = Color(0xFFFFC107),
-                    textColor = Color(0xFF333333),
-                    pointsTextSize = 22.sp,
-                    modifier = Modifier.fillMaxHeight()
-                )
-            }
+                        AnimatedVisibility(
+                            visible = showFirstPlace,
+                            enter = fadeIn(animationSpec = tween(200)) +
+                                    scaleIn(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        initialScale = 0.85f
+                                    ),
+                            modifier = Modifier.weight(2f)
+                        ) {
+                            PodiumItem(
+                                position = 1,
+                                item = rankingData[0],
+                                height = 200.dp,
+                                color = Color(0xFFFFC107),
+                                textColor = Color(0xFF333333),
+                                pointsTextSize = 22.sp,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
 
-            // TERCER lugar (derecha)
-            AnimatedVisibility(
-                visible = showThirdPlace,
-                enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
-                        scaleIn(
-                            animationSpec = tween(250, easing = FastOutSlowInEasing),
-                            initialScale = 0.9f
-                        ),
-                modifier = Modifier.weight(1f)
-            ) {
-                PodiumItem(
-                    position = 3,
-                    item = rankingData[2],
-                    height = 120.dp,
-                    color = Color(0xFF8D6E63),
-                    textColor = Color(0xFFFFFFFF),
-                    pointsTextSize = 18.sp,
-                    modifier = Modifier.fillMaxHeight()
-                )
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    2 -> {
+                        // Caso 2: Hay dos elementos - mostrar segundo y primer lugar
+                        AnimatedVisibility(
+                            visible = showSecondPlace,
+                            enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
+                                    scaleIn(
+                                        animationSpec = tween(250, easing = FastOutSlowInEasing),
+                                        initialScale = 0.9f
+                                    ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            PodiumItem(
+                                position = 2,
+                                item = rankingData[1],
+                                height = 160.dp,
+                                color = Color(0xFF9E9E9E),
+                                textColor = onSurfaceColor,
+                                pointsTextSize = 20.sp,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            visible = showFirstPlace,
+                            enter = fadeIn(animationSpec = tween(200)) +
+                                    scaleIn(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        initialScale = 0.85f
+                                    ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            PodiumItem(
+                                position = 1,
+                                item = rankingData[0],
+                                height = 200.dp,
+                                color = Color(0xFFFFC107),
+                                textColor = Color(0xFF333333),
+                                pointsTextSize = 22.sp,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
+
+                        // Espacio para la tercera posición (vacía)
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    else -> {
+                        // Caso 3: Hay 3 o más elementos - mostrar los tres primeros normalmente
+                        AnimatedVisibility(
+                            visible = showSecondPlace,
+                            enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
+                                    scaleIn(
+                                        animationSpec = tween(250, easing = FastOutSlowInEasing),
+                                        initialScale = 0.9f
+                                    ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            PodiumItem(
+                                position = 2,
+                                item = rankingData[1],
+                                height = 160.dp,
+                                color = Color(0xFF9E9E9E),
+                                textColor = onSurfaceColor,
+                                pointsTextSize = 20.sp,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            visible = showFirstPlace,
+                            enter = fadeIn(animationSpec = tween(200)) +
+                                    scaleIn(
+                                        animationSpec = tween(300, easing = FastOutSlowInEasing),
+                                        initialScale = 0.85f
+                                    ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            PodiumItem(
+                                position = 1,
+                                item = rankingData[0],
+                                height = 200.dp,
+                                color = Color(0xFFFFC107),
+                                textColor = Color(0xFF333333),
+                                pointsTextSize = 22.sp,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
+
+                        AnimatedVisibility(
+                            visible = showThirdPlace,
+                            enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
+                                    scaleIn(
+                                        animationSpec = tween(250, easing = FastOutSlowInEasing),
+                                        initialScale = 0.9f
+                                    ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            PodiumItem(
+                                position = 3,
+                                item = rankingData[2],
+                                height = 120.dp,
+                                color = Color(0xFF8D6E63),
+                                textColor = Color(0xFFFFFFFF),
+                                pointsTextSize = 18.sp,
+                                modifier = Modifier.fillMaxHeight()
+                            )
+                        }
+                    }
+                }
             }
         }
     }

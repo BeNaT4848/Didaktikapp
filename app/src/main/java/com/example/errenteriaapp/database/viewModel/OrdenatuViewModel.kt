@@ -114,7 +114,7 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
                             puntuazioaBertso = 0,
                             puntuazioaGalderak = 0,
                             puntuazioaGurutzegrama = 0,
-                            puntuazioaErrotaProzezua = 0,
+                            puntuazioaArropaBuruHandiak = 0,
                             puntuazioaPapresa = 0,
                             puntuazioaArrastrar = puntos,
                             puntuazioaSopaLetra = 0

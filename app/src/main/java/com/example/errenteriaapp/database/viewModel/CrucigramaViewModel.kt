@@ -7,12 +7,38 @@ import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.classes.CeldaEstado
 import com.example.errenteriaapp.classes.CrucigramaEstado
 import com.example.errenteriaapp.classes.PalabraInfo
+import com.example.errenteriaapp.database.Puntuazioa
+import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class CrucigramaViewModel : ViewModel() {
+class CrucigramaViewModel (private val puntuazioaDao: PuntuazioaDao?,
+                           private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_CRUCIGRAMA
+) : ViewModel() {
+
+    data class ConfigJuego(
+        val minCorrectosRequeridos: Int,
+        val necesitaTodosCorrectos: Boolean,
+        val puntosPorPalabraCompleta: Int = 5,
+        val puntosPorLetraCorrecta: Int = 1,
+        val puntosExtraPerfecto: Int = 15
+    ) {
+        companion object {
+            val DEFAULT_CRUCIGRAMA = ConfigJuego(
+                minCorrectosRequeridos = 3, // Mínimo 3 de las 5 palabras correctas
+                necesitaTodosCorrectos = false,
+                puntosPorPalabraCompleta = 5,
+                puntosPorLetraCorrecta = 1,
+                puntosExtraPerfecto = 15
+            )
+        }
+    }
+
+    // Añade esta variable para el nombre del usuario
+    var currentUserName: String? = null
+
     // Estado del crucigrama
     private val _celdas = mutableStateOf(crearCeldasEstado())
     val celdas: State<List<CeldaEstado>> = _celdas
@@ -26,12 +52,168 @@ class CrucigramaViewModel : ViewModel() {
     private val _mostrarDialogoExito = mutableStateOf(false)
     val mostrarDialogoExito: State<Boolean> = _mostrarDialogoExito
 
+    private val _mostrarDialogoError = mutableStateOf(false)
+    val mostrarDialogoError: State<Boolean> = _mostrarDialogoError
     private val _palabraActiva = mutableStateOf<PalabraInfo?>(null)
     val palabraActiva: State<PalabraInfo?> = _palabraActiva
 
     private val _mostrarInstruccionesIniciales = mutableStateOf(true)
     val mostrarInstruccionesIniciales: State<Boolean> = _mostrarInstruccionesIniciales
 
+    // Estadísticas del juego
+    private var palabrasCorrectas: Int = 0
+    private var letrasCorrectas: Int = 0
+
+    // Función para contar palabras completas
+    private fun contarPalabrasCompletas(): Int {
+        var completas = 0
+
+        // Palabra 1: Horizontal, fila 0, columna 2, longitud 6 (LEIZEA)
+        if (verificarPalabraCompleta(0, 2, 6, "HORIZONTAL", "LEIZEA")) completas++
+
+        // Palabra 2: Vertical, fila 0, columna 6, longitud 11 (ESTALAKTITA)
+        if (verificarPalabraCompleta(0, 6, 11, "VERTICAL", "ESTALAKTITA")) completas++
+
+        // Palabra 3: Vertical, fila 0, columna 3, longitud 10 (ESTALAGMITA)
+        if (verificarPalabraCompleta(0, 3, 10, "VERTICAL", "ESTALAGMITA")) completas++
+
+        // Palabra 4: Horizontal, fila 3, columna 0, longitud 7 (ZUTABEA)
+        if (verificarPalabraCompleta(3, 0, 7, "HORIZONTAL", "ZUTABEA")) completas++
+
+        // Palabra 5: Vertical, fila 2, columna 1, longitud 8 (RUPESTRE)
+        if (verificarPalabraCompleta(2, 1, 8, "VERTICAL", "RUPESTRE")) completas++
+
+        return completas
+    }
+
+    // Función para contar letras correctas
+    private fun contarLetrasCorrectas(): Int {
+        return _celdas.value.count {
+            !it.esNegra && it.esCorrecta && it.letraUsuario != null
+        }
+    }
+
+    // Verificar si una palabra está completa
+    private fun verificarPalabraCompleta(
+        filaInicio: Int,
+        columnaInicio: Int,
+        longitud: Int,
+        direccion: String,
+        respuesta: String
+    ): Boolean {
+        for (i in 0 until longitud) {
+            val fila = if (direccion == "HORIZONTAL") filaInicio else filaInicio + i
+            val columna = if (direccion == "HORIZONTAL") columnaInicio + i else columnaInicio
+
+            val celda = obtenerCelda(fila, columna)
+            if (celda == null || !celda.esCorrecta || celda.letraUsuario == null) {
+                return false
+            }
+        }
+        return true
+    }
+
+    // Función para verificar respuestas con puntos
+    fun verificarRespuestas() {
+        // Resetear verificaciones previas
+        val nuevaLista = _celdas.value.toMutableList()
+        nuevaLista.forEachIndexed { index, celda ->
+            if (!celda.esNegra) {
+                nuevaLista[index] = celda.copy(
+                    esCorrecta = false
+                )
+            }
+        }
+        _celdas.value = nuevaLista
+
+        // Verificar respuestas
+        verificarHorizontal(1, 0, 2, "LEIZEA")
+        verificarHorizontal(5, 3, 0, "ZUTABEA")
+        verificarVertical(2, 0, 3, "ESTALAGMITA")
+        verificarVertical(4, 2, 1, "RUPESTRE")
+        verificarVertical(3, 0, 6, "ESTALAKTITA")
+
+        _verificacionRealizada.value = true
+
+        // Calcular estadísticas
+        palabrasCorrectas = contarPalabrasCompletas()
+        letrasCorrectas = contarLetrasCorrectas()
+
+        // Verificar si el juego está completado
+        val todasLasPalabras = palabrasCorrectas == 5
+        val juegoCompletado = if (configJuego.necesitaTodosCorrectos) {
+            todasLasPalabras
+        } else {
+            palabrasCorrectas >= configJuego.minCorrectosRequeridos
+        }
+
+        if (juegoCompletado) {
+            // Guardar puntos si se cumple el mínimo
+            guardarPuntuacion()
+            _mostrarDialogoExito.value = true
+        } else {
+            _mostrarDialogoError.value = true
+        }
+    }
+
+    // Calcular puntuación
+    private fun calcularPuntuacion(): Int {
+        var puntos = 0
+
+        // Puntos por palabras completas
+        puntos += palabrasCorrectas * configJuego.puntosPorPalabraCompleta
+
+        // Puntos por letras correctas (solo si no están en palabras completas ya contadas)
+        puntos += letrasCorrectas * configJuego.puntosPorLetraCorrecta
+
+        // Bonus por juego perfecto
+        if (palabrasCorrectas == 5) {
+            puntos += configJuego.puntosExtraPerfecto
+        }
+
+        return puntos
+    }
+
+    // Guardar puntuación en base de datos
+    fun guardarPuntuacion() {
+        viewModelScope.launch {
+            currentUserName?.let { nombreUsuario ->
+                puntuazioaDao?.let { dao ->
+                    val puntuazioActual = dao.getByName(nombreUsuario)
+                    val puntosFinales = calcularPuntuacion()
+
+                    if (puntuazioActual != null) {
+                        val nuevaPuntuazio = puntuazioActual.copy(
+                            puntuazioaGurutzegrama = puntosFinales
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    } else {
+                        val nuevaPuntuazio = Puntuazioa(
+                            izenaAbizena = nombreUsuario,
+                            puntuazioaBertso = 0,
+                            puntuazioaGalderak = 0,
+                            puntuazioaGurutzegrama = puntosFinales,
+                            puntuazioaArropaBuruHandiak = 0,
+                            puntuazioaPapresa = 0,
+                            puntuazioaArrastrar = 0,
+                            puntuazioaSopaLetra = 0
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    }
+                }
+            }
+        }
+    }
+
+    // Método para establecer el usuario
+    fun setUsuario(nombre: String) {
+        currentUserName = nombre
+    }
+
+    // Métodos para controlar diálogos
+    fun cerrarDialogoError() {
+        _mostrarDialogoError.value = false
+    }
     // Función para obtener una celda específica
     fun obtenerCelda(fila: Int, columna: Int): CeldaEstado? {
         return _celdas.value.find { it.fila == fila && it.columna == columna }
@@ -310,31 +492,7 @@ class CrucigramaViewModel : ViewModel() {
 
 
     // Función para verificar respuestas
-    fun verificarRespuestas() {
-        // Resetear verificaciones previas
-        val nuevaLista = _celdas.value.toMutableList()
-        nuevaLista.forEachIndexed { index, celda ->
-            if (!celda.esNegra) {
-                nuevaLista[index] = celda.copy(
-                    esCorrecta = false
-                )
-            }
-        }
-        _celdas.value = nuevaLista
 
-        // Verificar respuestas
-        verificarHorizontal(1, 0, 2, "LEIZEA")
-        verificarHorizontal(5, 3, 0, "ZUTABEA")
-        verificarVertical(2, 0, 3, "ESTALAGMITA")
-        verificarVertical(4, 2, 1, "RUPESTRE")
-        verificarVertical(3, 0, 6, "ESTALAKTITA")
-
-        _verificacionRealizada.value = true
-
-        if (juegoCompletado()) {
-            _mostrarDialogoExito.value = true
-        }
-    }
 
     // Funciones de verificación
     private fun verificarHorizontal(
@@ -516,4 +674,6 @@ class CrucigramaViewModel : ViewModel() {
 
         return celdas
     }
+
+
 }

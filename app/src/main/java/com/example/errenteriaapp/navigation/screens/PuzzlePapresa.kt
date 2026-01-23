@@ -65,6 +65,7 @@ fun PuzzleScreen(
     userName: String?,
     onPuzzleComplete: () -> Unit
 ) {
+
     val context = LocalContext.current
     val viewModel: PuzzleViewModel = viewModel()
     val density = LocalDensity.current
