@@ -169,7 +169,7 @@ fun BertsoJolasaScreen2(
         )
     }
 }
-
+//Preview function
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
