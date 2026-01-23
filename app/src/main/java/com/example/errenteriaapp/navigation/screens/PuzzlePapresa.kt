@@ -62,8 +62,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun PuzzleScreen(
     onBack: () -> Unit,
+    userName: String?,
     onPuzzleComplete: () -> Unit
 ) {
+
     val context = LocalContext.current
     val viewModel: PuzzleViewModel = viewModel()
     val density = LocalDensity.current

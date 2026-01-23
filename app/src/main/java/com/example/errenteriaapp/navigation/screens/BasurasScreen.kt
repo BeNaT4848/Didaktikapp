@@ -16,6 +16,7 @@ import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.components.video.InstruccionesVideoPapresa
 
 import com.example.errenteriaapp.components.video.VideoDialogoa
+import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.Routes
 
@@ -23,8 +24,15 @@ import com.example.errenteriaapp.navigation.Routes
 @Composable
 fun PapresaScreen(
     navController: NavController,
-    viewModel: PapresaViewModel = viewModel()
+    userName: String?,
+    viewModel: PapresaViewModel,
 ) {
+
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
+        }
+    }
     val currentIndex = viewModel.currentIndex
     val allAnswered = viewModel.allAnswered
     val answeredCount = viewModel.answeredCount

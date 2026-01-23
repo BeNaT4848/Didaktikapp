@@ -9,8 +9,7 @@ data class DragGameUiState(
     val maialenAssignments: List<String?> = emptyList(),
     val showSuccessDialog: Boolean = false,
     val showErrorDialog: Boolean = false,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val puntuacion: Int = 0
 ) {
     // Propiedades computadas
     val allSlotsFilled: Boolean
@@ -18,7 +17,8 @@ data class DragGameUiState(
                 maialenAssignments.all { it != null }
 
     val availableWords: List<String>
-        get() = allWords.filter { word ->
-            !xantiAssignments.contains(word) && !maialenAssignments.contains(word)
+        get() {
+            val palabrasUsadas = (xantiAssignments.filterNotNull() + maialenAssignments.filterNotNull()).toSet()
+            return allWords.filter { it !in palabrasUsadas }
         }
 }
