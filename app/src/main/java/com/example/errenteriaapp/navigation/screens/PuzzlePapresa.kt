@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -47,9 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
@@ -57,19 +55,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.database.viewModel.PuzzleViewModel
 import kotlinx.coroutines.delay
-import androidx.compose.ui.unit.toSize
-import kotlin.math.min
-import kotlin.math.roundToInt
 
-private const val PuzzleRows = 3
-private const val PuzzleCols = 3
 private const val DragSlowFactor = 1f
 
 @Composable
@@ -222,7 +214,7 @@ fun PuzzleScreen(
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = onPuzzleComplete) {
-                    Text("Jarraitu")
+                    Text("Jarraitu", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         } else {
@@ -230,25 +222,7 @@ fun PuzzleScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            painter = painterResource(android.R.drawable.ic_media_previous),
-                            contentDescription = null
-                        )
-                    }
-                    Text(
-                        text = "Papresa Puzzlea",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.size(48.dp))
-                }
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -263,16 +237,21 @@ fun PuzzleScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("Puzzlea", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "Puzzlea",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                             Text(
                                 text = if (viewModel.isPuzzleComplete) "Osatuta" else "Osatzen",
-                                color = if (viewModel.isPuzzleComplete) Color(0xFF2E7D32) else Color.Gray
+                                color = if (viewModel.isPuzzleComplete) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Text(
                             text = "${viewModel.correctCount}/${viewModel.totalPieces}",
                             style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -316,7 +295,7 @@ fun PuzzleScreen(
                     if (loosePieces.isEmpty()) {
                         Text(
                             text = "",
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
                         loosePieces.forEach { piece ->
@@ -341,12 +320,6 @@ fun PuzzleScreen(
             val currentOffset = start + dragOffset
             val widthDp = with(density) { size.width.toDp() }
             val heightDp = with(density) { size.height.toDp() }
-            val pieceShape = PuzzlePieceShape(
-                (draggingPiece.correctSlot / PuzzleCols),
-                (draggingPiece.correctSlot % PuzzleCols),
-                PuzzleRows,
-                PuzzleCols
-            )
 
             Box(
                 modifier = Modifier
@@ -355,9 +328,9 @@ fun PuzzleScreen(
                         y = with(density) { currentOffset.y.toDp() }
                     )
                     .size(widthDp, heightDp)
-                    .clip(pieceShape)
-                    .border(2.dp, MaterialTheme.colorScheme.primary, pieceShape)
-                    .background(Color.White, pieceShape),
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -365,7 +338,7 @@ fun PuzzleScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(pieceShape),
+                        .clip(RoundedCornerShape(10.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -390,17 +363,17 @@ private fun SlotCell(
 
     val borderColor = when {
         isHighlighted -> MaterialTheme.colorScheme.primary
-        piece != null && isCorrect -> Color(0xFF2E7D32)
-        piece != null && !isCorrect -> Color(0xFFC62828)
-        else -> Color.Gray.copy(alpha = 0.4f)
+        piece != null && isCorrect -> MaterialTheme.colorScheme.tertiary
+        piece != null && !isCorrect -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.outlineVariant
     }
 
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(PuzzlePieceShape(slotIndex / PuzzleCols, slotIndex % PuzzleCols, PuzzleRows, PuzzleCols))
-            .border(2.dp, borderColor, PuzzlePieceShape(slotIndex / PuzzleCols, slotIndex % PuzzleCols, PuzzleRows, PuzzleCols))
-            .background(Color.White)
+            .clip(RoundedCornerShape(10.dp))
+            .border(2.dp, borderColor, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
             .pointerInput(pieceId) {
                 if (pieceId != null) {
                     detectDragGestures(
@@ -426,14 +399,15 @@ private fun SlotCell(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(PuzzlePieceShape(slotIndex / PuzzleCols, slotIndex % PuzzleCols, PuzzleRows, PuzzleCols)),
+                        .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
+
             else -> {
                 Text(
                     text = (slotIndex + 1).toString(),
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -454,14 +428,14 @@ private fun LoosePieceChip(
         modifier = Modifier
             .padding(4.dp)
             .size(90.dp)
-            .clip(PuzzlePieceShape(piece.correctSlot / PuzzleCols, piece.correctSlot % PuzzleCols, PuzzleRows, PuzzleCols))
+            .clip(RoundedCornerShape(12.dp))
             .border(
                 width = 2.dp,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = if (isHidden) 0.2f else 1f),
-                shape = PuzzlePieceShape(piece.correctSlot / PuzzleCols, piece.correctSlot % PuzzleCols, PuzzleRows, PuzzleCols)
+                shape = RoundedCornerShape(12.dp)
             )
             .alpha(if (isHidden) 0f else 1f)
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .onGloballyPositioned { coords ->
                 onPositioned(coords.boundsInRoot())
             }
@@ -483,122 +457,8 @@ private fun LoosePieceChip(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
-                .clip(PuzzlePieceShape(piece.correctSlot / PuzzleCols, piece.correctSlot % PuzzleCols, PuzzleRows, PuzzleCols)),
+                .clip(RoundedCornerShape(10.dp)),
             contentScale = ContentScale.Crop
         )
-    }
-}
-
-class PuzzlePieceShape(
-    private val row: Int,
-    private val col: Int,
-    private val totalRows: Int,
-    private val totalCols: Int
-) : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val path = Path()
-        val knob = min(size.width, size.height) / 4f
-        val halfWidth = size.width / 2f
-        val halfHeight = size.height / 2f
-
-        val topTab = row != 0
-        val bottomTab = row != totalRows - 1
-        val leftTab = col != 0
-        val rightTab = col != totalCols - 1
-
-        path.moveTo(0f, if (leftTab) knob else 0f)
-
-        // Left side
-        if (leftTab) {
-            path.cubicTo(
-                0f,
-                knob / 2f,
-                -knob,
-                halfHeight - knob / 2f,
-                -knob,
-                halfHeight
-            )
-            path.cubicTo(
-                -knob,
-                halfHeight + knob / 2f,
-                0f,
-                size.height - knob / 2f,
-                0f,
-                size.height - knob
-            )
-        }
-        path.lineTo(0f, size.height - if (leftTab) knob else 0f)
-
-        // Bottom side
-        if (bottomTab) {
-            path.lineTo(halfWidth - knob, size.height)
-            path.cubicTo(
-                halfWidth - knob / 2f,
-                size.height,
-                halfWidth - knob / 2f,
-                size.height + knob,
-                halfWidth,
-                size.height + knob
-            )
-            path.cubicTo(
-                halfWidth + knob / 2f,
-                size.height + knob,
-                halfWidth + knob / 2f,
-                size.height,
-                halfWidth + knob,
-                size.height
-            )
-        }
-        path.lineTo(size.width, size.height)
-
-        // Right side
-        if (rightTab) {
-            path.cubicTo(
-                size.width,
-                size.height - knob / 2f,
-                size.width + knob,
-                halfHeight + knob / 2f,
-                size.width + knob,
-                halfHeight
-            )
-            path.cubicTo(
-                size.width + knob,
-                halfHeight - knob / 2f,
-                size.width,
-                knob / 2f,
-                size.width,
-                knob
-            )
-        }
-        path.lineTo(size.width, 0f + if (rightTab) knob else 0f)
-
-        // Top side
-        if (topTab) {
-            path.lineTo(halfWidth + knob, 0f)
-            path.cubicTo(
-                halfWidth + knob / 2f,
-                0f,
-                halfWidth + knob / 2f,
-                -knob,
-                halfWidth,
-                -knob
-            )
-            path.cubicTo(
-                halfWidth - knob / 2f,
-                -knob,
-                halfWidth - knob / 2f,
-                0f,
-                halfWidth - knob,
-                0f
-            )
-        }
-        path.lineTo(0f, 0f)
-        path.close()
-
-        return Outline.Generic(path)
     }
 }
