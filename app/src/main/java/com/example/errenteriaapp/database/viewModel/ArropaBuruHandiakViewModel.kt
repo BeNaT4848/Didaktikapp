@@ -21,14 +21,14 @@ class ArropaBuruHandiakViewModel(
     data class ConfigJuego(
         val minCorrectosRequeridos: Int,
         val puntosPorPalabraCorrecta: Int = 2,
-        val puntosExtraPerfecto: Int = 10,
+        val puntosExtraPerfecto: Int = 5,
         val puntosExtraAmbosPersonajes: Int = 2
     ) {
         companion object {
             val DEFAULT_DRAG = ConfigJuego(
                 minCorrectosRequeridos = 6,  // 6 de 9 palabras (no 10 porque hay 1 extra)
                 puntosPorPalabraCorrecta = 2,
-                puntosExtraPerfecto = 10,
+                puntosExtraPerfecto = 5,
                 puntosExtraAmbosPersonajes = 2
             )
         }

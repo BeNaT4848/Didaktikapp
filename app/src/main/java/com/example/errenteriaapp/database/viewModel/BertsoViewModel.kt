@@ -25,8 +25,8 @@ class BertsoViewModel(
             // Configuración para el primer bertso (7 preguntas)
             val DEFAULT_BERTSOA_1 = ConfigJuego(
                 minCorrectosRequeridos = 5,  // Más de 4 como dice tu código
-                puntosPorCorrecto = 1,
-                puntosExtraPerfecto = 2
+                puntosPorCorrecto = 2,
+                puntosExtraPerfecto = 3
             )
 
             // Configuración para el segundo bertso (5 preguntas)

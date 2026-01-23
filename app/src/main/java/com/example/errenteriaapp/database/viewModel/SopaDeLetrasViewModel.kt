@@ -27,16 +27,16 @@ class SopaDeLetrasViewModel(
 
     data class ConfigJuego(
         val minPalabrasRequeridas: Int,
-        val puntosPorPalabra: Int = 5,
-        val puntosPorLetra: Int = 1,
+        val puntosPorPalabra: Int = 3,
+        val puntosPorLetra: Int = 0,
         val puntosExtraPerfecto: Int = 1,
         val puntosExtraTodasPalabras: Int = 2
     ) {
         companion object {
             val DEFAULT_SOPA = ConfigJuego(
                 minPalabrasRequeridas = 5, // Mínimo 5 de las 8 palabras
-                puntosPorPalabra = 5,
-                puntosPorLetra = 1,
+                puntosPorPalabra = 3,
+                puntosPorLetra = 0,
                 puntosExtraPerfecto = 1,
                 puntosExtraTodasPalabras = 2
             )

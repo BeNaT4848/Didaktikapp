@@ -29,15 +29,15 @@ class SanMarkosViewModel(
     data class ConfigJuego(
         val minCorrectosRequeridos: Int,
         val puntosPorRespuestaCorrecta: Int = 5,
-        val puntosExtraPerfecto: Int = 10,
-        val puntosPorTodasCorrectas: Int = 10
+        val puntosExtraPerfecto: Int = 5,
+        val puntosPorTodasCorrectas: Int = 5
     ) {
         companion object {
             val DEFAULT_SAN_MARKOS = ConfigJuego(
                 minCorrectosRequeridos = 2,
                 puntosPorRespuestaCorrecta = 5,
-                puntosExtraPerfecto = 10,
-                puntosPorTodasCorrectas = 10
+                puntosExtraPerfecto = 5,
+                puntosPorTodasCorrectas = 5
             )
         }
     }

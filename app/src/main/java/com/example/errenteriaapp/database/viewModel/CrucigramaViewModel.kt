@@ -22,16 +22,16 @@ class CrucigramaViewModel (private val puntuazioaDao: PuntuazioaDao?,
         val minCorrectosRequeridos: Int,
         val necesitaTodosCorrectos: Boolean,
         val puntosPorPalabraCompleta: Int = 5,
-        val puntosPorLetraCorrecta: Int = 1,
-        val puntosExtraPerfecto: Int = 15
+        val puntosPorLetraCorrecta: Int = 0,
+        val puntosExtraPerfecto: Int = 5
     ) {
         companion object {
             val DEFAULT_CRUCIGRAMA = ConfigJuego(
                 minCorrectosRequeridos = 3, // Mínimo 3 de las 5 palabras correctas
                 necesitaTodosCorrectos = false,
                 puntosPorPalabraCompleta = 5,
-                puntosPorLetraCorrecta = 1,
-                puntosExtraPerfecto = 15
+                puntosPorLetraCorrecta = 0,
+                puntosExtraPerfecto = 5
             )
         }
     }

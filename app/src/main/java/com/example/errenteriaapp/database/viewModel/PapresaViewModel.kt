@@ -24,7 +24,7 @@ class PapresaViewModel(
         val successThreshold: Double = 0.8,
         val minCorrectosRequeridos: Int = 12,
         val puntosPorCorrecto: Int = 1,
-        val puntosExtraPerfecto: Int = 5
+        val puntosExtraPerfecto: Int = 10
     ) {
         companion object {
             val DEFAULT_PAPRESA = ConfigJuego(
