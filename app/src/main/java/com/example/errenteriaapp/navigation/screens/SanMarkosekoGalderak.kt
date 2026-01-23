@@ -109,7 +109,7 @@ fun SanMarkosekoGalderak(
             onDismissWrong = { },
             onSuccessButton = {
                 viewModel.dismissSuccessDialog()
-                navController.navigate(Routes.MAPA_SCREEN)
+                navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = { }
         )

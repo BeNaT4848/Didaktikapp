@@ -137,13 +137,6 @@ fun AppNavigation(
             }
         }
 
-        // Para juegos que NO necesitan base de datos
-        composable(Routes.MAPA_SCREEN) {
-            MapaScreen(
-                navController = navController
-            )
-        }
-
         composable(Routes.BERTSOJOLASA_SCREEN) {
             val db = appDatabase
             if (db != null) {

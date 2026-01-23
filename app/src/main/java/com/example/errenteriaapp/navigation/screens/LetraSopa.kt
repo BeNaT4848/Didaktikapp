@@ -162,7 +162,7 @@ fun LetraSopaScreen(
                 onDismissWrong = { },
                 onSuccessButton = {
                     viewModel.hideSuccessDialog()
-                    navController.navigate(Routes.MAPA_SCREEN)
+                    navController.navigate(Routes.GPS_SCREEN)
                 },
                 onWrongButton = { }
             )

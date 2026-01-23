@@ -140,7 +140,7 @@ fun CrucigramaScreen(  navController: NavController,
                 onDismissWrong = {},
                 onSuccessButton = {
                     viewModel.cerrarDialogoExito()
-                    navController.navigate(Routes.MAPA_SCREEN)
+                    navController.navigate(Routes.GPS_SCREEN)
                 },
                 onWrongButton = {}
             )

@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import com.example.errenteriaapp.classes.rememberDragState
 import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.database.viewModel.ArropaBuruHandiakViewModel
+import com.example.errenteriaapp.navigation.Routes
 
 
 @Composable
@@ -96,7 +97,7 @@ fun TaulaArrastrarScreen(
             onDismissWrong = { },
             onSuccessButton = {
                 viewModel.showSuccessDialog(false)
-                navController.navigate("MAPA_SCREEN")
+                navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = { }
         )

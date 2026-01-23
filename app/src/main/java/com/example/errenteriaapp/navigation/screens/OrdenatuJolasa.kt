@@ -251,7 +251,7 @@ fun OrdenatuJolasaScreen(
             onDismissWrong = { viewModel.dismissDialogs() },
             onSuccessButton = {
                 viewModel.dismissDialogs()
-                navController.navigate(Routes.MAPA_SCREEN)
+                navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = {
                 viewModel.resetGame()

@@ -81,7 +81,7 @@ fun LoginScreen(
                             errorMessage = "Mesedez, idatzi zure izena eta abizena"
                         } else {
                             loginViewModel.guardarNombre(nombreCompleto)
-                            navController.navigate(Routes.MAPA_SCREEN)
+                            navController.navigate(Routes.GPS_SCREEN)
                         }
                     }
                 )
