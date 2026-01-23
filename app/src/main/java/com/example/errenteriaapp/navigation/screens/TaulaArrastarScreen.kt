@@ -12,13 +12,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.classes.rememberDragState
 import com.example.errenteriaapp.components.*
-import com.example.errenteriaapp.viewmodel.DragGameViewModel
+import com.example.errenteriaapp.database.viewModel.ArropaBuruHandiakViewModel
+
 
 @Composable
 fun TaulaArrastrarScreen(
     navController: NavController,
-    viewModel: DragGameViewModel = viewModel()
+    userName: String?,
+    viewModel: ArropaBuruHandiakViewModel
 ) {
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
+        }
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dragState = rememberDragState()
 
@@ -63,12 +70,15 @@ fun TaulaArrastrarScreen(
             }
         )
 
-        VerifyButton(
+        VerifyButtonnn(
             allSlotsFilled = uiState.allSlotsFilled,
             onVerifyClick = {
-                val isCorrect = viewModel.checkAnswers()
-                if (isCorrect) {
+                val (haAprobado, esPerfecto) = viewModel.checkAnswers() // Recibir ambos valores
+                if (haAprobado) {
+                    // Si aprobó, mostrar éxito (aunque no sea perfecto)
                     viewModel.showSuccessDialog(true)
+                    // No necesitas modificar el estado aquí, solo en el ViewModel
+                    // Si necesitas saber si fue perfecto, el ViewModel debería guardarlo
                 } else {
                     viewModel.showErrorDialog(true)
                 }
@@ -78,18 +88,31 @@ fun TaulaArrastrarScreen(
 
     DraggingWordOverlay(dragState)
 
-    GameResultDialogs(
-        showSuccess = uiState.showSuccessDialog,
-        showWrong = uiState.showErrorDialog,
-        onDismissSuccess = { viewModel.showSuccessDialog(false) },
-        onDismissWrong = { viewModel.showErrorDialog(false) },
-        onSuccessButton = {
-            viewModel.showSuccessDialog(false)
-            navController.navigate("MAPA_SCREEN")
-        },
-        onWrongButton = {
-            viewModel.showErrorDialog(false)
-            viewModel.resetGame()
-        }
-    )
+    if (uiState.showSuccessDialog) {
+        GameResultDialogs(
+            showSuccess = true,
+            showWrong = false,
+            onDismissSuccess = { viewModel.showSuccessDialog(false) },
+            onDismissWrong = { },
+            onSuccessButton = {
+                viewModel.showSuccessDialog(false)
+                navController.navigate("MAPA_SCREEN")
+            },
+            onWrongButton = { }
+        )
+    }
+
+    if (uiState.showErrorDialog) {
+        GameResultDialogs(
+            showSuccess = false,
+            showWrong = true,
+            onDismissSuccess = { },
+            onDismissWrong = { viewModel.showErrorDialog(false) },
+            onSuccessButton = { },
+            onWrongButton = {
+                viewModel.showErrorDialog(false)
+                viewModel.resetGame()
+            }
+        )
+    }
 }

@@ -112,14 +112,7 @@ fun RankingCard(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(CircleShape)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                item.color,
-                                item.color.copy(alpha = 0.8f)
-                            )
-                        )
-                    )
+                    .background(MaterialTheme.colorScheme.primary)
                     .border(
                         width = 1.5.dp,
                         brush = Brush.linearGradient(
