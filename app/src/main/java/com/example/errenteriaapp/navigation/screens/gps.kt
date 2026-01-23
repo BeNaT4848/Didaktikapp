@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -71,6 +72,7 @@ import com.example.errenteriaapp.classes.nireKokapenak
 import com.example.errenteriaapp.components.AppScaffold
 import com.example.errenteriaapp.components.KokapenaAzalpen
 import com.example.errenteriaapp.components.ReusableModalBottomSheet
+import com.example.errenteriaapp.navigation.Routes
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -287,6 +289,27 @@ fun MapaOsmScreen(navController: NavController) {
                                 label = {
                                     Text(
                                         "Ajustes",
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha })
+                                },
+                                alwaysShowLabel = true,
+                                colors = itemColors
+                            )
+
+                            NavigationRailItem(
+                                selected = railSelectedIndex == 3,
+                                onClick = {
+                                    navController.navigate(Routes.RANKIN_SCREEN)
+                                },
+                                icon = {
+                                    Icon(
+                                        Icons.Default.Star,
+                                        "Ranking",
+                                        tint = if (railSelectedIndex == 3) railSelected else railUnselected
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        "Ranking",
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
