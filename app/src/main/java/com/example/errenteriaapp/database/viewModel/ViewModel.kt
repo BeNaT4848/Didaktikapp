@@ -4,11 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.database.Ikasle
 import com.example.errenteriaapp.database.IkasleDao
+import com.example.errenteriaapp.database.Irakasle
 import com.example.errenteriaapp.database.IrakasleDao
 import com.example.errenteriaapp.database.Partida
 import com.example.errenteriaapp.database.PartidaDao
 import com.example.errenteriaapp.database.Puntuazioa
 import com.example.errenteriaapp.database.PuntuazioaDao
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -100,6 +102,9 @@ class LoginViewModel(
                 _isSaving.value = false
             }
         }
+    }
+    fun getAllIrakasleak(): Flow<List<Irakasle>> {
+        return irakasleDao.getAll()
     }
     fun getCurrentUser(): String? = _currentUser.value
 }
