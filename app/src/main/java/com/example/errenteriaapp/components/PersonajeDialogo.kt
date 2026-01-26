@@ -29,7 +29,11 @@ fun CharacterWithSpeech(
         verticalArrangement = Arrangement.Bottom
     ) {
         if (isSpeaking && !message.isNullOrEmpty()) {
-            SpeechBubble(text = message, isFromXanti = isXanti)
+            SpeechBubble(
+                text = message,
+                isFromXanti = isXanti,
+                isSpeaking = isSpeaking
+            )
         }
 
         Image(
