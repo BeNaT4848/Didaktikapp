@@ -31,7 +31,7 @@ fun LoginDivider(verticalPadding: Int = 12) {
             thickness = 0.5.dp
         )
         Text(
-            text = "ERREINTERIA",
+            text = "ERRENTERIA",
             color = Color.White,
             fontSize = 14.sp, // Texto más pequeño
             fontWeight = FontWeight.Medium,
