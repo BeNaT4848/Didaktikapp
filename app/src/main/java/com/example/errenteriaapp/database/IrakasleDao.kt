@@ -23,10 +23,10 @@ interface IrakasleDao {
     suspend fun getByName(name: String): Irakasle?
 
     @Transaction
-    suspend fun insertarIrakasleSiNoExiste(name: String = "BenatGandiaga", rol: String = "Admin") {
+    suspend fun insertarIrakasleSiNoExiste(name: String = "Irakasle", rol: String = "Admin",  contraseña: String = "irakasle2026" ) {
         val existente = getByName(name)
         if (existente == null) {
-            val nuevoIrakasle = Irakasle(izenaAbizena = name, rol = rol)
+            val nuevoIrakasle = Irakasle(izenaAbizena = name, rol = rol,  contraseña = contraseña)
             insert(nuevoIrakasle)
         }
     }

@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [Irakasle::class, Ikasle::class, Partida::class, Puntuazioa::class, PuntuazioRankina::class],
-    version = 1
+    version = 2
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -17,7 +17,9 @@ abstract class AppDatabase : RoomDatabase() {
 }
 val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
     override fun migrate(database: androidx.sqlite.db.SupportSQLiteDatabase) {
-        // Ejecutar SQL directamente para agregar columna
-        //
+        database.execSQL("ALTER TABLE Irakasle ADD COLUMN contraseña TEXT DEFAULT 'irakasle2026'")
+
+        // Actualizar los registros existentes con la contraseña por defecto
+        database.execSQL("UPDATE Irakasle SET contraseña = 'irakasle2026' WHERE contraseña IS NULL")
     }
 }
