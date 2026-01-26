@@ -29,7 +29,15 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 
-fun CrucigramaScreen(navController: NavController) {
+fun CrucigramaScreen(  navController: NavController,
+                       userName: String?,
+                       viewModel: CrucigramaViewModel ) {
+
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
+        }
+    }
     val viewModel: CrucigramaViewModel = viewModel()
     val celdas by viewModel.celdas
     val crucigramaEstado by viewModel.crucigramaEstado
@@ -132,7 +140,7 @@ fun CrucigramaScreen(navController: NavController) {
                 onDismissWrong = {},
                 onSuccessButton = {
                     viewModel.cerrarDialogoExito()
-                    navController.navigate(Routes.MAPA_SCREEN)
+                    navController.navigate(Routes.GPS_SCREEN)
                 },
                 onWrongButton = {}
             )

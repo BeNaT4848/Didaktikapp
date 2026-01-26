@@ -25,9 +25,15 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LetraSopaScreen(
-    navController: NavController
+    navController: NavController,
+    userName: String?,
+    viewModel: SopaDeLetrasViewModel
 ) {
-    val viewModel: SopaDeLetrasViewModel = viewModel()
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
+        }
+    }
     val gameState by viewModel.gameState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -156,7 +162,7 @@ fun LetraSopaScreen(
                 onDismissWrong = { },
                 onSuccessButton = {
                     viewModel.hideSuccessDialog()
-                    navController.navigate(Routes.MAPA_SCREEN)
+                    navController.navigate(Routes.GPS_SCREEN)
                 },
                 onWrongButton = { }
             )

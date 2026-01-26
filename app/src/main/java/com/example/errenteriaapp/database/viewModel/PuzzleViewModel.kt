@@ -25,7 +25,8 @@ data class PuzzlePiece(
     var currentSlot: Int? = null, // Slot actual (null si no está colocado)
     var offsetX: Float = 0f,   // Offset X para posición libre
     var offsetY: Float = 0f,   // Offset Y para posición libre
-    var isVisible: Boolean = false  // Nueva: si la pieza es visible abajo
+    var isVisible: Boolean = false,
+    val aspectRatio: Float = 1f
 )
 
 class PuzzleViewModel : ViewModel() {
@@ -126,7 +127,8 @@ class PuzzleViewModel : ViewModel() {
                         id = pieceId,
                         bitmap = pieceBitmap,
                         correctSlot = row * cols + col,
-                        isVisible = false  // Inicialmente ninguna es visible
+                        isVisible = false,
+                        aspectRatio = pieceWidth.toFloat() / pieceHeight.toFloat()
                     )
                 )
                 pieceId++
@@ -195,22 +197,21 @@ class PuzzleViewModel : ViewModel() {
     // Colocar pieza en slot (con soporte para intercambio)
     fun placePieceInSlot(pieceId: Int, slotIndex: Int): Boolean {
         val piece = getPieceById(pieceId)
-
-        // Si hay una pieza en el slot destino
+        val originSlot = piece.currentSlot
         val existingPieceId = _slots[slotIndex]
 
         if (existingPieceId != null) {
-            // Intercambiar las piezas
-            return swapPieces(pieceId, existingPieceId)
+            return if (originSlot != null) {
+                movePieceBetweenSlots(originSlot, slotIndex)
+            } else {
+                false
+            }
         }
 
-        // Si el slot está vacío...
-        // Si la pieza ya estaba en otro slot, liberarlo
-        if (piece.currentSlot != null) {
-            _slots[piece.currentSlot!!] = null
+        if (originSlot != null) {
+            _slots[originSlot] = null
         }
 
-        // Colocar en nuevo slot
         val pieceIndex = _pieces.indexOfFirst { it.id == pieceId }
         _pieces[pieceIndex] = piece.copy(
             currentSlot = slotIndex,
@@ -220,6 +221,31 @@ class PuzzleViewModel : ViewModel() {
         )
 
         _slots[slotIndex] = pieceId
+
+        return true
+    }
+
+    fun movePieceBetweenSlots(sourceSlot: Int, targetSlot: Int): Boolean {
+        if (sourceSlot == targetSlot) return true
+        val movingPieceId = _slots[sourceSlot] ?: return false
+        val targetPieceId = _slots[targetSlot]
+
+        _slots[targetSlot] = movingPieceId
+        _slots[sourceSlot] = targetPieceId
+
+        val movingIndex = _pieces.indexOfFirst { it.id == movingPieceId }
+        if (movingIndex != -1) {
+            val movingPiece = _pieces[movingIndex]
+            _pieces[movingIndex] = movingPiece.copy(currentSlot = targetSlot)
+        }
+
+        if (targetPieceId != null) {
+            val targetIndex = _pieces.indexOfFirst { it.id == targetPieceId }
+            if (targetIndex != -1) {
+                val targetPiece = _pieces[targetIndex]
+                _pieces[targetIndex] = targetPiece.copy(currentSlot = sourceSlot)
+            }
+        }
 
         return true
     }

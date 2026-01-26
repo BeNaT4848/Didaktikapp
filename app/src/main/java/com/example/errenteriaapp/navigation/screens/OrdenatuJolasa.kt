@@ -39,6 +39,7 @@ import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.navigation.Routes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -46,9 +47,18 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun OrdenatuJolasaScreen(
     navController: NavController,
-    modifier: Modifier = Modifier,
-    viewModel: OrdenatuJolasaViewModel = viewModel()
+    userName: String?,
+    viewModel: OrdenatuJolasaViewModel,
+
+    modifier: Modifier = Modifier
+
 ) {
+
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
+        }
+    }
     val photoNumberMap = viewModel.photoNumberMap
     val photos = viewModel.photos
     val slotAssignments = viewModel.slotAssignments
@@ -241,7 +251,7 @@ fun OrdenatuJolasaScreen(
             onDismissWrong = { viewModel.dismissDialogs() },
             onSuccessButton = {
                 viewModel.dismissDialogs()
-                navController.navigate(Routes.MAPA_SCREEN)
+                navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = {
                 viewModel.resetGame()

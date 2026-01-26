@@ -6,18 +6,38 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.example.errenteriaapp.database.Puntuazioa
+import com.example.errenteriaapp.database.PuntuazioaDao
+import kotlinx.coroutines.launch
 import kotlin.math.ceil
-import kotlin.random.Random
 
-class PapresaViewModel : ViewModel() {
+class PapresaViewModel(
+    private val puntuazioaDao: PuntuazioaDao?,
+    private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_PAPRESA
+) : ViewModel() {
 
-    private val successThreshold = 0.8
+    data class ConfigJuego(
+        val successThreshold: Double = 0.8,
+        val minCorrectosRequeridos: Int = 12,
+        val puntosPorCorrecto: Int = 1,
+        val puntosExtraPerfecto: Int = 10
+    ) {
+        companion object {
+            val DEFAULT_PAPRESA = ConfigJuego(
+                successThreshold = 0.8,
+                minCorrectosRequeridos = 12,
+                puntosPorCorrecto = 1,
+                puntosExtraPerfecto = 5
+            )
+        }
+    }
+
+    // Añade esta variable para el nombre del usuario
+    var currentUserName: String? = null
 
     val wasteItems = mutableStateListOf<WasteItem>()
 
@@ -36,6 +56,9 @@ class PapresaViewModel : ViewModel() {
         private set
 
     var hasPassed by mutableStateOf(false)
+        private set
+
+    var score: Int? by mutableStateOf(null)
         private set
 
     val allAnswered: Boolean
@@ -100,17 +123,61 @@ class PapresaViewModel : ViewModel() {
     fun onVerifyClick() {
         if (!allAnswered) return
 
-        val correctAnswers =
-            wasteItems.count { userAnswers[it.id] == it.correctCategory }
+        val correctAnswers = calcularPuntos()
+        val requiredCorrect = configJuego.minCorrectosRequeridos
 
-        val requiredCorrect =
-            ceil(wasteItems.size * successThreshold).toInt().coerceAtLeast(1)
-
+        score = correctAnswers
         hasPassed = correctAnswers >= requiredCorrect
         showResults = true
 
-        if (!hasPassed) {
+        if (hasPassed) {
+            // Guardar puntuación en base de datos
+            guardarPuntuacion(correctAnswers)
+        } else {
             showWrongDialog = true
+        }
+    }
+
+    private fun calcularPuntos(): Int {
+        return wasteItems.count { userAnswers[it.id] == it.correctCategory }
+    }
+
+    private fun calcularPuntuacionFinal(correctos: Int): Int {
+        var puntos = correctos * configJuego.puntosPorCorrecto
+        // Bonus por respuesta perfecta (todas correctas)
+        if (correctos == wasteItems.size && configJuego.puntosExtraPerfecto > 0) {
+            puntos += configJuego.puntosExtraPerfecto
+        }
+        return puntos
+    }
+
+    fun guardarPuntuacion(correctos: Int) {
+        viewModelScope.launch {
+            currentUserName?.let { nombreUsuario ->
+                puntuazioaDao?.let { dao ->
+                    val puntuazioActual = dao.getByName(nombreUsuario)
+                    val puntosFinales = calcularPuntuacionFinal(correctos)
+
+                    if (puntuazioActual != null) {
+                        val nuevaPuntuazio = puntuazioActual.copy(
+                            puntuazioaPapresa = puntosFinales
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    } else {
+                        val nuevaPuntuazio = Puntuazioa(
+                            izenaAbizena = nombreUsuario,
+                            puntuazioaBertso = 0,
+                            puntuazioaGalderak = 0,
+                            puntuazioaGurutzegrama = 0,
+                            puntuazioaArropaBuruHandiak = 0,
+                            puntuazioaPapresa = puntosFinales,
+                            puntuazioaArrastrar = 0,
+                            puntuazioaSopaLetra = 0
+                        )
+                        dao.insert(nuevaPuntuazio)
+                    }
+                }
+            }
         }
     }
 
@@ -131,10 +198,16 @@ class PapresaViewModel : ViewModel() {
         showSuccessDialog = false
         showWrongDialog = false
         hasPassed = false
+        score = null
     }
 
     fun dismissSuccessDialog() {
         showSuccessDialog = false
+    }
+
+    // Método para establecer el usuario
+    fun setUsuario(nombre: String) {
+        currentUserName = nombre
     }
 }
 

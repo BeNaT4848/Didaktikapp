@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/errenteriaapp/navigation/screens/SanMarkosekoGalderak.kt
 package com.example.errenteriaapp.navigation.screens
 
 import androidx.compose.foundation.background
@@ -7,77 +8,35 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.*
+import com.example.errenteriaapp.database.viewModel.SanMarkosViewModel
+import com.example.errenteriaapp.navigation.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SanMarkosekoGalderak(
-    navController: NavController
+    navController: NavController,
+    userName: String?,
+    viewModel: SanMarkosViewModel
 ) {
-    var galderaIndex by remember { mutableIntStateOf(0) }
-    var aukeraHautatua by remember { mutableIntStateOf(-1) }
-    var erantzunZuzenak by remember { mutableIntStateOf(0) }
-    val galderakErantzunda = remember { mutableStateListOf<Int>() }
-    val erantzunak = remember { mutableStateMapOf<Int, Pair<Int, Boolean>>() }
-    var showSuccessDialog by remember { mutableStateOf(false) }
-    var showWrongDialog by remember { mutableStateOf(false) }
-
-    // Galderas con las preguntas
-    val galderak = remember {
-        listOf(
-            Triple(
-                "Zertarako eraiki zen San Markos gotorlekua?",
-                listOf(
-                    "Erregeak bizitzeko",
-                    "Lurraldea babesteko eta zaintzeko",
-                    "Janaria gordetzeko"
-                ),
-                1  // La respuesta correcta es la B (índice 1)
-            ),
-            Triple(
-                "Zein mendetan eraiki zen gotorlekua?",
-                listOf(
-                    "XIX. mendean",
-                    "XXI. mendean",
-                    "XVI. mendean"
-                ),
-                0  // La respuesta correcta es la A (índice 0)
-            ),
-            Triple(
-                "Gaur egun, gotorlekua erabiltzen da...",
-                listOf(
-                    "Bisitak eta kultur jarduerak egiteko",
-                    "Soldaduak bizitzeko",
-                    "Armak gordetzeko"
-                ),
-                0  // La respuesta correcta es la A (índice 0)
-            )
-        ).shuffled()  // Preguntas en orden aleatorio
-    }
-
-    val (galderaText, aukerak, erantzunZuzena) = galderak[galderaIndex]
-
-    // Usa tu componente GameResultDialogs
-    GameResultDialogs(
-        showSuccess = showSuccessDialog,
-        showWrong = showWrongDialog,
-        onDismissSuccess = { showSuccessDialog = false },
-        onDismissWrong = { showWrongDialog = false },
-        onSuccessButton = {
-            showSuccessDialog = false
-            navController.navigate("mapa_screen")
-        },
-        onWrongButton = {
-            showWrongDialog = false
-            // Reiniciar el cuestionario
-            galderaIndex = 0
-            aukeraHautatua = -1
-            erantzunZuzenak = 0
-            galderakErantzunda.clear()
-            erantzunak.clear()
+    LaunchedEffect(userName) {
+        userName?.let {
+            viewModel.setUsuario(it)
         }
-    )
+    }
+    // Observar el estado del ViewModel
+    val galderaIndex by remember { derivedStateOf { viewModel.galderaIndex } }
+    val aukeraHautatua by remember { derivedStateOf { viewModel.aukeraHautatua } }
+    val erantzunZuzenak by remember { derivedStateOf { viewModel.erantzunZuzenak } }
+    val puntuacionTotal by remember { derivedStateOf { viewModel.puntuacionTotal } }
+    val galderakErantzunda by remember { derivedStateOf { viewModel.galderakErantzunda } }
+    val erantzunak by remember { derivedStateOf { viewModel.erantzunak } }
+    val showSuccessDialog by remember { derivedStateOf { viewModel.showSuccessDialog } }
+    val showWrongDialog by remember { derivedStateOf { viewModel.showWrongDialog } }
+
+    val currentPregunta = viewModel.currentPregunta
 
     Box(
         modifier = Modifier
@@ -95,37 +54,27 @@ fun SanMarkosekoGalderak(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+
             // Progreso visual
             ProgressIndicator(
                 galderaIndex = galderaIndex,
-                totalGalderak = galderak.size,
+                totalGalderak = viewModel.galderak.size,
                 erantzunak = erantzunak
             )
 
             Spacer(modifier = Modifier.height(7.dp))
 
-            // Tarjeta de pregunta
+            // Tarjeta de pregunta - USANDO opcionesMezcladas
             QuestionCard(
                 galderaIndex = galderaIndex,
-                galderaText = galderaText,
-                aukerak = aukerak,
-                erantzunZuzena = erantzunZuzena,
+                galderaText = currentPregunta.texto,
+                aukerak = currentPregunta.opcionesMezcladas,  // Usar opciones mezcladas
+                erantzunZuzena = currentPregunta.respuestaCorrectaMezclada,  // Usar respuesta correcta en opciones mezcladas
                 aukeraHautatua = aukeraHautatua,
                 galderakErantzunda = galderakErantzunda,
                 erantzunak = erantzunak,
                 onOptionSelected = { index ->
-                    if (!galderakErantzunda.contains(galderaIndex)) {
-                        aukeraHautatua = index
-                        val correct = index == erantzunZuzena
-
-                        erantzunak[galderaIndex] = Pair(index, correct)
-
-                        if (correct) {
-                            erantzunZuzenak++
-                        }
-
-                        galderakErantzunda.add(galderaIndex)
-                    }
+                    viewModel.onOptionSelected(index)
                 }
             )
 
@@ -134,24 +83,11 @@ fun SanMarkosekoGalderak(
             // Botón para continuar o terminar
             QuizNextButton(
                 currentQuestionIndex = galderaIndex,
-                totalQuestions = galderak.size,
+                totalQuestions = viewModel.galderak.size,
                 correctAnswers = erantzunZuzenak,
                 isAnswered = galderakErantzunda.contains(galderaIndex),
                 onNextClick = {
-                    if (galderaIndex < galderak.size - 1) {
-                        // Ir a la siguiente pregunta
-                        galderaIndex++
-                        aukeraHautatua = -1
-                    } else {
-                        // Verificar si tiene al menos 2 respuestas correctas
-                        if (erantzunZuzenak >= 2) {
-                            // Mostrar diálogo de éxito
-                            showSuccessDialog = true
-                        } else {
-                            // Mostrar diálogo de fallo
-                            showWrongDialog = true
-                        }
-                    }
+                    viewModel.onNextQuestion()
                 }
             )
 
@@ -160,5 +96,37 @@ fun SanMarkosekoGalderak(
             // Información sobre los requisitos
             RequirementInfo(erantzunZuzenak = erantzunZuzenak)
         }
+    }
+
+    // Diálogo de éxito
+    if (showSuccessDialog) {
+        GameResultDialogs(
+            showSuccess = true,
+            showWrong = false,
+            onDismissSuccess = {
+                viewModel.dismissSuccessDialog()
+            },
+            onDismissWrong = { },
+            onSuccessButton = {
+                viewModel.dismissSuccessDialog()
+                navController.navigate(Routes.GPS_SCREEN)
+            },
+            onWrongButton = { }
+        )
+    }
+
+    // Diálogo de error
+    if (showWrongDialog) {
+        GameResultDialogs(
+            showSuccess = false,
+            showWrong = true,
+            onDismissSuccess = { },
+            onDismissWrong = { viewModel.dismissWrongDialog() },
+            onSuccessButton = { },
+            onWrongButton = {
+                viewModel.dismissWrongDialog()
+                viewModel.resetGame()
+            }
+        )
     }
 }
