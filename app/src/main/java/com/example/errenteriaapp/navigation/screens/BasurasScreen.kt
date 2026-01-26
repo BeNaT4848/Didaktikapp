@@ -19,6 +19,8 @@ import com.example.errenteriaapp.components.video.VideoDialogoa
 import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.Routes
+import androidx.compose.ui.platform.LocalContext
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 
 @Composable
@@ -27,6 +29,8 @@ fun PapresaScreen(
     userName: String?,
     viewModel: PapresaViewModel,
 ) {
+    val context = LocalContext.current
+    val progressRepo = remember { KokapenaProgressRepository(context) }
 
     LaunchedEffect(userName) {
         userName?.let {
@@ -118,6 +122,7 @@ fun PapresaScreen(
             onDismissWrong = {  },
             onSuccessButton = {
                 viewModel.dismissSuccessDialog()
+                progressRepo.markCompleted(Routes.BASURA_SCREEN)
                 navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = { }

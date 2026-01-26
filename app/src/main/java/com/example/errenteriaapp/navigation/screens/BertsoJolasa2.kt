@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,8 @@ import com.example.errenteriaapp.components.textoBertsoa
 import com.example.errenteriaapp.components.GameResultDialogs
 import com.example.errenteriaapp.database.viewModel.BertsoViewModel
 import com.example.errenteriaapp.navigation.Routes
+import androidx.compose.ui.platform.LocalContext
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 @Composable
 @Suppress("UNUSED_PARAMETER")
@@ -32,6 +35,8 @@ fun BertsoJolasaScreen2(
     userName: String?,
     viewModel: BertsoViewModel
 ) {
+    val context = LocalContext.current
+    val progressRepo = remember { KokapenaProgressRepository(context) }
     val attempt = viewModel.attempt
     val showSuccess = viewModel.showSuccessDialog
     val showWrong = viewModel.showWrongDialog
@@ -149,6 +154,7 @@ fun BertsoJolasaScreen2(
             onDismissWrong = { },
             onSuccessButton = {
                 viewModel.dismissSuccessDialog()
+                progressRepo.markCompleted(Routes.BERTSOJOLASA_SCREEN)
                 navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = { }

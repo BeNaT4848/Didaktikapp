@@ -32,8 +32,8 @@ val nireKokapenak = listOf(
         "Errenteria",
         43.30762280468109,
         -1.9007732320843966,
-        route = Routes.CRUCIGRAMA_SCREEN
-        //tambien deberia esta el juego de SANMARKOS_SCREEN en la ubicacion
+        route = Routes.SANMARKOS_SCREEN
+        // doble: SANMARKOS_SCREEN -> CRUCIGRAMA_SCREEN
     ),
     Kokapena(
         "Fanderiako errota",
@@ -54,7 +54,6 @@ val nireKokapenak = listOf(
         "Errenteria",
         43.3125029994187,
         -1.9012615941295046,
-        route = Routes.SOPALETRA_SCREEN
-        //tambien deberia esta el juego de TAULAARRASTRAR_SCRENN en la ubicacion
+        route = Routes.TAULAARRASTRAR_SCRENN
     )
 )

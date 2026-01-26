@@ -5,9 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.unit.dp import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.ActiveWordIndicator
 import com.example.errenteriaapp.components.CluesSection
@@ -24,21 +25,22 @@ import com.example.errenteriaapp.components.onClickCelda
 import com.example.errenteriaapp.components.onLetraCambiada
 import com.example.errenteriaapp.database.viewModel.CrucigramaViewModel
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-
-fun CrucigramaScreen(  navController: NavController,
-                       userName: String?,
-                       viewModel: CrucigramaViewModel ) {
+fun CrucigramaScreen(
+    navController: NavController,
+    userName: String?,
+    viewModel: CrucigramaViewModel
+) {
+    val context = LocalContext.current
+    val progressRepo = remember { KokapenaProgressRepository(context) }
 
     LaunchedEffect(userName) {
-        userName?.let {
-            viewModel.setUsuario(it)
-        }
+        userName?.let { viewModel.setUsuario(it) }
     }
-    val viewModel: CrucigramaViewModel = viewModel()
     val celdas by viewModel.celdas
     val crucigramaEstado by viewModel.crucigramaEstado
     val verificacionRealizada by viewModel.verificacionRealizada
@@ -140,6 +142,7 @@ fun CrucigramaScreen(  navController: NavController,
                 onDismissWrong = {},
                 onSuccessButton = {
                     viewModel.cerrarDialogoExito()
+                    progressRepo.markCompleted(Routes.CRUCIGRAMA_SCREEN)
                     navController.navigate(Routes.GPS_SCREEN)
                 },
                 onWrongButton = {}

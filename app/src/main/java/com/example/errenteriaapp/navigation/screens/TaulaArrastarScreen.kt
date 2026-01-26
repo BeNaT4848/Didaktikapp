@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,6 +15,7 @@ import com.example.errenteriaapp.classes.rememberDragState
 import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.database.viewModel.ArropaBuruHandiakViewModel
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 
 @Composable
@@ -22,6 +24,9 @@ fun TaulaArrastrarScreen(
     userName: String?,
     viewModel: ArropaBuruHandiakViewModel
 ) {
+    val context = LocalContext.current
+    val progressRepo = remember { KokapenaProgressRepository(context) }
+
     LaunchedEffect(userName) {
         userName?.let {
             viewModel.setUsuario(it)
@@ -97,7 +102,9 @@ fun TaulaArrastrarScreen(
             onDismissWrong = { },
             onSuccessButton = {
                 viewModel.showSuccessDialog(false)
-                navController.navigate(Routes.GPS_SCREEN)
+                progressRepo.markCompleted(Routes.TAULAARRASTRAR_SCRENN)
+                // Encadenado: al terminar Taula Arrastrar, entra a la Sopa de letras
+                navController.navigate(Routes.SOPALETRA_SCREEN)
             },
             onWrongButton = { }
         )

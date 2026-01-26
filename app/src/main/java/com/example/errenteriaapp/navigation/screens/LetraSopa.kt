@@ -1,8 +1,6 @@
 package com.example.errenteriaapp.navigation.screens
 
-import android.content.Context
 import android.media.MediaPlayer
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -11,15 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.errenteriaapp.components.GameResultDialogs
-import com.example.errenteriaapp.components.SopaDeLetrasTablero
-import com.example.errenteriaapp.components.SopaHeader
-import com.example.errenteriaapp.components.SopaPalabrasList
-import com.example.errenteriaapp.components.SopaProgressBar
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.database.viewModel.SopaDeLetrasViewModel
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.components.*
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -29,18 +24,19 @@ fun LetraSopaScreen(
     userName: String?,
     viewModel: SopaDeLetrasViewModel
 ) {
+    val context = LocalContext.current
+    val progressRepo = remember { KokapenaProgressRepository(context) }
+
     LaunchedEffect(userName) {
         userName?.let {
             viewModel.setUsuario(it)
         }
     }
     val gameState by viewModel.gameState.collectAsState()
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     // MediaPlayer para el audio
     val mediaPlayer = remember { MediaPlayer() }
-    var isAudioPrepared by remember { mutableStateOf(false) }
 
     // Animación de confeti
     val confettiScale = remember { mutableStateOf(0f) }
@@ -48,25 +44,14 @@ fun LetraSopaScreen(
     // Inicializar y preparar el audio
     LaunchedEffect(Unit) {
         try {
-            val audioResource = context.resources.getIdentifier(
-                "zentenarioa_musika_audioa",
-                "raw",
-                context.packageName
-            )
+            val audioResource = R.raw.zentenarioa_musika_audioa
+            mediaPlayer.setDataSource(context.resources.openRawResourceFd(audioResource))
+            mediaPlayer.prepareAsync()
 
-            if (audioResource != 0) {
-                mediaPlayer.setDataSource(context.resources.openRawResourceFd(audioResource))
-                mediaPlayer.prepareAsync()
+            mediaPlayer.isLooping = true // Cambia a false si no quieres que se repita
 
-                // Configurar para que se repita si es necesario
-                mediaPlayer.isLooping = true // Cambia a false si no quieres que se repita
-
-                // Configurar listener para cuando el audio esté preparado
-                mediaPlayer.setOnPreparedListener {
-                    isAudioPrepared = true
-                    // Reproducir automáticamente cuando esté preparado
-                    mediaPlayer.start()
-                }
+            mediaPlayer.setOnPreparedListener {
+                mediaPlayer.start()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -88,7 +73,7 @@ fun LetraSopaScreen(
         if (gameState.mostrarExito) {
             scope.launch {
                 // Opcional: Detener el audio cuando se completa el juego
-                 mediaPlayer.pause()
+                mediaPlayer.pause()
 
                 delay(500)
 
@@ -100,14 +85,6 @@ fun LetraSopaScreen(
                     confettiScale.value = 0.8f
                     delay(300)
                 }
-
-                // Esperar y navegar al siguiente juego
-                delay(2000)
-
-                // Opcional: Detener audio antes de navegar
-                 if (mediaPlayer.isPlaying) mediaPlayer.stop()
-
-                navController.navigate(Routes.CRUCIGRAMA_SCREEN)
             }
         }
     }
@@ -162,7 +139,9 @@ fun LetraSopaScreen(
                 onDismissWrong = { },
                 onSuccessButton = {
                     viewModel.hideSuccessDialog()
-                    navController.navigate(Routes.GPS_SCREEN)
+                    progressRepo.markCompleted(Routes.SOPALETRA_SCREEN)
+                    // Al terminar, ir a Ranking
+                    navController.navigate(Routes.RANKIN_SCREEN)
                 },
                 onWrongButton = { }
             )

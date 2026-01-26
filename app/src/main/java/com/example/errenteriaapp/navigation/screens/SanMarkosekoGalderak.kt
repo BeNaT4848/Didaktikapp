@@ -7,12 +7,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.database.viewModel.SanMarkosViewModel
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +23,9 @@ fun SanMarkosekoGalderak(
     userName: String?,
     viewModel: SanMarkosViewModel
 ) {
+    val context = LocalContext.current
+    val progressRepo = remember { KokapenaProgressRepository(context) }
+
     LaunchedEffect(userName) {
         userName?.let {
             viewModel.setUsuario(it)
@@ -109,7 +114,9 @@ fun SanMarkosekoGalderak(
             onDismissWrong = { },
             onSuccessButton = {
                 viewModel.dismissSuccessDialog()
-                navController.navigate(Routes.GPS_SCREEN)
+                progressRepo.markCompleted(Routes.SANMARKOS_SCREEN)
+                // Encadenado automático: al terminar SanMarkos, entra al Crucigrama
+                navController.navigate(Routes.CRUCIGRAMA_SCREEN)
             },
             onWrongButton = { }
         )

@@ -54,17 +54,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.Kokapena
@@ -73,6 +73,7 @@ import com.example.errenteriaapp.components.AppScaffold
 import com.example.errenteriaapp.components.KokapenaAzalpen
 import com.example.errenteriaapp.components.ReusableModalBottomSheet
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -123,9 +124,30 @@ fun MapaOsmScreen(navController: NavController) {
         // Importante: no depende de pointerInput (que en tu setup está dando Unresolved reference).
         val swipeDetectorWidth = 24.dp
 
+        val context = LocalContext.current
+        // Repositorio de progreso (persistente)
+        val progressRepo = remember { KokapenaProgressRepository(context) }
+
+        // Fuerza recomposición cuando cambia el progreso (al volver desde un juego)
+        var unlockedIndex by rememberSaveable { mutableStateOf(progressRepo.getUnlockedStepIndex()) }
+
+        // Releer prefs al volver a primer plano (después de jugar)
+        val lifecycleOwner = LocalLifecycleOwner.current
+        DisposableEffect(lifecycleOwner) {
+            val observer = LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    unlockedIndex = progressRepo.getUnlockedStepIndex()
+                }
+            }
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
+
+        // DEBUG: muestra qué paso está desbloqueado
+        val unlockedRouteDebug = progressRepo.tourSteps.getOrNull(unlockedIndex) ?: "(none)"
+
         // ** NUEVO: estado para el marcador seleccionado **
         var selectedKokapena by remember { mutableStateOf<Kokapena?>(null) }
-
 
         Box(modifier = Modifier.fillMaxSize()) {
             // Detector de swipe en el borde izquierdo (abre el rail)
@@ -423,12 +445,14 @@ fun MapaOsmScreen(navController: NavController) {
                         .fillMaxHeight()
                         .zIndex(1f)
                 ) {
+                    // (sin variable dummy)
                     OsmMapView(
                         nireKokapenak = nireKokapenak,
                         modifier = Modifier.fillMaxSize(),
                         onKokapenaClick = { kokapena ->
-                            // ** NUEVO: abrir modal al pulsar un marcador **
-                            selectedKokapena = kokapena
+                            if (progressRepo.isRouteUnlocked(kokapena.route)) {
+                                selectedKokapena = kokapena
+                            }
                         },
                         onUserMapGestureStart = {
                             // Si el usuario empieza a mover/zoomear el mapa y el rail está abierto, lo cerramos.
@@ -462,6 +486,16 @@ fun MapaOsmScreen(navController: NavController) {
                     LaunchedEffect(Unit) { openSheet() }
                 }
             }
+
+            // DEBUG badge arriba (temporal)
+            Text(
+                text = "DEBUG paso=${unlockedIndex + 1}/${progressRepo.tourSteps.size} -> $unlockedRouteDebug",
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
 
 
@@ -637,7 +671,7 @@ fun OsmMapView(
     // Queremos que los kokapenak tengan el mismo tamaño que el de mi ubicación.
     // Mi ubicación más pequeño para que no tape el mapa.
     val myLocationIconSize = 48.dp
-    // Mantén los kokapenak como estaban (grandes).
+    // Mantén los kokapena como estaban (grandes).
     val kokapenaIconSize = 84.dp
 
     // Icono por defecto para kokapenak
