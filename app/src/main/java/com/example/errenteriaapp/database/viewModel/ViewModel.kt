@@ -106,5 +106,6 @@ class LoginViewModel(
     fun getAllIrakasleak(): Flow<List<Irakasle>> {
         return irakasleDao.getAll()
     }
+
     fun getCurrentUser(): String? = _currentUser.value
 }
