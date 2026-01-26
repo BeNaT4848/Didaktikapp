@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.room.Room
 import com.example.errenteriaapp.database.AppDatabase
+import com.example.errenteriaapp.database.MIGRATION_1_2
 import com.example.errenteriaapp.database.viewModel.*
 import com.example.errenteriaapp.navigation.screens.*
 import com.example.errenteriaapp.screens.ranking.RankinScreen
@@ -50,7 +51,7 @@ fun AppNavigation(
                         context.applicationContext,
                         AppDatabase::class.java,
                         "errenteria_database"
-                    ).build()
+                    ) .addMigrations(MIGRATION_1_2) .build()
                 }
             }
 
