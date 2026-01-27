@@ -17,5 +17,5 @@ import androidx.room.PrimaryKey
 data class Irakasle(
     @PrimaryKey val izenaAbizena: String,
     val rol: String = "Admin",
-    val contraseña: String = "irakasle2026"  // Nueva columna
+    val contraseña: String = "irakasle2026"
 )
