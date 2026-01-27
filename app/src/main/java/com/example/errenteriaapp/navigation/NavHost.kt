@@ -60,7 +60,7 @@ fun AppNavigation(
                         context.applicationContext,
                         AppDatabase::class.java,
                         "errenteria_database"
-                    ) .addMigrations(MIGRATION_1_2) .build()
+                    ).addMigrations(MIGRATION_1_2).build()
                 }
             }
 
@@ -97,9 +97,7 @@ fun AppNavigation(
 
             LoginScreen(
                 loginViewModel = loginViewModel,
-                navController = navController,
-                initialTeacherMode = isTeacherMode,
-                onTeacherModeChange = { loginViewModel.setTeacherMode(it) }
+                navController = navController
             )
         }
 
