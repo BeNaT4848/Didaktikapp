@@ -36,7 +36,7 @@ fun BertsoJolasaScreen2(
     viewModel: BertsoViewModel
 ) {
     val context = LocalContext.current
-    val progressRepo = remember { KokapenaProgressRepository(context) }
+    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
     val attempt = viewModel.attempt
     val showSuccess = viewModel.showSuccessDialog
     val showWrong = viewModel.showWrongDialog

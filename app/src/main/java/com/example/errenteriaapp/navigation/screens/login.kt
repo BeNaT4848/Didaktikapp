@@ -6,7 +6,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -201,6 +200,9 @@ fun LoginScreen(
                         Button(
                             onClick = {
                                 scope.launch {
+                                    val ctx = navController.context
+                                    val sessionPrefs = ctx.getSharedPreferences("session", android.content.Context.MODE_PRIVATE)
+
                                     if (isTeacherMode) {
                                         // Validar irakaslea
                                         val irakasle = allIrakasleak.find {
@@ -210,6 +212,11 @@ fun LoginScreen(
                                         if (irakasle != null && irakasle.contraseña == password) {
                                             // Login exitoso para irakaslea
                                             loginViewModel.guardarNombre(nombreCompleto)
+
+                                            // Guardar usuario activo para progreso por usuario
+                                            val cleanName = nombreCompleto.trim()
+                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
+
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
                                         } else {
@@ -221,6 +228,11 @@ fun LoginScreen(
                                             errorMessage = "Mesedez, idatzi zure izena eta abizena"
                                         } else {
                                             loginViewModel.guardarNombre(nombreCompleto)
+
+                                            // Guardar usuario activo para progreso por usuario
+                                            val cleanName = nombreCompleto.trim()
+                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
+
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
                                         }

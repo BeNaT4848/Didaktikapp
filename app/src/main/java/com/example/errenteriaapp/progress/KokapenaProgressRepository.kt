@@ -10,11 +10,16 @@ import com.example.errenteriaapp.navigation.Routes
  * - Gestiona el desbloqueo secuencial de ubicaciones (kokapenak) y persiste el progreso.
  * - Cada "paso" es un minijuego (route) y al completarlo desbloquea el siguiente.
  * - Soporta pasos dobles: 2 minijuegos consecutivos, pero solo 1 marcador.
+ *
+ * IMPORTANTE: el progreso es por-usuario.
  */
-class KokapenaProgressRepository(context: Context) {
+class KokapenaProgressRepository(
+    context: Context,
+    private val userId: String = DEFAULT_USER_ID
+) {
 
     private val prefs: SharedPreferences =
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        context.getSharedPreferences(prefsNameFor(userId), Context.MODE_PRIVATE)
 
     /** Orden de desbloqueo por pasos (routes)
      *  1) Bertso
@@ -39,14 +44,19 @@ class KokapenaProgressRepository(context: Context) {
     )
 
     /** Índice del paso actual desbloqueado. Todo lo anterior se considera completado. */
-    fun getUnlockedStepIndex(): Int = prefs.getInt(KEY_UNLOCKED_STEP_INDEX, 0)
+    fun getUnlockedStepIndex(): Int = prefs.getInt(keyUnlockedStepIndex(userId), 0)
 
     fun setUnlockedStepIndex(index: Int) {
-        prefs.edit { putInt(KEY_UNLOCKED_STEP_INDEX, index.coerceIn(0, tourSteps.lastIndex.coerceAtLeast(0))) }
+        prefs.edit {
+            putInt(
+                keyUnlockedStepIndex(userId),
+                index.coerceIn(0, tourSteps.lastIndex.coerceAtLeast(0))
+            )
+        }
     }
 
     fun reset() {
-        prefs.edit { remove(KEY_UNLOCKED_STEP_INDEX) }
+        prefs.edit { remove(keyUnlockedStepIndex(userId)) }
     }
 
     /**
@@ -57,6 +67,22 @@ class KokapenaProgressRepository(context: Context) {
         val idx = tourSteps.indexOf(route)
         if (idx == -1) return true // si no lo controlamos, no lo bloqueamos
         return idx <= getUnlockedStepIndex()
+    }
+
+    /** True si la ruta ya está completada (es decir, va antes del paso actual desbloqueado). */
+    fun isRouteCompleted(route: String?): Boolean {
+        if (route.isNullOrBlank()) return false
+        val idx = tourSteps.indexOf(route)
+        if (idx == -1) return false
+        return idx < getUnlockedStepIndex()
+    }
+
+    /** True si la ruta es la actual (la que toca hacer ahora mismo). */
+    fun isRouteCurrent(route: String?): Boolean {
+        if (route.isNullOrBlank()) return false
+        val idx = tourSteps.indexOf(route)
+        if (idx == -1) return false
+        return idx == getUnlockedStepIndex()
     }
 
     /**
@@ -78,7 +104,17 @@ class KokapenaProgressRepository(context: Context) {
     }
 
     companion object {
-        private const val PREFS_NAME = "kokapena_progress"
-        private const val KEY_UNLOCKED_STEP_INDEX = "unlocked_step_index"
+        private const val PREFS_NAME_BASE = "kokapena_progress"
+        private const val DEFAULT_USER_ID = "default"
+        private const val KEY_UNLOCKED_STEP_INDEX_BASE = "unlocked_step_index"
+
+        private fun sanitize(id: String): String =
+            id.trim().ifBlank { DEFAULT_USER_ID }.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+
+        private fun prefsNameFor(userId: String): String =
+            "${PREFS_NAME_BASE}_${sanitize(userId)}"
+
+        private fun keyUnlockedStepIndex(userId: String): String =
+            "${KEY_UNLOCKED_STEP_INDEX_BASE}_${sanitize(userId)}"
     }
 }

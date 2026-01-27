@@ -125,8 +125,15 @@ fun MapaOsmScreen(navController: NavController) {
         val swipeDetectorWidth = 24.dp
 
         val context = LocalContext.current
-        // Repositorio de progreso (persistente)
-        val progressRepo = remember { KokapenaProgressRepository(context) }
+
+        // Guardamos/recuperamos el usuario actual (lo actualiza el Login)
+        val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+        val activeUserName = sessionPrefs.getString("active_user_name", null)
+
+        // Repositorio de progreso (por usuario)
+        val progressRepo = remember(activeUserName) {
+            KokapenaProgressRepository(context, activeUserName ?: "default")
+        }
 
         // Fuerza recomposición cuando cambia el progreso (al volver desde un juego)
         var unlockedIndex by rememberSaveable { mutableStateOf(progressRepo.getUnlockedStepIndex()) }
@@ -520,6 +527,14 @@ fun OsmMapView(
     val density = LocalDensity.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    // Progreso por usuario (mismo usuario activo que en MapaOsmScreen)
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val activeUserName = sessionPrefs.getString("active_user_name", null)
+
+    val progressRepo = remember(activeUserName) {
+        KokapenaProgressRepository(context, activeUserName ?: "default")
+    }
+
     // Configuración mínima recomendada de osmdroid.
     // Importante para que el servidor acepte requests (evita tiles en blanco / raros en algunos casos).
     SideEffect {
@@ -533,6 +548,20 @@ fun OsmMapView(
     // --- Permisos + estado de ubicación ---
     var hasLocationPermission by remember { mutableStateOf(false) }
     var myLocation by remember { mutableStateOf<GeoPoint?>(null) }
+
+    // Distancia máxima para permitir abrir una ubicación (metros)
+    val unlockRadiusMeters = 100f
+
+    fun distanceMeters(from: GeoPoint, toLat: Double, toLon: Double): Float {
+        val results = FloatArray(1)
+        android.location.Location.distanceBetween(from.latitude, from.longitude, toLat, toLon, results)
+        return results[0]
+    }
+
+    fun isNearEnough(k: Kokapena): Boolean {
+        val here = myLocation ?: return false
+        return distanceMeters(here, k.latitudea, k.longitudea) <= unlockRadiusMeters
+    }
 
     // Si true: el mapa se centra en cada update de ubicación
     var followMyLocation by rememberSaveable { mutableStateOf(true) }
@@ -667,6 +696,18 @@ fun OsmMapView(
         return BitmapDrawable(context.resources, bitmap)
     }
 
+    // NUEVO: drawable escalado con alpha (para efecto “apagado”)
+    fun scaledDrawableWithAlpha(resId: Int, sizeDp: Dp, alpha: Int): Drawable? {
+        val base = ContextCompat.getDrawable(context, resId)?.mutate() ?: return null
+        base.alpha = alpha.coerceIn(0, 255)
+        val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        base.setBounds(0, 0, sizePx, sizePx)
+        base.draw(canvas)
+        return BitmapDrawable(context.resources, bitmap)
+    }
+
     // Tamaños de iconos
     // Queremos que los kokapenak tengan el mismo tamaño que el de mi ubicación.
     // Mi ubicación más pequeño para que no tape el mapa.
@@ -679,6 +720,12 @@ fun OsmMapView(
 
     // Icono al seleccionar (al pulsar)
     val kokapenaIconSelected = remember { scaledDrawable(R.drawable.ubinlanca, kokapenaIconSize) }
+
+    // NUEVO: icono “apagado” para kokapenak bloqueadas
+    // (reutilizamos el mismo asset, pero con alpha más bajo)
+    val kokapenaIconLocked = remember {
+        scaledDrawableWithAlpha(R.drawable.ubinegra, kokapenaIconSize, alpha = 110)
+    }
 
     // Guardamos qué marker está seleccionado para hacer toggle
     val selectedKokapenaMarker = remember { mutableStateOf<Marker?>(null) }
@@ -719,17 +766,26 @@ fun OsmMapView(
 
                     // Marcadores kokapenak
                     nireKokapenak.forEach { kokapena ->
+                        val canOpenInitial = progressRepo.isRouteUnlocked(kokapena.route) && isNearEnough(kokapena)
+
                         val m = Marker(this).apply {
                             position = GeoPoint(kokapena.latitudea, kokapena.longitudea)
                             title = kokapena.izena
                             snippet = kokapena.deskribapena
-                            icon = kokapenaIconDefault
+                            icon = if (canOpenInitial) kokapenaIconDefault else kokapenaIconLocked
                             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                             setInfoWindowAnchor(Marker.ANCHOR_CENTER, 0.30f)
                         }
 
                         // Toggle de selección + mostrar InfoWindow
                         m.setOnMarkerClickListener { marker, mapView ->
+                            // Regla nueva: solo clickable si es la ruta ACTUAL (no completada) y estás cerca.
+                            val canOpenNow = progressRepo.isRouteCurrent(kokapena.route) && isNearEnough(kokapena)
+                            if (!canOpenNow) {
+                                mapView?.invalidate()
+                                return@setOnMarkerClickListener true
+                            }
+
                             val prev = selectedKokapenaMarker.value
                             if (prev != null && prev != marker) {
                                 prev.icon = kokapenaIconDefault
@@ -744,13 +800,10 @@ fun OsmMapView(
                                 marker.icon = kokapenaIconSelected
                                 marker.showInfoWindow()
                                 selectedKokapenaMarker.value = marker
-                                // ** NUEVO: callback para modal **
                                 onKokapenaClick(kokapena)
                             }
 
                             mapView?.invalidate()
-
-                            // false = dejamos que osmdroid procese el tap (mejor compatibilidad)
                             false
                         }
 
@@ -877,6 +930,25 @@ fun OsmMapView(
                     marker.position = point
                     // Re-aplicar icono siempre por si cambia el tamaño/drawable
                     marker.icon = myLocationIcon
+                }
+
+                // Actualiza iconos de kokapenak según cercanía/desbloqueo (por si cambió la ubicación)
+                mapView.overlays.filterIsInstance<Marker>().forEach { marker ->
+                    if (marker.title == "Mi ubicación") return@forEach
+
+                    val pos = marker.position ?: return@forEach
+                    val k = nireKokapenak.firstOrNull {
+                        it.latitudea == pos.latitude && it.longitudea == pos.longitude
+                    } ?: return@forEach
+
+                    val canOpen = progressRepo.isRouteCurrent(k.route) && isNearEnough(k)
+                    val isSelected = selectedKokapenaMarker.value == marker
+
+                    marker.icon = when {
+                        isSelected && canOpen -> kokapenaIconSelected
+                        canOpen -> kokapenaIconDefault
+                        else -> kokapenaIconLocked
+                    }
                 }
 
                 mapView.invalidate()
