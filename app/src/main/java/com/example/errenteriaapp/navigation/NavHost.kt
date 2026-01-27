@@ -6,6 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,8 +28,11 @@ private var appDatabase: AppDatabase? = null
 fun AppNavigation(
     conversacionViewModel: ConversacionViewModel,
     navController: NavHostController,
+    isDarkMode: Boolean,
+    onThemeChange: (Boolean) -> Unit,
 ) {
     var currentUserName by remember { mutableStateOf<String?>(null) }
+    var isTeacherMode by rememberSaveable { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
@@ -81,6 +85,8 @@ fun AppNavigation(
             LoginScreen(
                 loginViewModel = loginViewModel,
                 navController = navController,
+                initialTeacherMode = isTeacherMode,
+                onTeacherModeChange = { isTeacherMode = it }
             )
         }
 
@@ -344,6 +350,14 @@ fun AppNavigation(
         composable(Routes.GPS_SCREEN) {
             MapaOsmScreen(
                 navController = navController
+            )
+        }
+
+        composable(Routes.AJUSTES_SCREEN) {
+            AjustesScreen(
+                isTeacherMode = isTeacherMode,
+                isDarkMode = isDarkMode,
+                onThemeToggle = onThemeChange
             )
         }
     }

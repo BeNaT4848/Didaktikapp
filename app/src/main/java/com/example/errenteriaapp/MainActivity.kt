@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -28,13 +32,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            
             val navController = rememberNavController()
-
             val conversacionViewModel: ConversacionViewModel = viewModel()
+            var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
-            AppTheme(dynamicColor = false,
-                ) {
+            AppTheme(darkTheme = isDarkMode, dynamicColor = false) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -43,6 +45,8 @@ class MainActivity : ComponentActivity() {
                     AppNavigation(
                         navController = navController,
                         conversacionViewModel = conversacionViewModel,
+                        isDarkMode = isDarkMode,
+                        onThemeChange = { isDarkMode = it }
                     )
                 }
             }

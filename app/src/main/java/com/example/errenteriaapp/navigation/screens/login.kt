@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,11 +24,13 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     loginViewModel: LoginViewModel,
     navController: NavController,
+    initialTeacherMode: Boolean = false,
+    onTeacherModeChange: (Boolean) -> Unit,
 ) {
     var nombreCompleto by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
-    var isTeacherMode by remember { mutableStateOf(false) }
+    var isTeacherMode by rememberSaveable { mutableStateOf(initialTeacherMode) }
     val isSaving = loginViewModel.isSaving.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val allIrakasleak by loginViewModel.getAllIrakasleak().collectAsStateWithLifecycle(initialValue = emptyList())
@@ -92,8 +95,9 @@ fun LoginScreen(
                                     selected = !isTeacherMode,
                                     onClick = {
                                         isTeacherMode = false
+                                        onTeacherModeChange(false)
                                         errorMessage = ""
-                                        password = "" // Limpiar contraseña al cambiar modo
+                                        password = ""
                                     },
                                     label = {
                                         Text(
@@ -115,8 +119,9 @@ fun LoginScreen(
                                     selected = isTeacherMode,
                                     onClick = {
                                         isTeacherMode = true
+                                        onTeacherModeChange(true)
                                         errorMessage = ""
-                                        password = "" // Limpiar contraseña al cambiar modo
+                                        password = ""
                                     },
                                     label = {
                                         Text(
@@ -208,8 +213,8 @@ fun LoginScreen(
                                         }
 
                                         if (irakasle != null && irakasle.contraseña == password) {
-                                            // Login exitoso para irakaslea
                                             loginViewModel.guardarNombre(nombreCompleto)
+                                            onTeacherModeChange(true)
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
                                         } else {
@@ -221,6 +226,7 @@ fun LoginScreen(
                                             errorMessage = "Mesedez, idatzi zure izena eta abizena"
                                         } else {
                                             loginViewModel.guardarNombre(nombreCompleto)
+                                            onTeacherModeChange(false)
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
                                         }
