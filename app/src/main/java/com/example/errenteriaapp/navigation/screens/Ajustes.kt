@@ -19,7 +19,11 @@ fun AjustesScreen(
     modifier: Modifier = Modifier,
     isTeacherMode: Boolean = false,
     isDarkMode: Boolean = false,
-    onThemeToggle: (Boolean) -> Unit = {}
+    onThemeToggle: (Boolean) -> Unit = {},
+    onDeleteRanking: () -> Unit = {},
+    onResetScores: () -> Unit = {},
+    isDeletingRanking: Boolean = false,
+    isResettingScores: Boolean = false
 ) {
     Column(
         modifier = modifier
@@ -29,7 +33,11 @@ fun AjustesScreen(
         AjustesContent(
             isTeacherMode = isTeacherMode,
             isDarkMode = isDarkMode,
-            onThemeToggle = onThemeToggle
+            onThemeToggle = onThemeToggle,
+            onDeleteRanking = onDeleteRanking,
+            onResetScores = onResetScores,
+            isDeletingRanking = isDeletingRanking,
+            isResettingScores = isResettingScores
         )
     }
 }
@@ -39,7 +47,11 @@ private fun AjustesContent(
     modifier: Modifier = Modifier,
     isTeacherMode: Boolean,
     isDarkMode: Boolean,
-    onThemeToggle: (Boolean) -> Unit
+    onThemeToggle: (Boolean) -> Unit,
+    onDeleteRanking: () -> Unit,
+    onResetScores: () -> Unit,
+    isDeletingRanking: Boolean,
+    isResettingScores: Boolean
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -117,7 +129,8 @@ private fun AjustesContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Button(
-                            onClick = {},
+                            onClick = onDeleteRanking,
+                            enabled = !isDeletingRanking,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
@@ -127,11 +140,19 @@ private fun AjustesContent(
                             ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text(
-                                text = "RANKING GUZTIA EZABATU",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
+                            if (isDeletingRanking) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.onError,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    text = "RANKING GUZTIA EZABATU",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
 
@@ -157,7 +178,8 @@ private fun AjustesContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Button(
-                            onClick = {},
+                            onClick = onResetScores,
+                            enabled = !isResettingScores,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
@@ -167,11 +189,19 @@ private fun AjustesContent(
                             ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text(
-                                text = "PUNTUAZIOAK EZABATU",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
+                            if (isResettingScores) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.onError,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    text = "PUNTUAZIOAK EZABATU",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
                 }

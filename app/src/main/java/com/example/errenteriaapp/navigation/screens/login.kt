@@ -209,13 +209,12 @@ fun LoginScreen(
                                     val nombreLimpio = nombreCompleto.trim()
 
                                     if (isTeacherMode) {
-                                        // Validar irakaslea
                                         val irakasle = allIrakasleak.find {
                                             it.izenaAbizena.equals(nombreLimpio, ignoreCase = true)
                                         }
 
                                         if (irakasle != null && irakasle.contraseña == password) {
-                                            loginViewModel.guardarNombre(nombreLimpio)
+                                            loginViewModel.guardarNombre(nombreLimpio, asTeacher = true)
                                             errorMessage = ""
                                             onTeacherModeChange(true)
                                             navController.navigate(Routes.GPS_SCREEN)
