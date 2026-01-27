@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,11 +23,18 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     loginViewModel: LoginViewModel,
     navController: NavController,
+    initialTeacherMode: Boolean = false,
+    onTeacherModeChange: (Boolean) -> Unit = {}
 ) {
     var nombreCompleto by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
-    var isTeacherMode by remember { mutableStateOf(false) }
+    var isTeacherMode by rememberSaveable { mutableStateOf(initialTeacherMode) }
+    LaunchedEffect(initialTeacherMode) {
+        if (isTeacherMode != initialTeacherMode) {
+            isTeacherMode = initialTeacherMode
+        }
+    }
     val isSaving = loginViewModel.isSaving.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val allIrakasleak by loginViewModel.getAllIrakasleak().collectAsStateWithLifecycle(initialValue = emptyList())
@@ -209,6 +217,7 @@ fun LoginScreen(
                                         if (irakasle != null && irakasle.contraseña == password) {
                                             loginViewModel.guardarNombre(nombreLimpio)
                                             errorMessage = ""
+                                            onTeacherModeChange(true)
                                             navController.navigate(Routes.GPS_SCREEN)
                                         } else {
                                             errorMessage = "Irakaslearen izena edo pasahitza okerrak dira"
@@ -224,6 +233,7 @@ fun LoginScreen(
                                         } else {
                                             loginViewModel.guardarNombre(nombreLimpio)
                                             errorMessage = ""
+                                            onTeacherModeChange(false)
                                             navController.navigate(Routes.GPS_SCREEN)
                                         }
                                     }
@@ -343,8 +353,3 @@ fun hasNameAndSurname(fullName: String): Boolean {
     // Debe haber al menos 2 partes válidas (nombre y primer apellido)
     return validParts >= 2
 }
-
-
-
-
-
