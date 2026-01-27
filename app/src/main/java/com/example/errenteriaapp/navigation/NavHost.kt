@@ -6,6 +6,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,8 @@ import com.example.errenteriaapp.database.MIGRATION_1_2
 import com.example.errenteriaapp.database.viewModel.*
 import com.example.errenteriaapp.navigation.screens.*
 import com.example.errenteriaapp.screens.ranking.RankinScreen
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 // Variable global para la base de datos
 private var appDatabase: AppDatabase? = null
@@ -28,8 +31,13 @@ private var appDatabase: AppDatabase? = null
 fun AppNavigation(
     conversacionViewModel: ConversacionViewModel,
     navController: NavHostController,
+    isDarkMode: Boolean,
+    onThemeChange: (Boolean) -> Unit,
 ) {
     var currentUserName by remember { mutableStateOf<String?>(null) }
+    var isTeacherMode by rememberSaveable { mutableStateOf(false) }
+    var isDeletingRanking by rememberSaveable { mutableStateOf(false) }
+    var isResettingScores by rememberSaveable { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
@@ -72,6 +80,7 @@ fun AppNavigation(
             )
 
             val user by loginViewModel.currentUser.collectAsState()
+            val teacherMode by loginViewModel.isTeacherMode.collectAsState()
 
             LaunchedEffect(user) {
                 user?.let {
@@ -82,9 +91,15 @@ fun AppNavigation(
                 }
             }
 
+            LaunchedEffect(teacherMode) {
+                isTeacherMode = teacherMode
+            }
+
             LoginScreen(
                 loginViewModel = loginViewModel,
                 navController = navController,
+                initialTeacherMode = isTeacherMode,
+                onTeacherModeChange = { loginViewModel.setTeacherMode(it) }
             )
         }
 
@@ -349,6 +364,63 @@ fun AppNavigation(
             MapaOsmScreen(
                 navController = navController
             )
+        }
+
+        composable(Routes.AJUSTES_SCREEN) {
+            val db = appDatabase
+            if (db != null) {
+                val ikasleDao = remember { db.ikasleDao() }
+                val irakasleDao = remember { db.irakasleDao() }
+                val partidaDao = remember { db.partidaDao() }
+                val puntuazioaDao = remember { db.puntuazioaDao() }
+
+                val loginViewModel: LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(
+                        ikasleDao,
+                        irakasleDao,
+                        partidaDao,
+                        puntuazioaDao
+                    )
+                )
+
+                val ajustesScope = rememberCoroutineScope()
+
+                AjustesScreen(
+                    isTeacherMode = isTeacherMode,
+                    isDarkMode = isDarkMode,
+                    onThemeToggle = onThemeChange,
+                    onDeleteRanking = {
+                        if (!isDeletingRanking) {
+                            ajustesScope.launch {
+                                isDeletingRanking = true
+                                try {
+                                    loginViewModel.deleteEntireRanking()
+                                } finally {
+                                    isDeletingRanking = false
+                                }
+                            }
+                        }
+                    },
+                    onResetScores = {
+                        if (!isResettingScores) {
+                            ajustesScope.launch {
+                                isResettingScores = true
+                                try {
+                                    loginViewModel.resetRankingScores()
+                                } finally {
+                                    isResettingScores = false
+                                }
+                            }
+                        }
+                    },
+                    isDeletingRanking = isDeletingRanking,
+                    isResettingScores = isResettingScores
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN_SCREEN)
+                }
+            }
         }
     }
 }

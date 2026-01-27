@@ -396,7 +396,9 @@ fun MapaOsmScreen(navController: NavController) {
 
                             NavigationRailItem(
                                 selected = railSelectedIndex == 2,
-                                onClick = { railSelectedIndex = 2 },
+                                onClick = {
+                                    navController.navigate(Routes.AJUSTES_SCREEN)
+                                },
                                 icon = {
                                     Icon(
                                         Icons.Default.Settings,

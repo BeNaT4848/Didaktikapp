@@ -18,6 +18,6 @@ object Routes {
     const val GPS_SCREEN = "gps_screen"
     const val RANKIN_SCREEN = "rankin_screen"
 
-
+    const val AJUSTES_SCREEN = "ajustes_screen"
 
 }

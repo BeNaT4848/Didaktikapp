@@ -38,6 +38,9 @@ class LoginViewModel(
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized
 
+    private val _isTeacherMode = MutableStateFlow(false)
+    val isTeacherMode: StateFlow<Boolean> = _isTeacherMode
+
     init {
         viewModelScope.launch {
             irakasleDao.insertarIrakasleSiNoExiste()
@@ -45,54 +48,52 @@ class LoginViewModel(
         }
     }
 
-    fun guardarNombre(nombreCompleto: String) {
+    fun setTeacherMode(enabled: Boolean) {
+        _isTeacherMode.value = enabled
+    }
+
+    fun guardarNombre(nombreCompleto: String, asTeacher: Boolean = false) {
         viewModelScope.launch {
             _isSaving.value = true
             _errorMessage.value = ""
 
             try {
-                if (nombreCompleto.trim().split(" ").size < 2) {
+                val nombreTrimmed = nombreCompleto.trim()
+                if (nombreTrimmed.split(" ").size < 2 && !asTeacher) {
                     _errorMessage.value = "Mesedez, idatzi zure izena eta abizena"
                 } else {
-                    val nombreTrimmed = nombreCompleto.trim()
-
-                    // Guardar el usuario actual
                     _currentUser.value = nombreTrimmed
+                    _isTeacherMode.value = asTeacher
 
-
-
-                    val nuevoIkasle = Ikasle(
-                        izenaAbizena = nombreCompleto.trim(),
-                        rol = "Ikasle"
-                    )
-                    ikasleDao.insert(nuevoIkasle)
-
-                    // 2. Crear nueva puntuación inicial si no existe
-                    val puntuazioExistente = puntuazioaDao.getByName(nombreTrimmed)
-                    if (puntuazioExistente == null) {
-                        val nuevaPuntuazioa = Puntuazioa(
+                    if (!asTeacher) {
+                        val nuevoIkasle = Ikasle(
                             izenaAbizena = nombreTrimmed,
-                            puntuazioaBertso = 0,
-                            puntuazioaGalderak = 0,
-                            puntuazioaGurutzegrama = 0,
-                            puntuazioaArropaBuruHandiak = 0,
-                            puntuazioaPapresa = 0,
-                            puntuazioaArrastrar = 0,
-                            puntuazioaSopaLetra = 0
+                            rol = "Ikasle"
                         )
-                        puntuazioaDao.insert(nuevaPuntuazioa)
+                        ikasleDao.insert(nuevoIkasle)
+                        val puntuazioExistente = puntuazioaDao.getByName(nombreTrimmed)
+                        if (puntuazioExistente == null) {
+                            val nuevaPuntuazioa = Puntuazioa(
+                                izenaAbizena = nombreTrimmed,
+                                puntuazioaBertso = 0,
+                                puntuazioaGalderak = 0,
+                                puntuazioaGurutzegrama = 0,
+                                puntuazioaArropaBuruHandiak = 0,
+                                puntuazioaPapresa = 0,
+                                puntuazioaArrastrar = 0,
+                                puntuazioaSopaLetra = 0
+                            )
+                            puntuazioaDao.insert(nuevaPuntuazioa)
+                        }
+                        val horaActual = LocalDateTime.now()
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        val horaFormateada = horaActual.format(formatter)
+                        val nuevaPartida = Partida(
+                            izenaAbizena = nombreTrimmed,
+                            ordua = horaFormateada
+                        )
+                        partidaDao.insert(nuevaPartida)
                     }
-
-                    // 3. Crear nueva partida con hora actual
-                    val horaActual = LocalDateTime.now()
-                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                    val horaFormateada = horaActual.format(formatter)
-
-                    val nuevaPartida = Partida(
-                        izenaAbizena = nombreCompleto.trim(),
-                        ordua = horaFormateada
-                    )
-                    partidaDao.insert(nuevaPartida)
 
                     _loginSuccess.value = true
                 }
@@ -103,8 +104,20 @@ class LoginViewModel(
             }
         }
     }
+
+    suspend fun deleteEntireRanking() {
+        ikasleDao.deleteAll()
+        partidaDao.deleteAll()
+        puntuazioaDao.deleteAll()
+    }
+
+    suspend fun resetRankingScores() {
+        puntuazioaDao.resetScores()
+    }
+
     fun getAllIrakasleak(): Flow<List<Irakasle>> {
         return irakasleDao.getAll()
     }
+
     fun getCurrentUser(): String? = _currentUser.value
 }

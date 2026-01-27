@@ -14,4 +14,7 @@ interface IkasleDao {
 
     @Query("SELECT * FROM Ikasle WHERE izenaAbizena = :name")
     suspend fun getByName(name: String): Ikasle?
+
+    @Query("DELETE FROM Ikasle")
+    suspend fun deleteAll()
 }

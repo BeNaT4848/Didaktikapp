@@ -15,4 +15,7 @@ interface PartidaDao {
 
     @Query("SELECT * FROM Partida ORDER BY ordua DESC")
     suspend fun getAll(): List<Partida>
+
+    @Query("DELETE FROM Partida")
+    suspend fun deleteAll()
 }
