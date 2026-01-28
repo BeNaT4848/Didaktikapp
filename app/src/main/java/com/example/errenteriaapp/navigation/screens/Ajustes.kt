@@ -13,7 +13,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesScreen(
     modifier: Modifier = Modifier,
@@ -23,22 +26,47 @@ fun AjustesScreen(
     onDeleteRanking: () -> Unit = {},
     onResetScores: () -> Unit = {},
     isDeletingRanking: Boolean = false,
-    isResettingScores: Boolean = false
+    isResettingScores: Boolean = false,
+    onNavigateBack: () -> Unit = {}
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        AjustesContent(
-            isTeacherMode = isTeacherMode,
-            isDarkMode = isDarkMode,
-            onThemeToggle = onThemeToggle,
-            onDeleteRanking = onDeleteRanking,
-            onResetScores = onResetScores,
-            isDeletingRanking = isDeletingRanking,
-            isResettingScores = isResettingScores
-        )
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Konfigurazioa",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Atzera"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(paddingValues)
+        ) {
+            AjustesContent(
+                isTeacherMode = isTeacherMode,
+                isDarkMode = isDarkMode,
+                onThemeToggle = onThemeToggle,
+                onDeleteRanking = onDeleteRanking,
+                onResetScores = onResetScores,
+                isDeletingRanking = isDeletingRanking,
+                isResettingScores = isResettingScores
+            )
+        }
     }
 }
 

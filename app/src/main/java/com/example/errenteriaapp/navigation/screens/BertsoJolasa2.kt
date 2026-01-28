@@ -1,15 +1,11 @@
-// app/src/main/java/com/example/errenteriaapp/navigation/screens/BertsoJolasaScreen2.kt
 package com.example.errenteriaapp.navigation.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,11 +17,12 @@ import androidx.navigation.compose.rememberNavController
 import com.example.errenteriaapp.components.ClickableTextFunction
 import com.example.errenteriaapp.components.ParagraphCard
 import com.example.errenteriaapp.components.textoBertsoa
-
 import com.example.errenteriaapp.components.GameResultDialogs
 import com.example.errenteriaapp.database.viewModel.BertsoViewModel
 import com.example.errenteriaapp.navigation.Routes
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 @Composable
@@ -52,8 +49,22 @@ fun BertsoJolasaScreen2(
             .background(MaterialTheme.colorScheme.background)
             .navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 24.dp)
+        contentPadding = PaddingValues(vertical = 24.dp, horizontal = 16.dp)
     ) {
+
+        // Título principal
+        item {
+            Text(
+                text = "📝 Bertso Jolasa",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Primera card
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
@@ -93,11 +104,15 @@ fun BertsoJolasaScreen2(
                 textoBertsoa("gogua dedan orduan.")
             }
         }
+
+        // Segunda card
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
                 borderColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
             ) {
                 textoBertsoa("Eskola ona eta musika")
                 textoBertsoa("bertsolaria gainera")
@@ -169,13 +184,11 @@ fun BertsoJolasaScreen2(
             onDismissSuccess = { },
             onDismissWrong = { viewModel.dismissWrongDialog() },
             onSuccessButton = { },
-            onWrongButton = {
-                viewModel.dismissWrongDialog()
-            }
+            onWrongButton = { viewModel.dismissWrongDialog() }
         )
     }
 }
-//Preview function
+
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable

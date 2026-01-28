@@ -412,7 +412,8 @@ fun AppNavigation(
                         }
                     },
                     isDeletingRanking = isDeletingRanking,
-                    isResettingScores = isResettingScores
+                    isResettingScores = isResettingScores,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             } else {
                 LaunchedEffect(Unit) {
