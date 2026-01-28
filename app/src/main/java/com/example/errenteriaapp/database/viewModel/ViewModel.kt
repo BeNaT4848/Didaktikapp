@@ -117,6 +117,7 @@ class LoginViewModel(
             }
         }
     }
+    // Añade estas funciones de validación al principio de LoginScreen:
 
     suspend fun deleteEntireRanking() {
         ikasleDao.deleteAll()

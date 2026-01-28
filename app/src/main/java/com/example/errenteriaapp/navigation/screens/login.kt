@@ -40,7 +40,13 @@ fun LoginScreen(
     val sessionPrefs = remember(context) {
         context.getSharedPreferences("session", Context.MODE_PRIVATE)
     }
-
+    val validationError = remember(nombreCompleto, isTeacherMode) {
+        if (!isTeacherMode && nombreCompleto.isNotEmpty()) {
+            getValidationMessage(nombreCompleto)
+        } else {
+            null
+        }
+    }
     val classOptions = listOf(
         "1A",
         "1B",
@@ -257,18 +263,21 @@ fun LoginScreen(
                                     }
                                 }
                                     // Modo Ikaslea
-                                    CompactTextField(
-                                        value = nombreCompleto,
-                                        onValueChange = {
-                                            nombreCompleto =
-                                                it.filter { char -> char.isLetter() || char.isWhitespace() }
-                                            errorMessage = ""
-                                        },
-                                        label = "Zure izena eta abizena",
-                                        isError = errorMessage.isNotEmpty(),
-                                        singleLine = true
-                                    )
-                                }
+                                CompactTextField(
+                                    value = nombreCompleto,
+                                    onValueChange = {
+                                        // Permitir solo letras y espacios
+                                        nombreCompleto = it.filter { char ->
+                                            char.isLetter() || char.isWhitespace() || char == 'ñ' || char == 'Ñ'
+                                        }
+                                        errorMessage = ""
+                                    },
+                                    label = "Zure izena eta abizena",
+                                    isError = errorMessage.isNotEmpty() || validationError != null,
+                                    singleLine = true,
+                                    validationError = validationError  // Pasar el mensaje de validación
+                                )
+                            }
 
                         }
 
@@ -285,7 +294,9 @@ fun LoginScreen(
                         // Botón de acción - más compacto
                         val isFormValid = when {
                             isTeacherMode -> nombreCompleto.trim().isNotEmpty() && password.isNotEmpty()
-                            else -> nombreCompleto.trim().isNotEmpty()
+                            else -> nombreCompleto.trim().isNotEmpty() &&
+                                    selectedClass.isNotEmpty() &&
+                                    validationError == null
                         }
 
                         Button(
@@ -316,13 +327,15 @@ fun LoginScreen(
                                             errorMessage = "Irakaslearen izena edo pasahitza okerrak dira"
                                         }
                                     } else {
-                                        // Modo ikaslea - AHORA CON CLASE
+                                        // Modo ikaslea - CON VALIDACIÓN
                                         if (nombreCompleto.isBlank()) {
                                             errorMessage = "Mesedez, idatzi zure izena eta abizena"
+                                        } else if (validationError != null) {
+                                            errorMessage = validationError
                                         } else if (selectedClass.isBlank()) {
                                             errorMessage = "Mesedez, aukeratu zure klasea"
                                         } else {
-                                            // Pasar la clase seleccionada al ViewModel
+                                            // Validación exitosa
                                             loginViewModel.guardarNombre(nombreCompleto, false, selectedClass)
 
                                             val cleanName = nombreCompleto.trim()
@@ -403,4 +416,36 @@ fun LoginScreen(
             }
         }
     }
+}
+ fun isValidNameFormat(name: String): Boolean {
+    val trimmedName = name.trim()
+    val parts = trimmedName.split("\\s+".toRegex())
+
+    // Debe tener al menos nombre y apellido
+    if (parts.size < 2) return false
+
+    val nombre = parts[0]
+    val apellido = parts.subList(1, parts.size).joinToString(" ")
+
+    // Cada parte debe tener al menos 4 letras
+    return nombre.length >= 2 && apellido.length >= 3
+}
+
+fun getValidationMessage(name: String): String? {
+    val trimmedName = name.trim()
+
+    if (trimmedName.isEmpty()) {
+        return null  // No mostrar mensaje si está vacío
+    }
+
+    val parts = trimmedName.split("\\s+".toRegex())
+
+    when {
+        parts.size < 2 -> return "Sartu izena eta abizena (adibidez: Aitor Fernandez)"
+        parts[0].length < 2 -> return "Izenak gutxienez 2 letra izan behar ditu"
+        parts.subList(1, parts.size).joinToString(" ").length < 3 ->
+            return "Abizenak gutxienez 3 letra izan behar ditu"
+    }
+
+    return null
 }
