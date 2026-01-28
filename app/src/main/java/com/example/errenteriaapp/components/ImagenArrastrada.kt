@@ -41,10 +41,10 @@ fun DraggingImage(
                 val offsetPx = boundsTopLeft + dragOffsetPx
                 IntOffset(offsetPx.x.roundToInt(), offsetPx.y.roundToInt())
             }
-            .width(widthDp)
-            .height(heightDp)
-            .clip(RoundedCornerShape(12.dp))
-            .border(2.dp, Color.White, RoundedCornerShape(12.dp))
+            .width(widthDp * 1.2f)   // 🔹 más grande
+            .height(heightDp * 1.2f) // 🔹 más grande
+            .clip(RoundedCornerShape(16.dp))
+            .border(2.dp, Color.White, RoundedCornerShape(16.dp))
             .zIndex(1f)
     )
 }

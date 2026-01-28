@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,6 +59,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -408,6 +410,8 @@ fun MapaOsmScreen(navController: NavController) {
                                 colors = itemColors
                             )
 
+                            Spacer(modifier = Modifier.height(12.dp))
+
                             NavigationRailItem(
                                 selected = railSelectedIndex == 3,
                                 onClick = {
@@ -423,6 +427,29 @@ fun MapaOsmScreen(navController: NavController) {
                                 label = {
                                     Text(
                                         "Ranking",
+                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha })
+                                },
+                                alwaysShowLabel = true,
+                                colors = itemColors
+                            )
+
+                            Spacer(modifier = Modifier.weight(1f, fill = true))
+
+                            NavigationRailItem(
+                                selected = railSelectedIndex == 4,
+                                onClick = {
+                                    navController.navigate(Routes.LOGIN_SCREEN)
+                                },
+                                icon = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.logout),
+                                        contentDescription = "Saioa Itxi",
+                                        tint = if (railSelectedIndex == 4) railSelected else railUnselected
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        "Saioa Itxi",
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -687,7 +714,8 @@ fun OsmMapView(
 
     // --- Icono para mi ubicación (Marker) ---
     val myLocationIcon: Drawable? = remember {
-        val base = ContextCompat.getDrawable(context, R.drawable.ic_my_location_person) ?: return@remember null
+        val base = ContextCompat.getDrawable(context, R.drawable.ic_my_location_person)
+            ?: return@remember null
 
         val sizeDp = myLocationIconSize
         val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)

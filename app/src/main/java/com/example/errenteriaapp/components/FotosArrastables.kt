@@ -38,9 +38,9 @@ fun DraggablePhoto(
     photoRes: Int,
     photoNumber: Int?,
     isUsed: Boolean = false,
-    isInGrid: Boolean = true, // Grid batean dagoen ala ez
-    gridColumns: Int = 2, // Grid-aren zutabe kopurua
-    spacing: Dp = 8.dp, // Elementuen arteko tartea
+    isInGrid: Boolean = true,
+    gridColumns: Int = 2,
+    spacing: Dp = 8.dp,
     onPhotoPositioned: (Rect) -> Unit,
     onEnlargeClick: () -> Unit,
     onDragStart: () -> Unit,
@@ -48,56 +48,23 @@ fun DraggablePhoto(
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit
 ) {
-    // Pantailaren konfigurazioa lortu
-    val configuration = LocalConfiguration.current
-    val density = LocalDensity.current
-
-    // Kalkulatu tamaina automatikoak
-    val screenWidth = with(density) { configuration.screenWidthDp.dp }
-    val screenHeight = with(density) { configuration.screenHeightDp.dp }
-
-    // Zehaztu ea pantaila horizontala den
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
-
-    // Kalkulatu irudiaren tamaina
-    var imageModifier by remember { mutableStateOf(modifier) }
-
-    LaunchedEffect(screenWidth, screenHeight, isLandscape, isInGrid, gridColumns, spacing) {
-        imageModifier = if (isInGrid) {
-            // GRID moduan: kalkulatu tamaina automatikoki
-            val totalSpacing = spacing * (gridColumns + 1)
-            val availableWidth = screenWidth - totalSpacing
-            val itemWidth = availableWidth / gridColumns
-
-            modifier
-                .fillMaxWidth(0.9f / gridColumns)
-                .aspectRatio(1.3f)
-                .padding(spacing / 2)
-        } else {
-            // BAKARRIK edo DRAG moduan: pantaila osoko zabalera
-            val aspectRatio = if (isLandscape) 1.6f else 1.3f
-
-            modifier
-                .fillMaxWidth(0.9f)
-                .aspectRatio(aspectRatio)
-        }
-    }
+    val baseModifier = if (isInGrid) Modifier.fillMaxSize() else Modifier.fillMaxWidth(0.9f)
 
     Image(
         painter = painterResource(id = photoRes),
         contentDescription = "Foto ${photoNumber ?: ""}",
         contentScale = ContentScale.Crop,
         alpha = if (isUsed) 0.4f else 1f,
-        modifier = imageModifier
+        modifier = modifier
+            .then(baseModifier)
+            .padding(spacing / 3)
             .clip(RoundedCornerShape(16.dp))
             .border(
                 width = if (isUsed) 1.dp else 2.dp,
                 color = if (isUsed) Color.Gray else Color.White,
                 shape = RoundedCornerShape(16.dp)
             )
-            .onGloballyPositioned { coords ->
-                onPhotoPositioned(coords.boundsInRoot())
-            }
+            .onGloballyPositioned { coords -> onPhotoPositioned(coords.boundsInRoot()) }
             .clickable { onEnlargeClick() }
             .pointerInput(photoRes) {
                 detectDragGestures(

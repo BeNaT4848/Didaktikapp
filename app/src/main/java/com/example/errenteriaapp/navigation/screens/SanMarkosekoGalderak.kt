@@ -116,8 +116,7 @@ fun SanMarkosekoGalderak(
                 viewModel.dismissSuccessDialog()
                 progressRepo.markCompleted(Routes.SANMARKOS_SCREEN)
                 // Encadenado automático: al terminar SanMarkos, entra al Crucigrama
-                navController.navigate(Routes.CRUCIGRAMA_SCREEN)
-            },
+                navController.navigate(Routes.CRUCIGRAMA_SCREEN)},
             onWrongButton = { }
         )
     }

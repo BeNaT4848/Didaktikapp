@@ -1,7 +1,6 @@
 package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -21,7 +20,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
@@ -47,8 +46,8 @@ fun GameSlot(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .aspectRatio(1f)
-            .padding(all = 5.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .padding(8.dp) // 🔹 más espacio
+            .clip(RoundedCornerShape(18.dp))
             .background(
                 when {
                     isHighlighted -> Color(0xFFFFF176)
@@ -60,7 +59,7 @@ fun GameSlot(
             .border(
                 width = 2.dp,
                 color = Color(0xFF1976D2),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(18.dp)
             )
             .onGloballyPositioned { coords ->
                 onSlotPositioned(coords.boundsInRoot())
@@ -72,8 +71,8 @@ fun GameSlot(
                 contentDescription = "Foto colocada ${slotIndex + 1}",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(14.dp))
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(16.dp))
                     .pointerInput(slotIndex) {
                         if (onDragStart != null && onDrag != null && onDragEnd != null && onDragCancel != null) {
                             detectDragGestures(
@@ -89,16 +88,14 @@ fun GameSlot(
                     }
             )
         } else {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = (slotIndex + 1).toString(),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF0D47A1)
-                )
-            }
+            // 🔢 Números más pequeños y centrados
+            Text(
+                text = (slotIndex + 1).toString(),
+                fontSize = 20.sp, // 🔹 más pequeño
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0D47A1),
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }

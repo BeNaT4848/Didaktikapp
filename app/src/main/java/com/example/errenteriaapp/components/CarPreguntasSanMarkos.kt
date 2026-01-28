@@ -112,54 +112,57 @@ fun OptionItem(
     esLaCorrecta: Boolean,
     onClick: () -> Unit
 ) {
-    // Determinar si esta opción no fue seleccionada pero ya se respondió
+    val colorScheme = MaterialTheme.colorScheme
     val noFueSeleccionada = estaErantzunda && !fueSeleccionada
 
     val backgroundColor = when {
-        estaErantzunda && esLaCorrecta -> Color(0xFFE8F5E9)      // Verde claro para correcta
-        estaErantzunda && fueSeleccionada && !esLaCorrecta -> Color(0xFFFCE4EC)  // Rojo claro para incorrecta
-        isSelected -> Color(0xFFE3F2FD)                           // Azul claro para seleccionada
-        noFueSeleccionada -> Color(0xFFFAFAFA).copy(alpha = 0.5f) // Gris transparente para no seleccionadas
-        else -> Color(0xFFF5F5F5)                                 // Gris normal para no seleccionada
+        estaErantzunda && esLaCorrecta -> colorScheme.tertiaryContainer
+        estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.errorContainer
+        isSelected -> colorScheme.primaryContainer
+        noFueSeleccionada -> colorScheme.surfaceVariant.copy(alpha = 0.6f)
+        else -> colorScheme.surfaceVariant
     }
 
     val borderColor = when {
-        estaErantzunda && esLaCorrecta -> Color(0xFF4CAF50)      // Verde para correcta
-        estaErantzunda && fueSeleccionada && !esLaCorrecta -> Color(0xFFF44336)  // Rojo para incorrecta
-        isSelected -> Color(0xFF2196F3)                           // Azul para seleccionada
-        noFueSeleccionada -> Color(0xFFBDBDBD)                    // Gris para opciones no seleccionadas
+        estaErantzunda && esLaCorrecta -> colorScheme.tertiary
+        estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.error
+        isSelected -> colorScheme.primary
+        noFueSeleccionada -> colorScheme.outlineVariant
         else -> Color.Transparent
     }
 
     val textColor = when {
-        noFueSeleccionada -> Color(0xFF9E9E9E) // Gris para opciones no seleccionadas
-        else -> Color(0xFF333333)              // Negro normal
+        estaErantzunda && esLaCorrecta -> colorScheme.onTertiaryContainer
+        estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.onErrorContainer
+        noFueSeleccionada -> colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+        else -> colorScheme.onSurface
     }
 
     val circleColor = when {
-        estaErantzunda && esLaCorrecta -> Color(0xFF4CAF50)      // Verde para correcta
-        estaErantzunda && fueSeleccionada && !esLaCorrecta -> Color(0xFFF44336)  // Rojo para incorrecta
-        isSelected -> Color(0xFF2196F3)                           // Azul para seleccionada
-        noFueSeleccionada -> Color(0xFFE0E0E0).copy(alpha = 0.6f) // Gris transparente para no seleccionadas
-        else -> Color(0xFFE0E0E0)                                 // Gris normal
+        estaErantzunda && esLaCorrecta -> colorScheme.tertiary
+        estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.error
+        isSelected -> colorScheme.primary
+        noFueSeleccionada -> colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        else -> colorScheme.outlineVariant
     }
 
     val circleTextColor = when {
-        noFueSeleccionada -> Color(0xFF9E9E9E) // Gris para texto de círculo
-        else -> Color.White                     // Blanco normal
+        estaErantzunda && esLaCorrecta -> colorScheme.onTertiary
+        estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.onError
+        isSelected -> colorScheme.onPrimary
+        noFueSeleccionada -> colorScheme.onSurfaceVariant
+        else -> colorScheme.onSurface
     }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor
-        ),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         border = BorderStroke(
             width = if (borderColor != Color.Transparent) 2.dp else 0.dp,
             color = borderColor
         ),
-        enabled = !estaErantzunda // Deshabilitar si ya se respondió
+        enabled = !estaErantzunda
     ) {
         Row(
             modifier = Modifier
@@ -199,7 +202,7 @@ fun OptionItem(
                     // Mostrar ✓ verde si es la respuesta correcta
                     Text(
                         text = "✓",
-                        color = Color(0xFF4CAF50),
+                        color = colorScheme.tertiary,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -207,7 +210,7 @@ fun OptionItem(
                     // Mostrar ✗ rojo si seleccionó esta pero es incorrecta
                     Text(
                         text = "✗",
-                        color = Color(0xFFF44336),
+                        color = colorScheme.error,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
