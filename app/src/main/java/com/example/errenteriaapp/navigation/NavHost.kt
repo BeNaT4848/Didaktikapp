@@ -69,13 +69,15 @@ fun AppNavigation(
             val irakasleDao = remember { db.irakasleDao() }
             val partidaDao = remember { db.partidaDao() }
             val puntuazioaDao = remember { db.puntuazioaDao() }
+            val izenTaldeaDao = remember { db.klaseakDao() }
 
             val loginViewModel: LoginViewModel = viewModel(
                 factory = LoginViewModelFactory(
                     ikasleDao,
                     irakasleDao,
                     partidaDao,
-                    puntuazioaDao
+                    puntuazioaDao,
+                    izenTaldeaDao
                 )
             )
 
@@ -371,13 +373,14 @@ fun AppNavigation(
                 val irakasleDao = remember { db.irakasleDao() }
                 val partidaDao = remember { db.partidaDao() }
                 val puntuazioaDao = remember { db.puntuazioaDao() }
-
+                val izenTaldeaDao = remember { db.klaseakDao() }
                 val loginViewModel: LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(
                         ikasleDao,
                         irakasleDao,
                         partidaDao,
-                        puntuazioaDao
+                        puntuazioaDao,
+                        izenTaldeaDao
                     )
                 )
 

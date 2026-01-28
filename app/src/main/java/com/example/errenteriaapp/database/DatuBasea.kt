@@ -4,7 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Irakasle::class, Ikasle::class, Partida::class, Puntuazioa::class, PuntuazioRankina::class],
+    entities = [Irakasle::class, Ikasle::class, Partida::class, Puntuazioa::class, IzenTaldea::class],
     version = 2
 )
 
@@ -13,7 +13,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ikasleDao(): IkasleDao
     abstract fun partidaDao(): PartidaDao
     abstract fun puntuazioaDao(): PuntuazioaDao
-    abstract fun puntuazioRankinaDao(): PuntuazioRankinaDao
+
+    abstract fun klaseakDao(): IzenTaldeaDao
 }
 val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
     override fun migrate(database: androidx.sqlite.db.SupportSQLiteDatabase) {

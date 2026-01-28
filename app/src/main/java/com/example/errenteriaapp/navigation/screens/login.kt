@@ -1,6 +1,5 @@
 package com.example.errenteriaapp.navigation.screens
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -8,7 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +19,7 @@ import com.example.errenteriaapp.database.viewModel.LoginViewModel
 import com.example.errenteriaapp.navigation.Routes
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
@@ -32,11 +32,23 @@ fun LoginScreen(
     val isSaving = loginViewModel.isSaving.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val allIrakasleak by loginViewModel.getAllIrakasleak().collectAsStateWithLifecycle(initialValue = emptyList())
-    val context = LocalContext.current
-    val sessionPrefs = remember(context) {
-        context.getSharedPreferences("session", Context.MODE_PRIVATE)
-    }
+    var selectedClass by remember { mutableStateOf("") }
+    var isClassExpanded by remember { mutableStateOf(false) }
 
+    val classOptions = listOf(
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B"
+    )
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -173,18 +185,85 @@ fun LoginScreen(
                                     isError = errorMessage.isNotEmpty()
                                 )
                             } else {
-                                // Modo Ikaslea
-                                CompactTextField(
-                                    value = nombreCompleto,
-                                    onValueChange = {
-                                        nombreCompleto = it.filter { char -> char.isLetter() || char.isWhitespace() }
-                                        errorMessage = ""
-                                    },
-                                    label = "Zure izena eta abizena",
-                                    isError = errorMessage.isNotEmpty(),
-                                    singleLine = true
-                                )
-                            }
+                                ExposedDropdownMenuBox(
+                                    expanded = isClassExpanded,
+                                    onExpandedChange = { isClassExpanded = !isClassExpanded }
+                                ) {
+                                    OutlinedTextField(
+                                        value = selectedClass,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .menuAnchor(),
+                                        label = {
+                                            Text(
+                                                text = "Aukeratu zure klasea",
+                                                color = Color.White,
+                                                fontSize = 13.sp // Etiqueta más pequeña
+                                            )
+                                        },
+                                        textStyle = TextStyle(
+                                            color = Color.White,
+                                            fontSize = 14.sp // Texto más pequeño
+                                        ),
+                                        isError = errorMessage.isNotEmpty() && selectedClass.isEmpty(),
+                                        singleLine = true,
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                                expanded = isClassExpanded
+                                            )
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = Color.White.copy(alpha = 0.8f),
+                                            unfocusedBorderColor = Color.White.copy(alpha = 0.6f),
+                                            errorBorderColor = Color.Red,
+                                            focusedTextColor = Color.White,
+                                            unfocusedTextColor = Color.White,
+                                            cursorColor = Color.White,
+                                            focusedLabelColor = Color.White.copy(alpha = 0.9f),
+                                            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                                            focusedTrailingIconColor = Color.White,
+                                            unfocusedTrailingIconColor = Color.White.copy(alpha = 0.7f)
+                                        )
+                                    )
+
+                                    ExposedDropdownMenu(
+                                        expanded = isClassExpanded,
+                                        onDismissRequest = { isClassExpanded = false }
+                                    ) {
+                                        classOptions.forEach { classOption ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = classOption,
+                                                        color = Color.Black,
+                                                        fontSize = 14.sp
+                                                    )
+                                                },
+                                                onClick = {
+                                                    selectedClass = classOption
+                                                    isClassExpanded = false
+                                                    errorMessage = ""
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                                    // Modo Ikaslea
+                                    CompactTextField(
+                                        value = nombreCompleto,
+                                        onValueChange = {
+                                            nombreCompleto =
+                                                it.filter { char -> char.isLetter() || char.isWhitespace() }
+                                            errorMessage = ""
+                                        },
+                                        label = "Zure izena eta abizena",
+                                        isError = errorMessage.isNotEmpty(),
+                                        singleLine = true
+                                    )
+                                }
+
                         }
 
                         // Mensaje de error - más compacto
@@ -217,14 +296,11 @@ fun LoginScreen(
 
                                         if (irakasle != null && irakasle.contraseña == password) {
                                             // Login exitoso para irakaslea
-                                            loginViewModel.guardarNombre(nombreCompleto, asTeacher = true)
+                                            loginViewModel.guardarNombre(nombreCompleto)
 
-                                            // Guardar usuario activo y rol en preferencias
+                                            // Guardar usuario activo para progreso por usuario
                                             val cleanName = nombreCompleto.trim()
-                                            sessionPrefs.edit()
-                                                .putString("active_user_name", cleanName)
-                                                .putBoolean("is_teacher_mode", true)
-                                                .apply()
+                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
 
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
@@ -232,17 +308,17 @@ fun LoginScreen(
                                             errorMessage = "Irakaslearen izena edo pasahitza okerrak dira"
                                         }
                                     } else {
-                                        // Modo ikaslea
+                                        // Modo ikaslea - AHORA CON CLASE
                                         if (nombreCompleto.isBlank()) {
                                             errorMessage = "Mesedez, idatzi zure izena eta abizena"
+                                        } else if (selectedClass.isBlank()) {
+                                            errorMessage = "Mesedez, aukeratu zure klasea"
                                         } else {
-                                            loginViewModel.guardarNombre(nombreCompleto)
+                                            // Pasar la clase seleccionada al ViewModel
+                                            loginViewModel.guardarNombre(nombreCompleto, false, selectedClass)
 
                                             val cleanName = nombreCompleto.trim()
-                                            sessionPrefs.edit()
-                                                .putString("active_user_name", cleanName)
-                                                .putBoolean("is_teacher_mode", false)
-                                                .apply()
+                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
 
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)

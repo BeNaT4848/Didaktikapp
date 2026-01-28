@@ -1,21 +1,25 @@
 package com.example.errenteriaapp.database
 
+
+
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 
-
 @Entity(
     foreignKeys = [ForeignKey(
-        entity = Irakasle::class,
+        entity = Ikasle::class,
         parentColumns = ["izenaAbizena"],
         childColumns = ["izenaAbizena"],
         onDelete = ForeignKey.CASCADE
     )]
 )
-data class Irakasle(
-    @PrimaryKey val izenaAbizena: String,
-    val rol: String = "Admin",
-    val contraseña: String = "irakasle2026"
+
+
+data class IzenTaldea(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val izenaAbizena: String,
+    val taldea: String
+
 )
