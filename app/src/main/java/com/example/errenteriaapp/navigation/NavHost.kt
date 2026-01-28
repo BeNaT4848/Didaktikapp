@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -59,7 +60,7 @@ fun AppNavigation(
                         context.applicationContext,
                         AppDatabase::class.java,
                         "errenteria_database"
-                    ) .addMigrations(MIGRATION_1_2) .build()
+                    ).addMigrations(MIGRATION_1_2).build()
                 }
             }
 
@@ -84,6 +85,9 @@ fun AppNavigation(
             LaunchedEffect(user) {
                 user?.let {
                     currentUserName = it
+                    // Persistimos el usuario activo para progreso por usuario
+                    context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE)
+                        .edit { putString("active_user_name", it) }
                 }
             }
 
@@ -93,9 +97,7 @@ fun AppNavigation(
 
             LoginScreen(
                 loginViewModel = loginViewModel,
-                navController = navController,
-                initialTeacherMode = isTeacherMode,
-                onTeacherModeChange = { loginViewModel.setTeacherMode(it) }
+                navController = navController
             )
         }
 
