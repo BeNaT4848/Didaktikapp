@@ -24,7 +24,7 @@ fun SanMarkosekoGalderak(
     viewModel: SanMarkosViewModel
 ) {
     val context = LocalContext.current
-    val progressRepo = remember { KokapenaProgressRepository(context) }
+    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
 
     LaunchedEffect(userName) {
         userName?.let {
