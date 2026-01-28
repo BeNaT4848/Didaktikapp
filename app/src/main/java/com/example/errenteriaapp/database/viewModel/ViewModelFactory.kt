@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.errenteriaapp.database.IkasleDao
 import com.example.errenteriaapp.database.IrakasleDao
+import com.example.errenteriaapp.database.IzenTaldeaDao
 import com.example.errenteriaapp.database.PartidaDao
 import com.example.errenteriaapp.database.PuntuazioaDao
 import com.example.errenteriaapp.navigation.screens.SanMarkosekoGalderak
@@ -12,13 +13,14 @@ class LoginViewModelFactory(
     private val ikasleDao: IkasleDao,
     private val irakasleDao: IrakasleDao,
     private val partidaDao: PartidaDao,
-    private val puntuazioaDao: PuntuazioaDao
+    private val puntuazioaDao: PuntuazioaDao,
+    private val izenTaldeaDao: IzenTaldeaDao
 
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            return LoginViewModel(ikasleDao, irakasleDao,partidaDao,puntuazioaDao) as T
+            return LoginViewModel(ikasleDao, irakasleDao,partidaDao,puntuazioaDao,izenTaldeaDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
