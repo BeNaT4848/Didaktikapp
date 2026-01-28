@@ -6,6 +6,8 @@ import com.example.errenteriaapp.database.Ikasle
 import com.example.errenteriaapp.database.IkasleDao
 import com.example.errenteriaapp.database.Irakasle
 import com.example.errenteriaapp.database.IrakasleDao
+import com.example.errenteriaapp.database.IzenTaldea
+import com.example.errenteriaapp.database.IzenTaldeaDao
 import com.example.errenteriaapp.database.Partida
 import com.example.errenteriaapp.database.PartidaDao
 import com.example.errenteriaapp.database.Puntuazioa
@@ -21,7 +23,8 @@ class LoginViewModel(
     private val ikasleDao: IkasleDao,
     private val irakasleDao: IrakasleDao,
     private val partidaDao: PartidaDao,
-    private val puntuazioaDao: PuntuazioaDao
+    private val puntuazioaDao: PuntuazioaDao,
+    private val izenTaldeaDao: IzenTaldeaDao
 ) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<String?>(null)
@@ -52,7 +55,7 @@ class LoginViewModel(
         _isTeacherMode.value = enabled
     }
 
-    fun guardarNombre(nombreCompleto: String, asTeacher: Boolean = false) {
+    fun guardarNombre(nombreCompleto: String, asTeacher: Boolean = false, taldea: String? = null) {
         viewModelScope.launch {
             _isSaving.value = true
             _errorMessage.value = ""
@@ -71,6 +74,16 @@ class LoginViewModel(
                             rol = "Ikasle"
                         )
                         ikasleDao.insert(nuevoIkasle)
+
+                        // Insertar en IzenTaldea si se proporcionó una clase
+                        taldea?.let { clase ->
+                            val nuevoIzenTaldea = IzenTaldea(
+                                izenaAbizena = nombreTrimmed,
+                                taldea = clase
+                            )
+                            izenTaldeaDao.insert(nuevoIzenTaldea)
+                        }
+
                         val puntuazioExistente = puntuazioaDao.getByName(nombreTrimmed)
                         if (puntuazioExistente == null) {
                             val nuevaPuntuazioa = Puntuazioa(
