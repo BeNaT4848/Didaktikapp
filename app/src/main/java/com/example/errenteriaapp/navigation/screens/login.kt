@@ -1,5 +1,6 @@
 package com.example.errenteriaapp.navigation.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,6 +36,10 @@ fun LoginScreen(
     val allIrakasleak by loginViewModel.getAllIrakasleak().collectAsStateWithLifecycle(initialValue = emptyList())
     var selectedClass by remember { mutableStateOf("") }
     var isClassExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val sessionPrefs = remember(context) {
+        context.getSharedPreferences("session", Context.MODE_PRIVATE)
+    }
 
     val classOptions = listOf(
         "1A",
@@ -296,11 +302,13 @@ fun LoginScreen(
 
                                         if (irakasle != null && irakasle.contraseña == password) {
                                             // Login exitoso para irakaslea
-                                            loginViewModel.guardarNombre(nombreCompleto)
+                                            loginViewModel.guardarNombre(nombreCompleto, asTeacher = true)
 
-                                            // Guardar usuario activo para progreso por usuario
                                             val cleanName = nombreCompleto.trim()
-                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
+                                            sessionPrefs.edit()
+                                                .putString("active_user_name", cleanName)
+                                                .putBoolean("is_teacher_mode", true)
+                                                .apply()
 
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
@@ -318,7 +326,10 @@ fun LoginScreen(
                                             loginViewModel.guardarNombre(nombreCompleto, false, selectedClass)
 
                                             val cleanName = nombreCompleto.trim()
-                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
+                                            sessionPrefs.edit()
+                                                .putString("active_user_name", cleanName)
+                                                .putBoolean("is_teacher_mode", false)
+                                                .apply()
 
                                             errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
