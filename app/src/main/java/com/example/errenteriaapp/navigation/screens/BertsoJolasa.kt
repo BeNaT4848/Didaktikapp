@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -21,6 +24,7 @@ import com.example.errenteriaapp.components.ParagraphCard
 import com.example.errenteriaapp.database.viewModel.BertsoViewModel
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.components.GameResultDialogs
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 @Composable
 fun BertsoJolasaScreen(
@@ -28,6 +32,17 @@ fun BertsoJolasaScreen(
     userName: String?,
     viewModel: BertsoViewModel
 ) {
+    val context = LocalContext.current
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
+
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let { viewModel.setUsuario(it) }
+    }
+
     val attempt = viewModel.attempt
     val hasNavigated = viewModel.hasNavigated
     val showSuccess = viewModel.showSuccessDialog
@@ -36,6 +51,7 @@ fun BertsoJolasaScreen(
     fun handleProgress() {
         viewModel.registerAnswer()
         viewModel.checkBertso1Completion {
+            progressRepo.markCompleted(Routes.BERTSOJOLASA_SCREEN)
             navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
         }
     }

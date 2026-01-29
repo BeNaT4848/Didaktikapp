@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.example.errenteriaapp.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +57,7 @@ fun RankingTopBar(
                         tint = Color(0xFFFFD700)
                     )
                     Text(
-                        "Puntuetako Rankina",
+                        stringResource(R.string.ranking_title),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = onPrimaryColor
@@ -69,7 +71,7 @@ fun RankingTopBar(
                 ) {
                     Icon(
                         Icons.Default.ArrowBack,
-                        contentDescription = "Itzuli",
+                        contentDescription = stringResource(R.string.ranking_back),
                         tint = onPrimaryColor
                     )
                 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,10 +37,19 @@ fun BertsoJolasaScreen2(
     viewModel: BertsoViewModel
 ) {
     val context = LocalContext.current
-    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
     val attempt = viewModel.attempt
     val showSuccess = viewModel.showSuccessDialog
     val showWrong = viewModel.showWrongDialog
+
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let { viewModel.setUsuario(it) }
+    }
 
     fun handleProgress() {
         viewModel.registerAnswer()
@@ -154,7 +164,7 @@ fun BertsoJolasaScreen2(
             onDismissWrong = { },
             onSuccessButton = {
                 viewModel.dismissSuccessDialog()
-                progressRepo.markCompleted(Routes.BERTSOJOLASA_SCREEN)
+                progressRepo.markCompleted(Routes.BERTSOJOLASA2_SCREEN)
                 navController.navigate(Routes.GPS_SCREEN)
             },
             onWrongButton = { }

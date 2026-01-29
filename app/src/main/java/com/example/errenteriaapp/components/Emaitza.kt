@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +48,7 @@ fun GameResultDialogs(
             isSuccess = true,
             imageRes = R.drawable.ondo_egina,
             audioRes = R.raw.oso_ondo_audioa,
-            buttonText = "Jolasekin jarraitu!",
+            buttonText = stringResource(R.string.game_result_success_button),
             buttonColor = Color(0xFF4CAF50),
             onDismiss = onDismissSuccess,
             onButtonClick = onSuccessButton
@@ -58,7 +59,7 @@ fun GameResultDialogs(
             isSuccess = false,
             imageRes = R.drawable.saiatu_berriro,
             audioRes = R.raw.saiatu_berriro_audioa,
-            buttonText = "Saiatu berriro!",
+            buttonText = stringResource(R.string.game_result_retry_button),
             buttonColor = Color(0xFFC62828),
             onDismiss = onDismissWrong,
             onButtonClick = onWrongButton
@@ -114,7 +115,9 @@ fun ResultDialog(
                 ) {
                     Image(
                         painter = painterResource(id = imageRes),
-                        contentDescription = if (isSuccess) "Ondo eginda" else "Saiatu berriro",
+                        contentDescription = stringResource(
+                            if (isSuccess) R.string.game_result_success_cd else R.string.game_result_retry_cd
+                        ),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.fillMaxSize()
                     )

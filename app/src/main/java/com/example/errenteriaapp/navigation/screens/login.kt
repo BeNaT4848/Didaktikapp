@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +26,7 @@ fun LoginScreen(
 ) {
     var nombreCompleto by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
+    var errorMessageResId by remember { mutableStateOf<Int?>(null) }
     var isTeacherMode by remember { mutableStateOf(false) }
     val isSaving = loginViewModel.isSaving.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -77,7 +78,9 @@ fun LoginScreen(
                             verticalArrangement = Arrangement.spacedBy(4.dp) // Muy poco espacio
                         ) {
                             Text(
-                                text = if (isTeacherMode) "Irakasle modua" else "Ikasle modua",
+                                text = stringResource(
+                                    if (isTeacherMode) R.string.login_mode_teacher else R.string.login_mode_student
+                                ),
                                 color = Color.White,
                                 fontSize = 16.sp, // Texto más pequeño
                                 fontWeight = FontWeight.Medium
@@ -91,12 +94,12 @@ fun LoginScreen(
                                     selected = !isTeacherMode,
                                     onClick = {
                                         isTeacherMode = false
-                                        errorMessage = ""
+                                        errorMessageResId = null
                                         password = "" // Limpiar contraseña al cambiar modo
                                     },
                                     label = {
                                         Text(
-                                            "Ikaslea",
+                                            stringResource(R.string.login_student_label),
                                             fontSize = 14.sp, // Texto más pequeño
                                             color = if (!isTeacherMode) MaterialTheme.colorScheme.primary else Color.White
                                         )
@@ -114,12 +117,12 @@ fun LoginScreen(
                                     selected = isTeacherMode,
                                     onClick = {
                                         isTeacherMode = true
-                                        errorMessage = ""
+                                        errorMessageResId = null
                                         password = "" // Limpiar contraseña al cambiar modo
                                     },
                                     label = {
                                         Text(
-                                            "Irakaslea",
+                                            stringResource(R.string.login_teacher_label),
                                             fontSize = 14.sp, // Texto más pequeño
                                             color = if (isTeacherMode) MaterialTheme.colorScheme.primary else Color.White
                                         )
@@ -150,10 +153,10 @@ fun LoginScreen(
                                     value = nombreCompleto,
                                     onValueChange = {
                                         nombreCompleto = it.filter { char -> char.isLetter() || char.isWhitespace() }
-                                        errorMessage = ""
+                                        errorMessageResId = null
                                     },
-                                    label = "Irakaslearen izena",
-                                    isError = errorMessage.isNotEmpty(),
+                                    label = stringResource(R.string.login_teacher_name),
+                                    isError = errorMessageResId != null,
                                     singleLine = true
                                 )
 
@@ -161,10 +164,10 @@ fun LoginScreen(
                                     value = password,
                                     onValueChange = {
                                         password = it
-                                        errorMessage = ""
+                                        errorMessageResId = null
                                     },
-                                    label = "Pasahitza",
-                                    isError = errorMessage.isNotEmpty()
+                                    label = stringResource(R.string.login_password),
+                                    isError = errorMessageResId != null
                                 )
                             } else {
                                 // Modo Ikaslea
@@ -172,19 +175,20 @@ fun LoginScreen(
                                     value = nombreCompleto,
                                     onValueChange = {
                                         nombreCompleto = it.filter { char -> char.isLetter() || char.isWhitespace() }
-                                        errorMessage = ""
+                                        errorMessageResId = null
                                     },
-                                    label = "Zure izena eta abizena",
-                                    isError = errorMessage.isNotEmpty(),
+                                    label = stringResource(R.string.login_student_name),
+                                    isError = errorMessageResId != null,
                                     singleLine = true
                                 )
                             }
                         }
 
                         // Mensaje de error - más compacto
-                        if (errorMessage.isNotEmpty()) {
+                        val errorMessage = errorMessageResId
+                        if (errorMessage != null) {
                             Text(
-                                text = errorMessage,
+                                text = stringResource(errorMessage),
                                 color = MaterialTheme.colorScheme.error,
                                 fontSize = 12.sp, // Texto más pequeño
                                 modifier = Modifier.padding(vertical = 2.dp)
@@ -217,15 +221,15 @@ fun LoginScreen(
                                             val cleanName = nombreCompleto.trim()
                                             sessionPrefs.edit().putString("active_user_name", cleanName).apply()
 
-                                            errorMessage = ""
+                                            errorMessageResId = null
                                             navController.navigate(Routes.GPS_SCREEN)
                                         } else {
-                                            errorMessage = "Irakaslearen izena edo pasahitza okerrak dira"
+                                            errorMessageResId = R.string.login_error_teacher_credentials
                                         }
                                     } else {
                                         // Modo ikaslea
                                         if (nombreCompleto.isBlank()) {
-                                            errorMessage = "Mesedez, idatzi zure izena eta abizena"
+                                            errorMessageResId = R.string.login_error_student_name
                                         } else {
                                             loginViewModel.guardarNombre(nombreCompleto)
 
@@ -233,7 +237,7 @@ fun LoginScreen(
                                             val cleanName = nombreCompleto.trim()
                                             sessionPrefs.edit().putString("active_user_name", cleanName).apply()
 
-                                            errorMessage = ""
+                                            errorMessageResId = null
                                             navController.navigate(Routes.GPS_SCREEN)
                                         }
                                     }
@@ -257,9 +261,10 @@ fun LoginScreen(
                                 )
                             } else {
                                 Text(
-                                    text = if (isTeacherMode) "SAIOA HASI" else "HASI JOLASA",
-                                    fontSize = 16.sp, // Texto más pequeño
-                                    fontWeight = FontWeight.Medium
+                                    text = stringResource(
+                                        if (isTeacherMode) R.string.login_action_teacher else R.string.login_action_student
+                                    ),
+                                    fontSize = 16.sp // Texto más pequeño
                                 )
                             }
                         }

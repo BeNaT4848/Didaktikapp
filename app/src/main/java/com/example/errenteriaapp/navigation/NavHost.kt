@@ -189,9 +189,12 @@ fun AppNavigation(
             if (db != null) {
 
                 val puntuazioaDao = remember { db.puntuazioaDao() }
-                // Usar el factory que ya tienes
+                // Configuración específica para el segundo bertso
                 val viewModel: BertsoViewModel = viewModel(
-                    factory = BertsoViewModelFactory(puntuazioaDao)
+                    factory = BertsoViewModelFactory(
+                        puntuazioaDao,
+                        BertsoViewModel.ConfigJuego.DEFAULT_BERTSOA_2
+                    )
                 )
 
 

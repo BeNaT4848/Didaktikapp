@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +42,7 @@ fun HomeScreen(
 
     ) {
     val state by viewModel.state.collectAsState()
+    val currentMessage = state.currentMessage?.let { stringResource(it.textResId) }
 
     // Iniciar conversación cuando se carga la pantalla
     LaunchedEffect(Unit) {
@@ -71,7 +73,7 @@ fun HomeScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                text = "Skip",
+                text = stringResource(R.string.home_skip),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -89,7 +91,7 @@ fun HomeScreen(
             CharacterWithSpeech(
                 isSpeaking = state.currentMessage?.isFromXanti == true,
                 isXanti = true,
-                message = state.currentMessage?.text,
+                message = currentMessage,
                 modifier = Modifier.weight(1f),
                 imageHeight = imageHeight
             )
@@ -97,7 +99,7 @@ fun HomeScreen(
             CharacterWithSpeech(
                 isSpeaking = state.currentMessage?.isFromXanti == false,
                 isXanti = false,
-                message = state.currentMessage?.text,
+                message = currentMessage,
                 modifier = Modifier.weight(1f),
                 imageHeight = imageHeight
             )
@@ -121,7 +123,7 @@ fun HomeScreen(
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Text(
-                    text = "¡JOLASTEN HASI!",
+                    text = stringResource(R.string.home_start_game),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,

@@ -1,4 +1,195 @@
 <resources>
     <string name="app_name">Errenteriaapp</string>
-    <string name="com_google_android_gms_fonts_certs_dev" />
+    <string name="com_google_android_gms_fonts_certs_dev" translatable="false" />
+
+    <string name="settings_title">Configuración</string>
+    <string name="settings_language_title">Idioma</string>
+    <string name="settings_language_desc">Elige el idioma de la aplicación.</string>
+
+    <string name="settings_theme_title">Tema</string>
+    <string name="settings_theme_appearance">Apariencia</string>
+    <string name="settings_theme_light_dark">Claro / Oscuro</string>
+    <string name="settings_theme_light">Modo claro</string>
+    <string name="settings_theme_dark">Modo oscuro</string>
+
+    <string name="settings_teacher_options_title">Opciones para profesorado</string>
+    <string name="settings_teacher_delete_ranking_title">Borrar ranking completo</string>
+    <string name="settings_teacher_delete_ranking_desc">Esta acción borrará TODOS los datos del ranking (incluidos usuarios). No se puede deshacer.</string>
+    <string name="settings_teacher_delete_ranking_button">BORRAR RANKING COMPLETO</string>
+
+    <string name="settings_teacher_reset_scores_title">Borrar puntuaciones</string>
+    <string name="settings_teacher_reset_scores_desc">Esta acción borrará las puntuaciones de TODOS los usuarios, pero mantendrá los usuarios.</string>
+    <string name="settings_teacher_reset_scores_button">BORRAR PUNTUACIONES</string>
+
+    <string name="language_spanish">Castellano</string>
+    <string name="language_basque">Euskara</string>
+    <string name="language_english">Ingles</string>
+
+    <string name="language_applying">Aplicando idioma…</string>
+
+    <string name="login_title_question">¿Quién eres?</string>
+    <string name="login_title_subtitle">Escribe tu nombre para empezar a jugar.</string>
+
+    <string name="login_language_title">Idioma</string>
+    <string name="login_mode_teacher">Modo profesorado</string>
+    <string name="login_mode_student">Modo alumnado</string>
+    <string name="login_student_label">Alumno/a</string>
+    <string name="login_teacher_label">Profesor/a</string>
+    <string name="login_teacher_name">Nombre del profesor</string>
+    <string name="login_student_name">Tu nombre y apellidos</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_action_teacher">INICIAR SESION</string>
+    <string name="login_action_student">EMPEZAR JUEGO</string>
+    <string name="login_error_teacher_credentials">Nombre o contraseña incorrectos</string>
+    <string name="login_error_student_name">Por favor, escribe tu nombre y apellidos</string>
+
+    <string name="nav_menu">Menu</string>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_gps">GPS</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="nav_ranking">Ranking</string>
+    <string name="nav_logout">Cerrar sesion</string>
+
+    <string name="gps_follow_fixed">Fijado</string>
+    <string name="gps_follow_free">Libre</string>
+    <string name="gps_permission_needed">Activa permisos de ubicación</string>
+    <string name="gps_locating">Buscando tu ubicación…</string>
+
+    <string name="home_skip">Saltar</string>
+    <string name="home_start_game">¡EMPEZAR A JUGAR!</string>
+
+    <string name="home_dialog_1">¡Buenos días, alumnado! Somos Xanti y Maialen, los gigantes de las fiestas de Errenteria.</string>
+    <string name="home_dialog_2">Pero hoy no iremos a las fiestas, haremos una excursión por Errenteria.</string>
+    <string name="home_dialog_3">Mientras tanto haremos algunas actividades para que sea más divertido.</string>
+    <string name="home_dialog_4">A lo largo del día trabajaremos rincones y temas que forman parte de la historia de Errenteria.</string>
+    <string name="home_dialog_5">En este mapa podéis ver qué lugares vamos a visitar.</string>
+    <string name="home_dialog_6">¡Si queréis conocerlos todos, seguid a vuestro profesor!</string>
+
+    <string name="home_idle_1">¡Estamos listos! Pulsa el botón para empezar a jugar.</string>
+    <string name="home_idle_2">¡Te esperamos! Pulsa el botón y empecemos.</string>
+
+    <string name="azalpen_start_game">Empezar a jugar</string>
+    <string name="azalpen_start_puzzle">Empezar puzzle</string>
+
+    <string name="azalpen_bertso_title">Texto didáctico</string>
+    <string name="azalpen_bertso_body">Aunque los versos son orales, gracias a los versos-papeles (panfletos que recogían los versos) podían difundirse por todo Euskal Herria. Además, gracias a esos versos-papeles, hoy podréis leer y completar los versos de estos dos bertsolaris. Para completar estos versos, fijaos en las rimas y en la historia que están contando.</string>
+
+    <string name="azalpen_papresa_title">Papresa: Papelería en Errenteria</string>
+    <string name="azalpen_papresa_body">El juego tiene dos partes:\n\n❶ **PUZLE**: Aprenderás la historia de la fábrica Papresa. Completa el puzzle y lee la historia de la fábrica.\n\n❷ **RECICLAJE**: Cuando termines el puzzle, tendrás que colocar los objetos en el contenedor adecuado.</string>
+
+    <string name="audio_didactic">AUDIO DIDÁCTICO</string>
+    <string name="azalpena_label">EXPLICACIÓN</string>
+    <string name="audio_listening">Escuchando… %1$s</string>
+    <string name="audio_finished">El audio ha terminado</string>
+    <string name="audio_listen">Escuchar audio</string>
+    <string name="azalpena_read">Leer explicación</string>
+    <string name="audio_play">Reproducir</string>
+    <string name="audio_pause">Pausar</string>
+
+    <string name="game_verify">VERIFICAR</string>
+    <string name="game_drag_words">Arrastra las palabras:</string>
+    <string name="game_drag_here">Arrastra aqui</string>
+
+    <string name="game_taula_title">Clasifica palabras en tablas</string>
+    <string name="game_papresa_instruction">Toca el contenedor correcto:</string>
+
+    <string name="game_crucigrama_title">CRUCIGRAMA</string>
+    <string name="game_crucigrama_subtitle">Aizpitarte - Palabras cruzadas</string>
+    <string name="game_crucigrama_instructions_title">¡Bienvenido al crucigrama!</string>
+    <string name="game_crucigrama_instructions_label">Instrucciones:</string>
+    <string name="game_crucigrama_instruction_1">Pulsa en el numero de una pista para activar esa palabra</string>
+    <string name="game_crucigrama_instruction_2">Solo puedes escribir en la palabra activa (marcada en naranja)</string>
+    <string name="game_crucigrama_instruction_3">Pulsa VERIFICAR para comprobar tus respuestas</string>
+    <string name="game_crucigrama_understood">Entendido</string>
+    <string name="game_crucigrama_correct_letters">Letras correctas: %1$d / %2$d</string>
+
+    <string name="game_crucigrama_clue_h1">Habitaciones diferentes que aparecen dentro de la cueva.</string>
+    <string name="game_crucigrama_clue_h5">Estructura rocosa vertical y alargada que se extiende desde el techo hasta el suelo de una cueva, o se apoya en el.</string>
+    <string name="game_crucigrama_clue_v2">Formacion de caliza en forma de cono irregular que crece desde el suelo de una cueva.</string>
+    <string name="game_crucigrama_clue_v3">Estructura rocosa que cuelga del techo de una cueva.</string>
+    <string name="game_crucigrama_clue_v4">¿Como se llaman los dibujos que se encuentran en las cuevas hechos por los primeros humanos?</string>
+
+    <string name="game_sopa_title">ZENTENARIOA</string>
+    <string name="game_sopa_subtitle">¿Que instrumentos se escuchan?</string>
+    <string name="game_sopa_progress">Progreso</string>
+    <string name="game_sopa_found_title">Instrumentos encontrados:</string>
+
+    <string name="game_ordenatu_title">🧩 Ordenatu Jolasa</string>
+    <string name="game_ordenatu_subtitle">Arrastra las fotos y colocalas en los numeros</string>
+    <string name="game_ordenatu_photos">Fotos</string>
+    <string name="game_ordenatu_locations">Ubicaciones</string>
+    <string name="game_ordenatu_hint">🚀 Necesitas al menos 3 correctas para continuar</string>
+
+    <string name="game_quiz_question_of">Pregunta %1$d/%2$d</string>
+
+    <string name="game_result_success_button">¡Seguir jugando!</string>
+    <string name="game_result_retry_button">¡Intentar de nuevo!</string>
+    <string name="game_result_success_cd">Correcto</string>
+    <string name="game_result_retry_cd">Intenta otra vez</string>
+
+    <string name="papresa_title">JUEGO PAPRESA</string>
+    <string name="papresa_prev">Anterior</string>
+    <string name="papresa_next">Siguiente</string>
+
+    <string name="papresa_verify_icon">Verificar</string>
+    <string name="papresa_verify_ready">Todo listo</string>
+    <string name="papresa_verify_progress">%1$d/%2$d</string>
+    <string name="papresa_verify_button">VERIFICAR (%1$s)</string>
+
+    <string name="papresa_video_title">¡HAS SUPERADO EL JUEGO!</string>
+    <string name="papresa_video_hint">AHORA DEBES VER UN VIDEO</string>
+    <string name="papresa_video_watch">VER VIDEO</string>
+    <string name="papresa_video_loading">Cargando video…</string>
+    <string name="papresa_video_error">No se pudo reproducir el video. Puedes continuar.</string>
+    <string name="papresa_video_continue">Continuar</string>
+
+    <string name="papresa_category_yellow">Amarillo</string>
+    <string name="papresa_category_blue">Azul</string>
+    <string name="papresa_category_brown">Organico</string>
+    <string name="papresa_category_black">Inorganico</string>
+
+    <string name="papresa_category_yellow_desc">Plastico y envases</string>
+    <string name="papresa_category_blue_desc">Papel y carton</string>
+    <string name="papresa_category_brown_desc">Restos de comida</string>
+    <string name="papresa_category_black_desc">No reciclables</string>
+
+    <string name="papresa_item_water_bottle">Botella de agua</string>
+    <string name="papresa_item_soda_can">Lata de refresco</string>
+    <string name="papresa_item_chips_bag">Bolsa de patatas</string>
+    <string name="papresa_item_plastic_cap">Tapon de plastico</string>
+    <string name="papresa_item_yogurt">Yogur</string>
+    <string name="papresa_item_cereal_box">Caja de cereales</string>
+    <string name="papresa_item_newspaper">Periodico</string>
+    <string name="papresa_item_notebook">Cuaderno de papel</string>
+    <string name="papresa_item_cardboard_tube">Tubo de carton</string>
+    <string name="papresa_item_envelope">Sobre</string>
+    <string name="papresa_item_fruit_peel">Cascara de fruta</string>
+    <string name="papresa_item_veg_scraps">Restos de verduras</string>
+    <string name="papresa_item_bread">Pan</string>
+    <string name="papresa_item_bones">Huesos</string>
+    <string name="papresa_item_food_scraps">Restos de comida</string>
+    <string name="papresa_item_gum">Chicle</string>
+    <string name="papresa_item_cigarette_butts">Colillas</string>
+    <string name="papresa_item_pad">Compresa</string>
+    <string name="papresa_item_bandages">Tiritas</string>
+    <string name="papresa_item_diaper">Panal</string>
+
+    <string name="papresa_puzzle_loading">Cargando puzzle…</string>
+    <string name="papresa_puzzle_complete">¡Puzzle completado!</string>
+    <string name="papresa_puzzle_complete_cd">Puzzle completado</string>
+    <string name="papresa_puzzle_continue">Continuar</string>
+    <string name="papresa_puzzle_title">Puzzle</string>
+    <string name="papresa_puzzle_status_done">Completado</string>
+    <string name="papresa_puzzle_status_doing">En progreso</string>
+
+    <string name="sanmarkos_title">PREGUNTAS TEST</string>
+    <string name="sanmarkos_subtitle">Fuerte de San Marcos</string>
+    <string name="sanmarkos_next_question">Siguiente pregunta</string>
+    <string name="sanmarkos_finish_quiz">Finalizar prueba</string>
+    <string name="sanmarkos_question_label">PREGUNTA %1$d</string>
+
+    <string name="ranking_title">Ranking de puntos</string>
+    <string name="ranking_back">Volver</string>
+    <string name="ranking_points">%1$d puntos</string>
+    <string name="ranking_rest_title">RESTO DEL RANKING</string>
 </resources>

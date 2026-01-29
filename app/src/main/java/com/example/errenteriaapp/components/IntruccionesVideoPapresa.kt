@@ -8,12 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.errenteriaapp.R
 
 @Composable
 fun InstruccionesVideoPapresa(
@@ -63,7 +65,7 @@ fun InstruccionesVideoPapresa(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "JOLASA GAINDITU DUZU!",
+                        text = stringResource(R.string.papresa_video_title),
                         color = Color(0xFF1A2C4A),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
@@ -83,7 +85,7 @@ fun InstruccionesVideoPapresa(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "ORAIN BIDEO BAT IKUSI BEHAR DUZU",
+                                text = stringResource(R.string.papresa_video_hint),
                                 color = Color(0xFF2196F3),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -104,7 +106,7 @@ fun InstruccionesVideoPapresa(
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
-                        text = "BIDEOA IKUSI",
+                        text = stringResource(R.string.papresa_video_watch),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold

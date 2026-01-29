@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.components.ActiveWordIndicator
 import com.example.errenteriaapp.components.CluesSection
 import com.example.errenteriaapp.components.CrucigramaHeader

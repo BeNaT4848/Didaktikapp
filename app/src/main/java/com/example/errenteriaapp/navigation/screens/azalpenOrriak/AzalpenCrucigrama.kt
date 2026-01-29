@@ -1,6 +1,7 @@
 package com.example.errenteriaapp.navigation.screens.azalpenOrriak
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.example.errenteriaapp.R
 
 @Composable
@@ -22,7 +23,7 @@ fun AzalpenCrucigrama(
 
         textoDidactico = "",
 
-        textoBoton = "Jolasten hasi"
+        textoBoton = stringResource(R.string.azalpen_start_game)
     )
 
     AzalpenBase(

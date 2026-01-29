@@ -13,9 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.ui.theme.primaryLight
 
 @Composable
@@ -48,7 +50,7 @@ fun RestOfRankingTitle(
                 modifier = Modifier.size(18.dp)
             )
             Text(
-                text = "RANKINGAREN GAINERAKOA",
+                text = stringResource(R.string.ranking_rest_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = onSurfaceColor,

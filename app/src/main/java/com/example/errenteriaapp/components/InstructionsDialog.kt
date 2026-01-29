@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 
 @Composable
 fun InstructionsDialog(onDismiss: () -> Unit) {
@@ -22,7 +24,7 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Ongi etorri Gurutzegrama!",
+                text = stringResource(R.string.game_crucigrama_instructions_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2196F3)
@@ -31,16 +33,16 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
         text = {
             Column {
                 Text(
-                    text = "Argibideak:",
+                    text = stringResource(R.string.game_crucigrama_instructions_label),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                InstructionItem("Klik egin pista baten **ZENBAKIAN**  aktibatzeko hitz hori")
-                InstructionItem("Aktibo dagoen hitzean soilik idatzi dezakezu (laranjaz markatuta dago)")
-                InstructionItem("Sakatu **EGIAZTATU** zure erantzunak egiaztatzeko")
+                InstructionItem(stringResource(R.string.game_crucigrama_instruction_1))
+                InstructionItem(stringResource(R.string.game_crucigrama_instruction_2))
+                InstructionItem(stringResource(R.string.game_crucigrama_instruction_3))
             }
         },
         confirmButton = {
@@ -50,7 +52,7 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
                     containerColor = Color(0xFF2196F3)
                 )
             ) {
-                Text("Ulertuta!")
+                Text(stringResource(R.string.game_crucigrama_understood))
             }
         },
         containerColor = Color.White,

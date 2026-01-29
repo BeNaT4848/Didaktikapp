@@ -2,6 +2,7 @@ package com.example.errenteriaapp.database.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.ConversationState
 import com.example.errenteriaapp.classes.Dialogo
 
@@ -16,27 +17,27 @@ class ConversacionViewModel : ViewModel() {
 
     private val conversation = listOf(
         Dialogo(
-            "Egun on ikasleak! Gu Xanti eta Maialen gara, Errenteriako jaietako erraldoiak.",
+            R.string.home_dialog_1,
             true,
             8000L
         ), Dialogo(
-            "Baina gaur ez gara festetara joango, Errenteriatik txangoa egingo dugu.",
+            R.string.home_dialog_2,
             false,
             6000L
         ), Dialogo(
-            "Bitartean jardueratxoak egingo ditugu dibertigarriagoa izan dadin!",
+            R.string.home_dialog_3,
             false,
             6000L
         ), Dialogo(
-            "Errenteriako historiaren parte diren txoko eta gaiak landuko ditugu egunean zehar.",
+            R.string.home_dialog_4,
             true,
             8000L
         ), Dialogo(
-            "Hemengo mapan ikus ditzakezue ze leku bisitatuko ditugun.",
+            R.string.home_dialog_5,
             false,
             6000L
         ), Dialogo(
-            "Denak ezagutu nahi badituzue jarraitu zuen irakasleak!",
+            R.string.home_dialog_6,
             false,
             6000L
         )
@@ -44,11 +45,11 @@ class ConversacionViewModel : ViewModel() {
 
     private val idleLoop = listOf(
         Dialogo(
-            "Prest gaude! Sakatu botoia jolasten hasteko.",
+            R.string.home_idle_1,
             true,
             15000L
         ), Dialogo(
-            "Zure zain gaude, sakatu botoia eta has gaitezen!",
+            R.string.home_idle_2,
             false,
             15000L
         )

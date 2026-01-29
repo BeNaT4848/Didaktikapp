@@ -24,10 +24,12 @@ fun SanMarkosekoGalderak(
     viewModel: SanMarkosViewModel
 ) {
     val context = LocalContext.current
-    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) { KokapenaProgressRepository(context, effectiveUserName ?: "default") }
 
-    LaunchedEffect(userName) {
-        userName?.let {
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let {
             viewModel.setUsuario(it)
         }
     }
@@ -116,7 +118,8 @@ fun SanMarkosekoGalderak(
                 viewModel.dismissSuccessDialog()
                 progressRepo.markCompleted(Routes.SANMARKOS_SCREEN)
                 // Encadenado automático: al terminar SanMarkos, entra al Crucigrama
-                navController.navigate(Routes.CRUCIGRAMA_SCREEN)},
+                navController.navigate(Routes.CRUCIGRAMA_SCREEN)
+            },
             onWrongButton = { }
         )
     }

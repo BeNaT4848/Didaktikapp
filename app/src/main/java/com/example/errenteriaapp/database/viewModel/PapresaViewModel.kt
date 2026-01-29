@@ -79,26 +79,26 @@ class PapresaViewModel(
 
     private fun generarOrdenAleatorio() {
         val itemsOriginales = listOf(
-            WasteItem(1, "Ur botila", WasteCategory.YELLOW, R.drawable.botella_agua),
-            WasteItem(2, "Freskagarri lata", WasteCategory.YELLOW, R.drawable.lata_refresco),
-            WasteItem(3, "Patata poltsa", WasteCategory.YELLOW, R.drawable.bolsa_patatas),
-            WasteItem(4, "Plastikozko tapoia", WasteCategory.YELLOW, R.drawable.tapones_plastico),
-            WasteItem(5, "Iogurta", WasteCategory.YELLOW, R.drawable.yogurt),
-            WasteItem(6, "Zereal kutxa", WasteCategory.BLUE, R.drawable.caja_cereales),
-            WasteItem(7, "Egunkaria", WasteCategory.BLUE, R.drawable.periodico),
-            WasteItem(8, "Paper koadernoa", WasteCategory.BLUE, R.drawable.cuaderno_papel),
-            WasteItem(9, "Kartoi hodia", WasteCategory.BLUE, R.drawable.tubo_carton),
-            WasteItem(10, "Gutun-azala", WasteCategory.BLUE, R.drawable.sobre),
-            WasteItem(11, "Fruta azala", WasteCategory.BROWN, R.drawable.piel_fruta),
-            WasteItem(12, "Barazki hondarrak", WasteCategory.BROWN, R.drawable.restos_verduras),
-            WasteItem(13, "Ogia", WasteCategory.BROWN, R.drawable.pan),
-            WasteItem(14, "Hezurrak", WasteCategory.BROWN, R.drawable.huesos),
-            WasteItem(15, "Janari hondarrak", WasteCategory.BROWN, R.drawable.sobras),
-            WasteItem(16, "Txikleak", WasteCategory.BLACK, R.drawable.chicle),
-            WasteItem(17, "Zigarro puntak", WasteCategory.BLACK, R.drawable.colillas),
-            WasteItem(18, "Konpresa", WasteCategory.BLACK, R.drawable.gorro_sanitario),
-            WasteItem(19, "Tiritak", WasteCategory.BLACK, R.drawable.tiritas),
-            WasteItem(20, "Pixoihala", WasteCategory.BLACK, R.drawable.panal)
+            WasteItem(1, R.string.papresa_item_water_bottle, WasteCategory.YELLOW, R.drawable.botella_agua),
+            WasteItem(2, R.string.papresa_item_soda_can, WasteCategory.YELLOW, R.drawable.lata_refresco),
+            WasteItem(3, R.string.papresa_item_chips_bag, WasteCategory.YELLOW, R.drawable.bolsa_patatas),
+            WasteItem(4, R.string.papresa_item_plastic_cap, WasteCategory.YELLOW, R.drawable.tapones_plastico),
+            WasteItem(5, R.string.papresa_item_yogurt, WasteCategory.YELLOW, R.drawable.yogurt),
+            WasteItem(6, R.string.papresa_item_cereal_box, WasteCategory.BLUE, R.drawable.caja_cereales),
+            WasteItem(7, R.string.papresa_item_newspaper, WasteCategory.BLUE, R.drawable.periodico),
+            WasteItem(8, R.string.papresa_item_notebook, WasteCategory.BLUE, R.drawable.cuaderno_papel),
+            WasteItem(9, R.string.papresa_item_cardboard_tube, WasteCategory.BLUE, R.drawable.tubo_carton),
+            WasteItem(10, R.string.papresa_item_envelope, WasteCategory.BLUE, R.drawable.sobre),
+            WasteItem(11, R.string.papresa_item_fruit_peel, WasteCategory.BROWN, R.drawable.piel_fruta),
+            WasteItem(12, R.string.papresa_item_veg_scraps, WasteCategory.BROWN, R.drawable.restos_verduras),
+            WasteItem(13, R.string.papresa_item_bread, WasteCategory.BROWN, R.drawable.pan),
+            WasteItem(14, R.string.papresa_item_bones, WasteCategory.BROWN, R.drawable.huesos),
+            WasteItem(15, R.string.papresa_item_food_scraps, WasteCategory.BROWN, R.drawable.sobras),
+            WasteItem(16, R.string.papresa_item_gum, WasteCategory.BLACK, R.drawable.chicle),
+            WasteItem(17, R.string.papresa_item_cigarette_butts, WasteCategory.BLACK, R.drawable.colillas),
+            WasteItem(18, R.string.papresa_item_pad, WasteCategory.BLACK, R.drawable.gorro_sanitario),
+            WasteItem(19, R.string.papresa_item_bandages, WasteCategory.BLACK, R.drawable.tiritas),
+            WasteItem(20, R.string.papresa_item_diaper, WasteCategory.BLACK, R.drawable.panal)
         )
 
         wasteItems.clear()
@@ -210,4 +210,3 @@ class PapresaViewModel(
         currentUserName = nombre
     }
 }
-

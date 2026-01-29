@@ -61,12 +61,13 @@ class PapresaViewModelFactory(
     }
 }
 class BertsoViewModelFactory(
-    private val puntuazioaDao: PuntuazioaDao?
+    private val puntuazioaDao: PuntuazioaDao?,
+    private val configJuego: BertsoViewModel.ConfigJuego = BertsoViewModel.ConfigJuego.DEFAULT_BERTSOA_1
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(BertsoViewModel::class.java)) {
-            return BertsoViewModel(puntuazioaDao) as T
+            return BertsoViewModel(puntuazioaDao, configJuego) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

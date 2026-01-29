@@ -65,6 +65,10 @@ fun ClickableTextFunction(
     }
     val annotatedText = buildAnnotatedString {
         val start = fullText.indexOf(clickableWord)
+        if (start == -1) {
+            append(fullText)
+            return@buildAnnotatedString
+        }
         val end = start + clickableWord.length
 
         append(fullText.substring(0, start))
@@ -102,7 +106,7 @@ fun ClickableTextFunction(
                     end = offset
                 ).firstOrNull()
 
-                if (annotation != null && !isLocked) {
+                if (annotation != null && !isLocked && selectedOption == null) {
                     showBertso = !showBertso
                 }
             }

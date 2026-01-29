@@ -30,6 +30,7 @@ class KokapenaProgressRepository(
      */
     val tourSteps: List<String> = listOf(
         Routes.BERTSOJOLASA_SCREEN,
+        Routes.BERTSOJOLASA2_SCREEN,
 
         // Arramendi iturria (doble)
         Routes.SANMARKOS_SCREEN,
@@ -101,6 +102,15 @@ class KokapenaProgressRepository(
             val next = (unlocked + 1).coerceAtMost(tourSteps.size - 1)
             setUnlockedStepIndex(next)
         }
+    }
+
+    /** True si la ruta es la actual o secundaria (Bertso 2). */
+    fun isRouteCurrentOrSecondary(route: String?): Boolean {
+        if (route.isNullOrBlank()) return false
+        if (route == Routes.BERTSOJOLASA_SCREEN) {
+            return isRouteCurrent(Routes.BERTSOJOLASA_SCREEN) || isRouteCurrent(Routes.BERTSOJOLASA2_SCREEN)
+        }
+        return isRouteCurrent(route)
     }
 
     companion object {

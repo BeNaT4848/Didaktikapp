@@ -22,9 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.RankingItem
 
 import com.example.errenteriaapp.ui.theme.*
@@ -98,7 +100,7 @@ fun RankingCard(
                         modifier = Modifier.size(13.dp)
                     )
                     Text(
-                        text = "${item.points} puntos",
+                        text = stringResource(R.string.ranking_points, item.points),
                         style = MaterialTheme.typography.bodyLarge,
                         color = onSurfaceVariantLight,
                         fontWeight = FontWeight.Medium,
