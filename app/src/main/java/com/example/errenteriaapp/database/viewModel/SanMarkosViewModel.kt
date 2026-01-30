@@ -326,7 +326,4 @@ class SanMarkosViewModel(
             respuestaCorrectaOriginal = 0,
             respuestaCorrectaMezclada = 0
         )
-
-    val todasPreguntasRespondidas: Boolean
-        get() = galderakErantzunda.size == galderak.size
 }

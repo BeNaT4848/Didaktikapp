@@ -14,9 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 import com.example.errenteriaapp.i18n.AppLanguageState
 import com.example.errenteriaapp.i18n.LanguageManager
 import com.example.errenteriaapp.navigation.AppNavigation
@@ -36,7 +34,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val conversacionViewModel: ConversacionViewModel = viewModel()
             var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
             // Cada vez que cambie el idioma, reconstruimos el árbol Compose completo
@@ -52,7 +49,6 @@ class MainActivity : ComponentActivity() {
                     ) {
                         AppNavigation(
                             navController = navController,
-                            conversacionViewModel = conversacionViewModel,
                             isDarkMode = isDarkMode,
                             onThemeChange = { isDarkMode = it }
                         )

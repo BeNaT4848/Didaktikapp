@@ -29,7 +29,6 @@ private var appDatabase: AppDatabase? = null
 
 @Composable
 fun AppNavigation(
-    conversacionViewModel: ConversacionViewModel,
     navController: NavHostController,
     isDarkMode: Boolean,
     onThemeChange: (Boolean) -> Unit,
@@ -418,8 +417,7 @@ fun AppNavigation(
                         }
                     },
                     isDeletingRanking = isDeletingRanking,
-                    isResettingScores = isResettingScores,
-                    onNavigateBack = { navController.popBackStack() }
+                    isResettingScores = isResettingScores
                 )
             } else {
                 LaunchedEffect(Unit) {
