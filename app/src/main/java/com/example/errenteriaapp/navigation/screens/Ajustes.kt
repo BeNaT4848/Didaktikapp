@@ -1,22 +1,34 @@
 package com.example.errenteriaapp.navigation.screens
 
+import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import com.example.errenteriaapp.R
+import com.example.errenteriaapp.i18n.AppLanguageState
+import com.example.errenteriaapp.i18n.LanguageManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesScreen(
     modifier: Modifier = Modifier,
@@ -26,47 +38,22 @@ fun AjustesScreen(
     onDeleteRanking: () -> Unit = {},
     onResetScores: () -> Unit = {},
     isDeletingRanking: Boolean = false,
-    isResettingScores: Boolean = false,
-    onNavigateBack: () -> Unit = {}
+    isResettingScores: Boolean = false
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Konfigurazioa",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Atzera"
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
-        ) {
-            AjustesContent(
-                isTeacherMode = isTeacherMode,
-                isDarkMode = isDarkMode,
-                onThemeToggle = onThemeToggle,
-                onDeleteRanking = onDeleteRanking,
-                onResetScores = onResetScores,
-                isDeletingRanking = isDeletingRanking,
-                isResettingScores = isResettingScores
-            )
-        }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        AjustesContent(
+            isTeacherMode = isTeacherMode,
+            isDarkMode = isDarkMode,
+            onThemeToggle = onThemeToggle,
+            onDeleteRanking = onDeleteRanking,
+            onResetScores = onResetScores,
+            isDeletingRanking = isDeletingRanking,
+            isResettingScores = isResettingScores
+        )
     }
 }
 
@@ -82,6 +69,7 @@ private fun AjustesContent(
     isResettingScores: Boolean
 ) {
     val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -90,31 +78,33 @@ private fun AjustesContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Text(
-            text = "Konfigurazioa",
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+            text = stringResource(R.string.settings_title),
+            style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground
         )
-        SettingsCard(title = "Hizkuntza") {
+
+        SettingsCard(title = stringResource(R.string.settings_language_title)) {
             Text(
-                text = "Aukeratu aplikazioaren hizkuntza.",
+                text = stringResource(R.string.settings_language_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))
             LanguageSelector()
         }
-        SettingsCard(title = "Gaia") {
+
+        SettingsCard(title = stringResource(R.string.settings_theme_title)) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Itxura",
+                    text = stringResource(R.string.settings_theme_appearance),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Gai argia / Gai iluna",
+                    text = stringResource(R.string.settings_theme_light_dark),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -122,37 +112,34 @@ private fun AjustesContent(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ThemeOptionButton(
-                        label = "Modu argia",
+                        label = stringResource(R.string.settings_theme_light),
                         selected = !isDarkMode,
                         onClick = { onThemeToggle(false) }
                     )
                     ThemeOptionButton(
-                        label = "Modu iluna",
+                        label = stringResource(R.string.settings_theme_dark),
                         selected = isDarkMode,
                         onClick = { onThemeToggle(true) }
                     )
                 }
             }
         }
+
         if (isTeacherMode) {
-            // Tercera card para irakasles
-            SettingsCard(title = "Irakasleentzako aukerak") {
+            SettingsCard(title = stringResource(R.string.settings_teacher_options_title)) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Opción 1: Eliminar todo el ranking (usuarios incluidos)
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = "Ranking guztia ezabatu",
+                            text = stringResource(R.string.settings_teacher_delete_ranking_title),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Ekintza honek rankingaren datu GUZTIAK ezabatuko ditu (erabiltzaileak barne). Ekintza hau ezin da desegin.",
+                            text = stringResource(R.string.settings_teacher_delete_ranking_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -176,8 +163,8 @@ private fun AjustesContent(
                                 )
                             } else {
                                 Text(
-                                    text = "RANKING GUZTIA EZABATU",
-                                    fontWeight = FontWeight.Bold,
+                                    text = stringResource(R.string.settings_teacher_delete_ranking_button),
+                                    style = MaterialTheme.typography.labelLarge,
                                     fontSize = 14.sp
                                 )
                             }
@@ -191,17 +178,14 @@ private fun AjustesContent(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                     )
 
-                    // Opción 2: Solo eliminar puntuazioak (usuarios se mantienen)
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
-                            text = "Puntuazioak ezabatu",
+                            text = stringResource(R.string.settings_teacher_reset_scores_title),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Ekintza honek erabiltzaile GUZTIEN puntuazioak ezabatuko ditu, baina erabiltzaileak mantenduko dira.",
+                            text = stringResource(R.string.settings_teacher_reset_scores_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -225,8 +209,8 @@ private fun AjustesContent(
                                 )
                             } else {
                                 Text(
-                                    text = "PUNTUAZIOAK EZABATU",
-                                    fontWeight = FontWeight.Bold,
+                                    text = stringResource(R.string.settings_teacher_reset_scores_button),
+                                    style = MaterialTheme.typography.labelLarge,
                                     fontSize = 14.sp
                                 )
                             }
@@ -240,16 +224,113 @@ private fun AjustesContent(
 
 @Composable
 private fun LanguageSelector() {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        listOf("Gaztelania", "Euskara", "Ingelesa").forEach { label ->
-            Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val scope = rememberCoroutineScope()
+
+    var selected by remember { mutableStateOf(LanguageManager.getSavedLanguageTag(context)) }
+    var showApplying by remember { mutableStateOf(false) }
+
+    fun apply(tag: String) {
+        showApplying = true
+        if (selected == tag) return
+
+        LanguageManager.saveAndApply(context, tag)
+        selected = LanguageManager.getSavedLanguageTag(context)
+        AppLanguageState.bump()
+
+        // Fallback: si el locale no se actualiza en runtime, recrea la Activity.
+        scope.launch {
+            delay(120)
+            val currentLang = context.resources.configuration.locales[0].language
+            if (currentLang != tag) {
+                activity?.recreate()
             }
         }
+    }
+
+    // Cierra la animación tras un ratito (sin recrear Activity)
+    LaunchedEffect(showApplying) {
+        if (!showApplying) return@LaunchedEffect
+        delay(260)
+        showApplying = false
+    }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            LanguageButton(
+                label = stringResource(R.string.language_spanish),
+                selected = selected == "es",
+                onClick = { apply("es") }
+            )
+            LanguageButton(
+                label = stringResource(R.string.language_basque),
+                selected = selected == "eu",
+                onClick = { apply("eu") }
+            )
+            LanguageButton(
+                label = stringResource(R.string.language_english),
+                selected = selected == "en",
+                onClick = { apply("en") }
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showApplying,
+            enter = fadeIn(animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)) +
+                scaleIn(initialScale = 0.98f, animationSpec = tween(180, easing = FastOutSlowInEasing)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 140, easing = FastOutSlowInEasing)) +
+                scaleOut(targetScale = 0.98f, animationSpec = tween(140, easing = FastOutSlowInEasing))
+        ) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    shape = RoundedCornerShape(18.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(text = stringResource(R.string.language_applying))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LanguageButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val colors = if (selected) {
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    } else {
+        ButtonDefaults.buttonColors()
+    }
+
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = colors
+    ) {
+        Text(text = label, fontSize = 14.sp)
     }
 }
 
@@ -268,7 +349,6 @@ private fun SettingsCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))

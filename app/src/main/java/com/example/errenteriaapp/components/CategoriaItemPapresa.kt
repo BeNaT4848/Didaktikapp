@@ -18,10 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
 
@@ -75,15 +77,10 @@ fun WasteContainersRow(
 
                 // Nombre
                 Text(
-                    text = when(category) {
-                        WasteCategory.YELLOW -> "Horia"
-                        WasteCategory.BLUE -> "Urdina"
-                        WasteCategory.BROWN -> "Organikoa"
-                        WasteCategory.BLACK -> "Inorganikoa"
-                    },
+                    text = stringResource(category.displayNameResId),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black, // Cambiado a negro para mejor contraste
+                    color = Color.Black,
                     maxLines = 1,
                     textAlign = TextAlign.Center
                 )
@@ -92,12 +89,7 @@ fun WasteContainersRow(
 
                 // Descripción optimizada
                 Text(
-                    text = when(category) {
-                        WasteCategory.YELLOW -> "Plastikoa\neta ontziak"
-                        WasteCategory.BLUE -> "Papera eta\nkartoia"
-                        WasteCategory.BROWN -> "Janari\nhondarrak"
-                        WasteCategory.BLACK -> "Birziklatu\nezinak"
-                    },
+                    text = stringResource(category.descriptionResId),
                     fontSize = 9.sp,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                     lineHeight = 10.sp,

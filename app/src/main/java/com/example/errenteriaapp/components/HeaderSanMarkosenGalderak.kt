@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 
 @Composable
 fun QuizHeader() {
@@ -37,7 +39,7 @@ fun QuizHeader() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "TEST GALDERAK",
+                text = stringResource(R.string.sanmarkos_title),
                 color = Color.White,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
@@ -47,7 +49,7 @@ fun QuizHeader() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "San Markos Gotorlekua",
+                text = stringResource(R.string.sanmarkos_subtitle),
                 color = Color(0xFF4FC3F7),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium

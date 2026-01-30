@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
@@ -61,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -130,12 +130,7 @@ fun MapaOsmScreen(navController: NavController) {
         val context = LocalContext.current
 
         // Guardamos/recuperamos el usuario actual (lo actualiza el Login)
-        val sessionPrefs = remember {
-            context.getSharedPreferences(
-                "session",
-                android.content.Context.MODE_PRIVATE
-            )
-        }
+        val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
         val activeUserName = sessionPrefs.getString("active_user_name", null)
 
         // Repositorio de progreso (por usuario)
@@ -145,6 +140,11 @@ fun MapaOsmScreen(navController: NavController) {
 
         // Fuerza recomposición cuando cambia el progreso (al volver desde un juego)
         var unlockedIndex by rememberSaveable { mutableStateOf(progressRepo.getUnlockedStepIndex()) }
+
+        LaunchedEffect(activeUserName) {
+            // Refresca el progreso al entrar en GPS o al cambiar usuario
+            unlockedIndex = progressRepo.getUnlockedStepIndex()
+        }
 
         // Releer prefs al volver a primer plano (después de jugar)
         val lifecycleOwner = LocalLifecycleOwner.current
@@ -331,14 +331,14 @@ fun MapaOsmScreen(navController: NavController) {
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.Menu,
-                                        contentDescription = "Expandir/colapsar",
+                                        contentDescription = stringResource(R.string.nav_menu),
                                         tint = railUnselected
                                     )
                                 },
                                 // Siempre ponemos label, pero lo hacemos invisible con alpha cuando está colapsado.
                                 label = {
                                     Text(
-                                        "Menú",
+                                        stringResource(R.string.nav_menu),
                                         modifier = Modifier
                                             .padding(top = 4.dp)
                                             .graphicsLayer { alpha = labelAlpha })
@@ -370,13 +370,13 @@ fun MapaOsmScreen(navController: NavController) {
                                 icon = {
                                     Icon(
                                         Icons.Default.Home,
-                                        "Inicio",
+                                        stringResource(R.string.nav_home),
                                         tint = if (railSelectedIndex == 0) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        "Inicio",
+                                        stringResource(R.string.nav_home),
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -385,17 +385,17 @@ fun MapaOsmScreen(navController: NavController) {
 
                             NavigationRailItem(
                                 selected = railSelectedIndex == 1,
-                                onClick = { navController.navigate(Routes.CHAT_SCREEN) },
+                                onClick = { railSelectedIndex = 1 },
                                 icon = {
                                     Icon(
-                                        Icons.Default.Build,
-                                        "ChatIA",
+                                        Icons.Default.LocationOn,
+                                        stringResource(R.string.nav_gps),
                                         tint = if (railSelectedIndex == 1) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        "Chat",
+                                        stringResource(R.string.nav_gps),
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -410,13 +410,13 @@ fun MapaOsmScreen(navController: NavController) {
                                 icon = {
                                     Icon(
                                         Icons.Default.Settings,
-                                        "Ajustes",
+                                        stringResource(R.string.nav_settings),
                                         tint = if (railSelectedIndex == 2) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        "Ajustes",
+                                        stringResource(R.string.nav_settings),
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -433,13 +433,13 @@ fun MapaOsmScreen(navController: NavController) {
                                 icon = {
                                     Icon(
                                         Icons.Default.Star,
-                                        "Ranking",
+                                        stringResource(R.string.nav_ranking),
                                         tint = if (railSelectedIndex == 3) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        "Ranking",
+                                        stringResource(R.string.nav_ranking),
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -456,13 +456,13 @@ fun MapaOsmScreen(navController: NavController) {
                                 icon = {
                                     Icon(
                                         painter = painterResource(id = R.drawable.logout),
-                                        contentDescription = "Saioa Itxi",
+                                        contentDescription = stringResource(R.string.nav_logout),
                                         tint = if (railSelectedIndex == 4) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        "Saioa Itxi",
+                                        stringResource(R.string.nav_logout),
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -563,8 +563,7 @@ fun OsmMapView(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // Progreso por usuario (mismo usuario activo que en MapaOsmScreen)
-    val sessionPrefs =
-        remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
     val activeUserName = sessionPrefs.getString("active_user_name", null)
 
     val progressRepo = remember(activeUserName) {
@@ -590,13 +589,7 @@ fun OsmMapView(
 
     fun distanceMeters(from: GeoPoint, toLat: Double, toLon: Double): Float {
         val results = FloatArray(1)
-        android.location.Location.distanceBetween(
-            from.latitude,
-            from.longitude,
-            toLat,
-            toLon,
-            results
-        )
+        android.location.Location.distanceBetween(from.latitude, from.longitude, toLat, toLon, results)
         return results[0]
     }
 
@@ -809,8 +802,7 @@ fun OsmMapView(
 
                     // Marcadores kokapenak
                     nireKokapenak.forEach { kokapena ->
-                        val canOpenInitial =
-                            progressRepo.isRouteUnlocked(kokapena.route) && isNearEnough(kokapena)
+                        val canOpenInitial = progressRepo.isRouteUnlocked(kokapena.route) && isNearEnough(kokapena)
 
                         val m = Marker(this).apply {
                             position = GeoPoint(kokapena.latitudea, kokapena.longitudea)
@@ -823,9 +815,7 @@ fun OsmMapView(
 
                         // Toggle de selección + mostrar InfoWindow
                         m.setOnMarkerClickListener { marker, mapView ->
-                            // Regla nueva: solo clickable si es la ruta ACTUAL (no completada) y estás cerca.
-                            val canOpenNow =
-                                progressRepo.isRouteCurrent(kokapena.route) && isNearEnough(kokapena)
+                            val canOpenNow = progressRepo.isRouteCurrentOrSecondary(kokapena.route) && isNearEnough(kokapena)
                             if (!canOpenNow) {
                                 mapView?.invalidate()
                                 return@setOnMarkerClickListener true
@@ -986,7 +976,7 @@ fun OsmMapView(
                         it.latitudea == pos.latitude && it.longitudea == pos.longitude
                     } ?: return@forEach
 
-                    val canOpen = progressRepo.isRouteCurrent(k.route) && isNearEnough(k)
+                    val canOpen = progressRepo.isRouteCurrentOrSecondary(k.route) && isNearEnough(k)
                     val isSelected = selectedKokapenaMarker.value == marker
 
                     marker.icon = when {
@@ -1025,13 +1015,17 @@ fun OsmMapView(
                 .padding(16.dp),
             containerColor = MaterialTheme.colorScheme.primary
         ) {
-            Text(if (followMyLocation) "Fijado" else "Libre")
+            Text(
+                text = stringResource(
+                    if (followMyLocation) R.string.gps_follow_fixed else R.string.gps_follow_free
+                )
+            )
         }
 
         // Mensaje si no hay permisos o todavía no hay fix
         if (!hasLocationPermission) {
             Text(
-                text = "Activa permisos de ubicación",
+                text = stringResource(R.string.gps_permission_needed),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(12.dp),
@@ -1039,7 +1033,7 @@ fun OsmMapView(
             )
         } else if (myLocation == null) {
             Text(
-                text = "Buscando tu ubicación…",
+                text = stringResource(R.string.gps_locating),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(12.dp),

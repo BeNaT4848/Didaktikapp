@@ -21,10 +21,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
+import com.example.errenteriaapp.classes.GameWords
 import com.example.errenteriaapp.classes.Character
 
 @Composable
@@ -62,7 +65,7 @@ fun WordSlot(
     ) {
         if (assignedWord != null) {
             Text(
-                text = assignedWord,
+                text = stringResource(GameWords.labelRes(assignedWord)),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black,
@@ -86,7 +89,7 @@ fun WordSlot(
             )
         } else {
             Text(
-                text = "Arrastratu hemen",
+                text = stringResource(R.string.game_drag_here),
                 fontSize = 13.sp,
                 color = Color(0xFF757575),
                 fontWeight = FontWeight.Medium

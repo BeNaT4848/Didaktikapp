@@ -29,7 +29,6 @@ private var appDatabase: AppDatabase? = null
 
 @Composable
 fun AppNavigation(
-    conversacionViewModel: ConversacionViewModel,
     navController: NavHostController,
     isDarkMode: Boolean,
     onThemeChange: (Boolean) -> Unit,
@@ -191,9 +190,12 @@ fun AppNavigation(
             if (db != null) {
 
                 val puntuazioaDao = remember { db.puntuazioaDao() }
-                // Usar el factory que ya tienes
+                // Configuración específica para el segundo bertso
                 val viewModel: BertsoViewModel = viewModel(
-                    factory = BertsoViewModelFactory(puntuazioaDao)
+                    factory = BertsoViewModelFactory(
+                        puntuazioaDao,
+                        BertsoViewModel.ConfigJuego.DEFAULT_BERTSOA_2
+                    )
                 )
 
 
@@ -415,8 +417,7 @@ fun AppNavigation(
                         }
                     },
                     isDeletingRanking = isDeletingRanking,
-                    isResettingScores = isResettingScores,
-                    onNavigateBack = { navController.popBackStack() }
+                    isResettingScores = isResettingScores
                 )
             } else {
                 LaunchedEffect(Unit) {

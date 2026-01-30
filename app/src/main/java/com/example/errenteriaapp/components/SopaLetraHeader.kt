@@ -9,9 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 
 @Composable
 fun SopaHeader(
@@ -22,7 +24,7 @@ fun SopaHeader(
         horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
     ) {
         Text(
-            text = "ZENTENARIOA",
+            text = stringResource(R.string.game_sopa_title),
             color = MaterialTheme.colorScheme.primary,
             fontSize = 21.sp,
             fontWeight = FontWeight.Bold,
@@ -30,7 +32,7 @@ fun SopaHeader(
         )
 
         Text(
-            text = "Ze musika tresna entzun dira?",
+            text = stringResource(R.string.game_sopa_subtitle),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
             fontSize = 14.sp,
             modifier = Modifier.padding(bottom = 13.dp)

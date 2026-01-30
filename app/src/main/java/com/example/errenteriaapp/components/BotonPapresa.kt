@@ -17,6 +17,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.errenteriaapp.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +31,11 @@ fun VerifyButton(
     onVerifyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
+    val statusText = if (allAnswered) {
+        stringResource(R.string.papresa_verify_ready)
+    } else {
+        stringResource(R.string.papresa_verify_progress, answeredCount, totalCount)
+    }
 
     Button(
         onClick = onVerifyClick,
@@ -40,13 +46,14 @@ fun VerifyButton(
         enabled = allAnswered,
         shape = RoundedCornerShape(12.dp)
     ) {
-        Icon(Icons.Default.Check, contentDescription = "Egiaztatu", modifier = Modifier.size(24.dp))
+        Icon(
+            Icons.Default.Check,
+            contentDescription = stringResource(R.string.papresa_verify_icon),
+            modifier = Modifier.size(24.dp)
+        )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = "EGIAZTATU (${
-                if (allAnswered) "Guztiak prest"
-                else "$answeredCount/$totalCount"
-            })",
+            text = stringResource(R.string.papresa_verify_button, statusText),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )

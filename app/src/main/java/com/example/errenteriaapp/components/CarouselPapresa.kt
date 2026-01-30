@@ -25,8 +25,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
 
@@ -100,7 +102,7 @@ fun PhotoCarousel(
                     ) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Aurrekoa",
+                            contentDescription = stringResource(R.string.papresa_prev),
                             modifier = Modifier.size(40.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -162,7 +164,7 @@ fun PhotoCarousel(
                             ) {
                                 Image(
                                     painter = painterResource(id = targetItem.imageResId),
-                                    contentDescription = targetItem.name,
+                                    contentDescription = stringResource(targetItem.nameResId),
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
@@ -229,7 +231,7 @@ fun PhotoCarousel(
                     ) {
                         Icon(
                             Icons.Default.ArrowForward,
-                            contentDescription = "Hurrengoa",
+                            contentDescription = stringResource(R.string.papresa_next),
                             modifier = Modifier.size(40.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -282,7 +284,7 @@ fun PhotoCarousel(
                         )
 
                         Text(
-                            text = currentItem.name,
+                            text = stringResource(currentItem.nameResId),
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.primary)
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -297,4 +299,3 @@ fun PhotoCarousel(
         }
     }
 }
-

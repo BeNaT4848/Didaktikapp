@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -18,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -29,6 +29,7 @@ import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
+import com.example.errenteriaapp.R
 
 @Composable
 fun OrdenatuJolasaScreen(
@@ -38,10 +39,14 @@ fun OrdenatuJolasaScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
 
-    LaunchedEffect(userName) {
-        userName?.let { viewModel.setUsuario(it) }
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let { viewModel.setUsuario(it) }
     }
 
     val photoNumberMap = viewModel.photoNumberMap
@@ -108,7 +113,7 @@ fun OrdenatuJolasaScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        androidx.compose.foundation.layout.BoxWithConstraints(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
             val isTablet = maxWidth >= 600.dp
@@ -120,7 +125,7 @@ fun OrdenatuJolasaScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = "🧩 Ordenatu Jolasa",
+                    text = stringResource(R.string.game_ordenatu_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -129,7 +134,7 @@ fun OrdenatuJolasaScreen(
                 )
 
                 Text(
-                    text = "Arrastatu argazkiak eta kokatu zenbakietan",
+                    text = stringResource(R.string.game_ordenatu_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -160,7 +165,7 @@ fun OrdenatuJolasaScreen(
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Text(
-                                    text = "Argazkiak",
+                                    text = stringResource(R.string.game_ordenatu_photos),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -204,7 +209,7 @@ fun OrdenatuJolasaScreen(
                                                     dragStartBounds?.let { bounds ->
                                                         dragCenterPx =
                                                             bounds.topLeft + dragOffsetPx +
-                                                                Offset(bounds.width / 2, bounds.height / 2)
+                                                                    Offset(bounds.width / 2, bounds.height / 2)
                                                     }
                                                 },
                                                 onDragEnd = { handleDrop() },
@@ -231,7 +236,7 @@ fun OrdenatuJolasaScreen(
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Text(
-                                    text = "Kokapenak",
+                                    text = stringResource(R.string.game_ordenatu_locations),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -279,7 +284,7 @@ fun OrdenatuJolasaScreen(
                                                 dragStartBounds?.let { bounds ->
                                                     dragCenterPx =
                                                         bounds.topLeft + dragOffsetPx +
-                                                            Offset(bounds.width / 2, bounds.height / 2)
+                                                                Offset(bounds.width / 2, bounds.height / 2)
                                                 }
                                             },
                                             onDragEnd = { handleDrop() },
@@ -304,7 +309,7 @@ fun OrdenatuJolasaScreen(
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
-                                text = "Argazkiak",
+                                text = stringResource(R.string.game_ordenatu_photos),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -348,7 +353,7 @@ fun OrdenatuJolasaScreen(
                                                 dragStartBounds?.let { bounds ->
                                                     dragCenterPx =
                                                         bounds.topLeft + dragOffsetPx +
-                                                            Offset(bounds.width / 2, bounds.height / 2)
+                                                                Offset(bounds.width / 2, bounds.height / 2)
                                                 }
                                             },
                                             onDragEnd = { handleDrop() },
@@ -373,7 +378,7 @@ fun OrdenatuJolasaScreen(
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
-                                text = "Kokapenak",
+                                text = stringResource(R.string.game_ordenatu_locations),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -421,7 +426,7 @@ fun OrdenatuJolasaScreen(
                                             dragStartBounds?.let { bounds ->
                                                 dragCenterPx =
                                                     bounds.topLeft + dragOffsetPx +
-                                                        Offset(bounds.width / 2, bounds.height / 2)
+                                                            Offset(bounds.width / 2, bounds.height / 2)
                                             }
                                         },
                                         onDragEnd = { handleDrop() },
@@ -434,7 +439,7 @@ fun OrdenatuJolasaScreen(
                 }
 
                 Text(
-                    text = "🚀 Gutxienez 3 ondo behar dituzu jarraitzeko",
+                    text = stringResource(R.string.game_ordenatu_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,

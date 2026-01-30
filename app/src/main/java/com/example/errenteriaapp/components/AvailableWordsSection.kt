@@ -11,11 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.DragState
 
 @Composable
@@ -25,7 +26,7 @@ fun AvailableWordsSection(
     onDrop: (Offset) -> Unit
 ) {
     Text(
-        text = "Hitzak arrastatu:",
+        text = stringResource(com.example.errenteriaapp.R.string.game_drag_words),
         fontSize = 18.sp,
         fontWeight = FontWeight.Medium,
         modifier = Modifier.padding(bottom = 8.dp),

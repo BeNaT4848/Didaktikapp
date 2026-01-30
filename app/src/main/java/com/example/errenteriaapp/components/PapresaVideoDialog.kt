@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -29,6 +30,14 @@ import com.example.errenteriaapp.R
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.media3.common.PlaybackException
+
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoDialogoa(
@@ -59,6 +68,9 @@ fun VideoDialogoa(
         }
     }
 
+    var hasPlaybackError by remember { mutableStateOf(false) }
+    var isReady by remember { mutableStateOf(false) }
+
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             val rawUri = RawResourceDataSource.buildRawResourceUri(R.raw.papresa_bideoa)
@@ -69,9 +81,16 @@ fun VideoDialogoa(
 
             addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_READY) {
+                        isReady = true
+                    }
                     if (state == Player.STATE_ENDED) {
                         onVideoCompleted()
                     }
+                }
+
+                override fun onPlayerError(error: PlaybackException) {
+                    hasPlaybackError = true
                 }
             })
 
@@ -121,8 +140,43 @@ fun VideoDialogoa(
 
             )
         }
-        }
 
+        if (hasPlaybackError) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .background(Color(0xCC000000), RoundedCornerShape(16.dp))
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.papresa_video_error),
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = onVideoCompleted) {
+                        Text(text = stringResource(R.string.papresa_video_continue))
+                    }
+                }
+            }
+        } else if (!isReady) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.papresa_video_loading),
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
+            }
+        }
+    }
 
     DisposableEffect(Unit) {
         onDispose {

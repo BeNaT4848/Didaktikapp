@@ -36,10 +36,14 @@ fun CrucigramaScreen(
     viewModel: CrucigramaViewModel
 ) {
     val context = LocalContext.current
-    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
 
-    LaunchedEffect(userName) {
-        userName?.let { viewModel.setUsuario(it) }
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let { viewModel.setUsuario(it) }
     }
     val celdas by viewModel.celdas
     val crucigramaEstado by viewModel.crucigramaEstado
@@ -143,7 +147,10 @@ fun CrucigramaScreen(
                 onSuccessButton = {
                     viewModel.cerrarDialogoExito()
                     progressRepo.markCompleted(Routes.CRUCIGRAMA_SCREEN)
-                    navController.navigate(Routes.GPS_SCREEN)
+                    navController.navigate(Routes.GPS_SCREEN) {
+                        popUpTo(Routes.GPS_SCREEN) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 onWrongButton = {}
             )
