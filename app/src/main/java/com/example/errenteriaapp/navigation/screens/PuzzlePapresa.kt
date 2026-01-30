@@ -54,6 +54,8 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.example.errenteriaapp.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -174,7 +176,7 @@ fun PuzzleScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("Puzzlea kargatzen…")
+                Text(stringResource(R.string.papresa_puzzle_loading))
             }
         }
         return
@@ -198,7 +200,7 @@ fun PuzzleScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Puzzlea osatuta!",
+                    text = stringResource(R.string.papresa_puzzle_complete),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -206,7 +208,7 @@ fun PuzzleScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 Image(
                     painter = painterResource(id = viewModel.fullPuzzleImageRes),
-                    contentDescription = "Puzzlea osatuta",
+                    contentDescription = stringResource(R.string.papresa_puzzle_complete_cd),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxWidth(1f)
@@ -216,7 +218,7 @@ fun PuzzleScreen(
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(onClick = onPuzzleComplete) {
-                    Text("Jarraitu", color = MaterialTheme.colorScheme.onPrimary)
+                    Text(stringResource(R.string.papresa_puzzle_continue), color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         } else {
@@ -240,12 +242,16 @@ fun PuzzleScreen(
                     ) {
                         Column {
                             Text(
-                                "Puzzlea",
+                                text = stringResource(R.string.papresa_puzzle_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = if (viewModel.isPuzzleComplete) "Osatuta" else "Osatzen",
+                                text = if (viewModel.isPuzzleComplete) {
+                                    stringResource(R.string.papresa_puzzle_status_done)
+                                } else {
+                                    stringResource(R.string.papresa_puzzle_status_doing)
+                                },
                                 color = if (viewModel.isPuzzleComplete) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

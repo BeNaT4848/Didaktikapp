@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -332,7 +334,9 @@ fun AudioPlayerCard(
                             }
                             Image(
                                 painter = painterResource(id = iconRes),
-                                contentDescription = if (isPlaying) "Pausar" else "Reproducir",
+                                contentDescription = stringResource(
+                                    if (isPlaying) R.string.audio_pause else R.string.audio_play
+                                ),
                                 modifier = Modifier.size(28.dp)
                             )
                         }
@@ -343,7 +347,11 @@ fun AudioPlayerCard(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (tieneAudio) "AUDIO DIDAKTIKOA" else "AZALPENA",
+                        text = if (tieneAudio) {
+                            stringResource(R.string.audio_didactic)
+                        } else {
+                            stringResource(R.string.azalpena_label)
+                        },
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -351,12 +359,15 @@ fun AudioPlayerCard(
                     Text(
                         text = if (tieneAudio) {
                             when {
-                                isPlaying -> "Entzuten... ${formatTime(currentPosition)}"
-                                audioFinished -> "Audioa amaitu da"
-                                else -> "Audioa entzun"
+                                isPlaying -> stringResource(
+                                    R.string.audio_listening,
+                                    formatTime(currentPosition)
+                                )
+                                audioFinished -> stringResource(R.string.audio_finished)
+                                else -> stringResource(R.string.audio_listen)
                             }
                         } else {
-                            "Irakurri azalpena"
+                            stringResource(R.string.azalpena_read)
                         },
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 14.sp

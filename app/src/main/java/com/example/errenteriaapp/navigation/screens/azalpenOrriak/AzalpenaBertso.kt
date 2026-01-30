@@ -1,6 +1,7 @@
 package com.example.errenteriaapp.navigation.screens.azalpenOrriak
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.example.errenteriaapp.R
 
 @Composable
@@ -20,11 +21,9 @@ fun AzalpenBertso(
             15000L to 1,
             25000L to 2
         ),
-        tituloTexto = "Testu didaktikoa",
-        textoDidactico = "Bertsoak ahoz egiten diren arren, bertso-paperei esker (bertsoak biltzen zituzten panfletoak) Euskal Herri osoan zehar banatu zitezkeen." +
-                "Gainera, bertso-paperei esker, gaur bi bertsolari hauen bertsoak irakurri eta osatu ahal izango dituzue." +
-                "Bertso hauek osatzeko, errimetan eta kontatzen ari diren istorioan fijatu zaitezte!",
-        textoBoton = "Jolasten hasi"
+        tituloTexto = stringResource(R.string.azalpen_bertso_title),
+        textoDidactico = stringResource(R.string.azalpen_bertso_body),
+        textoBoton = stringResource(R.string.azalpen_start_game)
     )
 
     AzalpenBase(

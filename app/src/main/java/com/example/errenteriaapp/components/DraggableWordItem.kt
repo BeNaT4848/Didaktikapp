@@ -23,10 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.classes.GameWords
 
 @Composable
 fun DraggableWordItem(
@@ -63,7 +65,7 @@ fun DraggableWordItem(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = word,
+            text = stringResource(GameWords.labelRes(word)),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = Color.Black,

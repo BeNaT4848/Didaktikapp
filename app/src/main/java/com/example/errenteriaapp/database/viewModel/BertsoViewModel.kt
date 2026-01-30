@@ -1,4 +1,3 @@
-
 package com.example.errenteriaapp.database.viewModel
 
 import androidx.compose.runtime.getValue
@@ -81,6 +80,7 @@ class BertsoViewModel(
 
     // Verificar si el primer bertso está completado
     fun checkBertso1Completion(onSuccessNavigate: () -> Unit) {
+        if (configJuego != ConfigJuego.DEFAULT_BERTSOA_1) return
         if (answeredCount == totalItemsBertso1) {
             if (correctCount > 4 && !hasNavigated) {
                 markNavigated()
@@ -98,6 +98,7 @@ class BertsoViewModel(
 
     // Verificar si el segundo bertso está completado
     fun checkBertso2Completion() {
+        if (configJuego != ConfigJuego.DEFAULT_BERTSOA_2) return
         if (answeredCount == totalItemsBertso2) {
             if (correctCount > 3) {
                 // Guardar puntos del segundo bertso
@@ -178,4 +179,3 @@ class BertsoViewModel(
         restartAttempt()
     }
 }
-

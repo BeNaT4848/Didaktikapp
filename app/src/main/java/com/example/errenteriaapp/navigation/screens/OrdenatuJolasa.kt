@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -18,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -29,6 +29,7 @@ import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
+import com.example.errenteriaapp.R
 
 @Composable
 fun OrdenatuJolasaScreen(
@@ -38,10 +39,14 @@ fun OrdenatuJolasaScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
 
-    LaunchedEffect(userName) {
-        userName?.let { viewModel.setUsuario(it) }
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let { viewModel.setUsuario(it) }
     }
 
     val photoNumberMap = viewModel.photoNumberMap
@@ -108,180 +113,340 @@ fun OrdenatuJolasaScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = "🧩 Ordenatu Jolasa",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            val isTablet = maxWidth >= 600.dp
 
-            Text(
-                text = "Arrastatu argazkiak eta kokatu zenbakietan",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                tonalElevation = 4.dp,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "Argazkiak",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                Text(
+                    text = stringResource(R.string.game_ordenatu_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        userScrollEnabled = false,
+                Text(
+                    text = stringResource(R.string.game_ordenatu_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (isTablet) {
+                    Row(
                         modifier = Modifier
-                            .height(photoGridHeight)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                            .fillMaxWidth()
+                            .weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(photos.size) { index ->
-                            val photoRes = photos[index]
-                            Card(
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            tonalElevation = 4.dp,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        ) {
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1.15f),
-                                shape = RoundedCornerShape(24.dp),
-                                elevation = CardDefaults.cardElevation(6.dp)
+                                    .fillMaxSize()
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                DraggablePhoto(
-                                    photoRes = photoRes,
-                                    photoNumber = photoNumberMap[photoRes],
-                                    isUsed = slotAssignments.contains(photoRes),
-                                    onPhotoPositioned = { rect -> photoBounds[index] = rect },
-                                    onEnlargeClick = { enlargedPhoto = photoRes },
-                                    onDragStart = {
-                                        if (!slotAssignments.contains(photoRes)) {
-                                            draggingPhotoIndex = index
-                                            dragStartBounds = photoBounds[index]
-                                            dragOffsetPx = Offset.Zero
-                                            dragCenterPx = photoBounds[index]?.center
-                                            isDraggingFromSlot = false
-                                        }
-                                    },
-                                    onDrag = { x, y ->
-                                        dragOffsetPx += Offset(x, y)
-                                        dragStartBounds?.let { bounds ->
-                                            dragCenterPx =
-                                                bounds.topLeft + dragOffsetPx +
-                                                        Offset(bounds.width / 2, bounds.height / 2)
-                                        }
-                                    },
-                                    onDragEnd = { handleDrop() },
-                                    onDragCancel = { resetDragState() }
+                                Text(
+                                    text = stringResource(R.string.game_ordenatu_photos),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
+
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(2),
+                                    userScrollEnabled = false,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    items(photos.size) { index ->
+                                        val photoRes = photos[index]
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(1.1f),
+                                            shape = RoundedCornerShape(24.dp),
+                                            elevation = CardDefaults.cardElevation(6.dp)
+                                        ) {
+                                            DraggablePhoto(
+                                                photoRes = photoRes,
+                                                photoNumber = photoNumberMap[photoRes],
+                                                isUsed = slotAssignments.contains(photoRes),
+                                                onPhotoPositioned = { rect -> photoBounds[index] = rect },
+                                                onEnlargeClick = { enlargedPhoto = photoRes },
+                                                onDragStart = {
+                                                    if (!slotAssignments.contains(photoRes)) {
+                                                        draggingPhotoIndex = index
+                                                        dragStartBounds = photoBounds[index]
+                                                        dragOffsetPx = Offset.Zero
+                                                        dragCenterPx = photoBounds[index]?.center
+                                                        isDraggingFromSlot = false
+                                                    }
+                                                },
+                                                onDrag = { x, y ->
+                                                    dragOffsetPx += Offset(x, y)
+                                                    dragStartBounds?.let { bounds ->
+                                                        dragCenterPx =
+                                                            bounds.topLeft + dragOffsetPx +
+                                                                    Offset(bounds.width / 2, bounds.height / 2)
+                                                    }
+                                                },
+                                                onDragEnd = { handleDrop() },
+                                                onDragCancel = { resetDragState() }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            tonalElevation = 4.dp,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.game_ordenatu_locations),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(3),
+                                    userScrollEnabled = false,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    items(slotCount) { index ->
+                                        val assignedPhoto = slotAssignments[index]
+                                        val isHighlighted = dropZones[index]?.let { rect ->
+                                            dragCenterPx?.let { rect.contains(it) } == true
+                                        } ?: false
+
+                                        GameSlot(
+                                            modifier = Modifier.aspectRatio(0.9f),
+                                            slotIndex = index,
+                                            assignedPhoto = assignedPhoto,
+                                            photoNumberMap = photoNumberMap,
+                                            isHighlighted = isHighlighted,
+                                            isCorrectPosition = assignedPhoto?.let {
+                                                isPhotoInCorrectSlot(it, index)
+                                            } ?: true,
+                                            onSlotPositioned = { rect ->
+                                                dropZones[index] = rect
+                                                if (assignedPhoto != null) placedPhotoBounds[index] = rect
+                                            },
+                                            onDragStart = {
+                                                placedPhotoBounds[index]?.let { bounds ->
+                                                    draggingSlotIndex = index
+                                                    dragStartBounds = bounds
+                                                    dragOffsetPx = Offset.Zero
+                                                    dragCenterPx = bounds.center
+                                                    isDraggingFromSlot = true
+                                                }
+                                            },
+                                            onDrag = { x, y ->
+                                                dragOffsetPx += Offset(x, y)
+                                                dragStartBounds?.let { bounds ->
+                                                    dragCenterPx =
+                                                        bounds.topLeft + dragOffsetPx +
+                                                                Offset(bounds.width / 2, bounds.height / 2)
+                                                }
+                                            },
+                                            onDragEnd = { handleDrop() },
+                                            onDragCancel = { resetDragState() }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        tonalElevation = 4.dp,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.game_ordenatu_photos),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(3),
+                                userScrollEnabled = false,
+                                modifier = Modifier
+                                    .height(photoGridHeight)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                items(photos.size) { index ->
+                                    val photoRes = photos[index]
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(1.15f),
+                                        shape = RoundedCornerShape(24.dp),
+                                        elevation = CardDefaults.cardElevation(6.dp)
+                                    ) {
+                                        DraggablePhoto(
+                                            photoRes = photoRes,
+                                            photoNumber = photoNumberMap[photoRes],
+                                            isUsed = slotAssignments.contains(photoRes),
+                                            onPhotoPositioned = { rect -> photoBounds[index] = rect },
+                                            onEnlargeClick = { enlargedPhoto = photoRes },
+                                            onDragStart = {
+                                                if (!slotAssignments.contains(photoRes)) {
+                                                    draggingPhotoIndex = index
+                                                    dragStartBounds = photoBounds[index]
+                                                    dragOffsetPx = Offset.Zero
+                                                    dragCenterPx = photoBounds[index]?.center
+                                                    isDraggingFromSlot = false
+                                                }
+                                            },
+                                            onDrag = { x, y ->
+                                                dragOffsetPx += Offset(x, y)
+                                                dragStartBounds?.let { bounds ->
+                                                    dragCenterPx =
+                                                        bounds.topLeft + dragOffsetPx +
+                                                                Offset(bounds.width / 2, bounds.height / 2)
+                                                }
+                                            },
+                                            onDragEnd = { handleDrop() },
+                                            onDragCancel = { resetDragState() }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        tonalElevation = 4.dp,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.game_ordenatu_locations),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(3),
+                                userScrollEnabled = false,
+                                modifier = Modifier
+                                    .height(slotGridHeight)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                items(slotCount) { index ->
+                                    val assignedPhoto = slotAssignments[index]
+                                    val isHighlighted = dropZones[index]?.let { rect ->
+                                        dragCenterPx?.let { rect.contains(it) } == true
+                                    } ?: false
+
+                                    GameSlot(
+                                        modifier = Modifier.aspectRatio(0.9f),
+                                        slotIndex = index,
+                                        assignedPhoto = assignedPhoto,
+                                        photoNumberMap = photoNumberMap,
+                                        isHighlighted = isHighlighted,
+                                        isCorrectPosition = assignedPhoto?.let {
+                                            isPhotoInCorrectSlot(it, index)
+                                        } ?: true,
+                                        onSlotPositioned = { rect ->
+                                            dropZones[index] = rect
+                                            if (assignedPhoto != null) placedPhotoBounds[index] = rect
+                                        },
+                                        onDragStart = {
+                                            placedPhotoBounds[index]?.let { bounds ->
+                                                draggingSlotIndex = index
+                                                dragStartBounds = bounds
+                                                dragOffsetPx = Offset.Zero
+                                                dragCenterPx = bounds.center
+                                                isDraggingFromSlot = true
+                                            }
+                                        },
+                                        onDrag = { x, y ->
+                                            dragOffsetPx += Offset(x, y)
+                                            dragStartBounds?.let { bounds ->
+                                                dragCenterPx =
+                                                    bounds.topLeft + dragOffsetPx +
+                                                            Offset(bounds.width / 2, bounds.height / 2)
+                                            }
+                                        },
+                                        onDragEnd = { handleDrop() },
+                                        onDragCancel = { resetDragState() }
+                                    )
+                                }
                             }
                         }
                     }
                 }
+
+                Text(
+                    text = stringResource(R.string.game_ordenatu_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
-
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                tonalElevation = 4.dp,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "Kokapenak",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        userScrollEnabled = false,
-                        modifier = Modifier
-                            .height(slotGridHeight)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        items(slotCount) { index ->
-                            val assignedPhoto = slotAssignments[index]
-                            val isHighlighted = dropZones[index]?.let { rect ->
-                                dragCenterPx?.let { rect.contains(it) } == true
-                            } ?: false
-
-                            GameSlot(
-                                modifier = Modifier.aspectRatio(0.9f),
-                                slotIndex = index,
-                                assignedPhoto = assignedPhoto,
-                                photoNumberMap = photoNumberMap,
-                                isHighlighted = isHighlighted,
-                                isCorrectPosition = assignedPhoto?.let {
-                                    isPhotoInCorrectSlot(it, index)
-                                } ?: true,
-                                onSlotPositioned = { rect ->
-                                    dropZones[index] = rect
-                                    if (assignedPhoto != null) placedPhotoBounds[index] = rect
-                                },
-                                onDragStart = {
-                                    placedPhotoBounds[index]?.let { bounds ->
-                                        draggingSlotIndex = index
-                                        dragStartBounds = bounds
-                                        dragOffsetPx = Offset.Zero
-                                        dragCenterPx = bounds.center
-                                        isDraggingFromSlot = true
-                                    }
-                                },
-                                onDrag = { x, y ->
-                                    dragOffsetPx += Offset(x, y)
-                                    dragStartBounds?.let { bounds ->
-                                        dragCenterPx =
-                                            bounds.topLeft + dragOffsetPx +
-                                                    Offset(bounds.width / 2, bounds.height / 2)
-                                    }
-                                },
-                                onDragEnd = { handleDrop() },
-                                onDragCancel = { resetDragState() }
-                            )
-                        }
-                    }
-                }
-            }
-
-            Text(
-                text = "🚀 Gutxienez 3 ondo behar dituzu jarraitzeko",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
         if ((draggingPhotoIndex != null || draggingSlotIndex != null) && dragStartBounds != null) {

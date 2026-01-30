@@ -30,12 +30,12 @@ fun PapresaScreen(
     viewModel: PapresaViewModel,
 ) {
     val context = LocalContext.current
-    val progressRepo = remember(userName) { KokapenaProgressRepository(context, userName ?: "default") }
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) { KokapenaProgressRepository(context, effectiveUserName ?: "default") }
 
-    LaunchedEffect(userName) {
-        userName?.let {
-            viewModel.setUsuario(it)
-        }
+    LaunchedEffect(effectiveUserName) {
+        effectiveUserName?.let { viewModel.setUsuario(it) }
     }
     val currentIndex = viewModel.currentIndex
     val allAnswered = viewModel.allAnswered
@@ -108,6 +108,8 @@ fun PapresaScreen(
                 showStrictVideoDialog = false
                 hasWatchedVideo = true
                 viewModel.onVideoWatched()
+                progressRepo.markCompleted(Routes.BASURA_SCREEN)
+                navController.navigate(Routes.GPS_SCREEN)
             }
         )
     }

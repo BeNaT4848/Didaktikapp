@@ -1,6 +1,8 @@
 package com.example.errenteriaapp.navigation.screens.azalpenOrriak
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.errenteriaapp.R
 
 @Composable
 fun AzalpenPapresa(
@@ -12,14 +14,9 @@ fun AzalpenPapresa(
         imagenesAudio = emptyList(),
         timelineAudio = emptyList(),
 
-        tituloTexto = "Papresa: Papergintza Errenterian",
-        textoDidactico = "Jolasa bi zatitan dago:" +
-                "\n\n" +
-                "❶ **PUZLEA**: Papresa fabrikaren historia ikasiko duzu. " +
-                "Puzzlea osatu eta irakurri fabrikaren historia." +
-                "\n\n" +
-                "❷ **BIRZIKLATZEA**: Puzzlea amaitutakoan, objektuak edukiontzi egokian sartu beharko dituzu.",
-        textoBoton = "Puzzlea hasi"
+        tituloTexto = stringResource(R.string.azalpen_papresa_title),
+        textoDidactico = stringResource(R.string.azalpen_papresa_body),
+        textoBoton = stringResource(R.string.azalpen_start_puzzle)
     )
 
     AzalpenBase(

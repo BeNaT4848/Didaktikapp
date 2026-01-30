@@ -15,11 +15,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.classes.Character
 import com.example.errenteriaapp.classes.DragState
+import com.example.errenteriaapp.classes.GameWords
 
 @Composable
 fun DraggingWordOverlay(dragState: DragState) {
@@ -36,22 +38,12 @@ fun DraggingWordOverlay(dragState: DragState) {
                     .size(140.dp, 80.dp)
                     .shadow(12.dp, RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        if (dragState.isDraggingFromSlot) {
-                            when (dragState.draggingSlotCharacter) {
-                                Character.XANTI -> Color(0xFFBBDEFB)
-                                Character.MAIALEN -> Color(0xFFE1BEE7)
-                                null -> Color(0xFFFFF3E0)
-                            }
-                        } else {
-                            Color(0xFFFFF3E0).copy(alpha = 0.95f)
-                        }
-                    )
+                    .background(Color(0xFFFFF3E0).copy(alpha = 0.95f))
                     .border(2.dp, Color(0xFF2196F3), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = word,
+                    text = stringResource(GameWords.labelRes(word)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,

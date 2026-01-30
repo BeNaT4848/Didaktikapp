@@ -13,9 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 
 @Composable
 fun QuizNextButton(
@@ -46,7 +48,11 @@ fun QuizNextButton(
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = if (currentQuestionIndex < totalQuestions - 1) "Hurrengo galdera" else "Amaitu proba",
+                text = if (currentQuestionIndex < totalQuestions - 1) {
+                    stringResource(R.string.sanmarkos_next_question)
+                } else {
+                    stringResource(R.string.sanmarkos_finish_quiz)
+                },
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold

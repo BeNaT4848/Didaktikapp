@@ -1,0 +1,233 @@
+<resources>
+    <string name="app_name">Errenteriaapp</string>
+
+    <string name="settings_title">Ezarpenak</string>
+    <string name="settings_language_title">Hizkuntza</string>
+    <string name="settings_language_desc">Aukeratu aplikazioaren hizkuntza.</string>
+
+    <string name="settings_theme_title">Gaia</string>
+    <string name="settings_theme_appearance">Itxura</string>
+    <string name="settings_theme_light_dark">Gai argia / Gai iluna</string>
+    <string name="settings_theme_light">Modu argia</string>
+    <string name="settings_theme_dark">Modu iluna</string>
+
+    <string name="settings_teacher_options_title">Irakasleentzako aukerak</string>
+    <string name="settings_teacher_delete_ranking_title">Ranking guztia ezabatu</string>
+    <string name="settings_teacher_delete_ranking_desc">Ekintza honek rankingaren datu GUZTIAK ezabatuko ditu (erabiltzaileak barne). Ekintza hau ezin da desegin.</string>
+    <string name="settings_teacher_delete_ranking_button">RANKING GUZTIA EZABATU</string>
+
+    <string name="settings_teacher_reset_scores_title">Puntuazioak ezabatu</string>
+    <string name="settings_teacher_reset_scores_desc">Ekintza honek erabiltzaile GUZTIEN puntuazioak ezabatuko ditu, baina erabiltzaileak mantenduko dira.</string>
+    <string name="settings_teacher_reset_scores_button">PUNTUAZIOAK EZABATU</string>
+
+    <string name="language_spanish">Gaztelania</string>
+    <string name="language_basque">Euskara</string>
+    <string name="language_english">Ingelesa</string>
+
+    <string name="language_applying">Hizkuntza aplikatzen…</string>
+
+    <string name="login_title_question">Nor zara zu?</string>
+    <string name="login_title_subtitle">Sartu zure izena jolasten hasteko!</string>
+
+    <string name="login_language_title">Hizkuntza</string>
+    <string name="login_mode_teacher">Irakasle modua</string>
+    <string name="login_mode_student">Ikasle modua</string>
+    <string name="login_student_label">Ikaslea</string>
+    <string name="login_teacher_label">Irakaslea</string>
+    <string name="login_teacher_name">Irakaslearen izena</string>
+    <string name="login_student_name">Zure izena eta abizena</string>
+    <string name="login_password">Pasahitza</string>
+    <string name="login_action_teacher">SAIOA HASI</string>
+    <string name="login_action_student">HASI JOLASA</string>
+    <string name="login_error_teacher_credentials">Irakaslearen izena edo pasahitza okerrak dira</string>
+    <string name="login_error_student_name">Mesedez, idatzi zure izena eta abizena</string>
+
+    <string name="nav_menu">Menua</string>
+    <string name="nav_home">Hasiera</string>
+    <string name="nav_gps">GPS</string>
+    <string name="nav_settings">Ezarpenak</string>
+    <string name="nav_ranking">Ranking</string>
+    <string name="nav_logout">Saioa itxi</string>
+
+    <string name="home_skip">Saltatu</string>
+    <string name="home_start_game">JOLASTEN HASI!</string>
+
+    <string name="home_dialog_1">Egun on ikasleak! Gu Xanti eta Maialen gara, Errenteriako jaietako erraldoiak.</string>
+    <string name="home_dialog_2">Baina gaur ez gara festetara joango, Errenteriatik txangoa egingo dugu.</string>
+    <string name="home_dialog_3">Bitartean jardueratxoak egingo ditugu dibertigarriagoa izan dadin!</string>
+    <string name="home_dialog_4">Errenteriako historiaren parte diren txoko eta gaiak landuko ditugu egunean zehar.</string>
+    <string name="home_dialog_5">Hemengo mapan ikus ditzakezue ze leku bisitatuko ditugun.</string>
+    <string name="home_dialog_6">Denak ezagutu nahi badituzue jarraitu zuen irakasleak!</string>
+
+    <string name="home_idle_1">Prest gaude! Sakatu botoia jolasten hasteko.</string>
+    <string name="home_idle_2">Zure zain gaude, sakatu botoia eta has gaitezen!</string>
+
+    <string name="azalpen_start_game">Jolasten hasi</string>
+    <string name="azalpen_start_puzzle">Puzzlea hasi</string>
+
+    <string name="azalpen_bertso_title">Testu didaktikoa</string>
+    <string name="azalpen_bertso_body">Bertsoak ahoz egiten diren arren, bertso-paperei esker (bertsoak biltzen zituzten panfletoak) Euskal Herri osoan zehar banatu zitezkeen. Gainera, bertso-paperei esker, gaur bi bertsolari hauen bertsoak irakurri eta osatu ahal izango dituzue. Bertso hauek osatzeko, errimetan eta kontatzen ari diren istorioan fijatu zaitezte!</string>
+
+    <string name="azalpen_papresa_title">Papresa: Papergintza Errenterian</string>
+    <string name="azalpen_papresa_body">Jolasa bi zatitan dago:\n\n❶ **PUZLEA**: Papresa fabrikaren historia ikasiko duzu. Puzzlea osatu eta irakurri fabrikaren historia.\n\n❷ **BIRZIKLATZEA**: Puzzlea amaitutakoan, objektuak edukiontzi egokian sartu beharko dituzu.</string>
+
+    <string name="audio_didactic">AUDIO DIDAKTIKOA</string>
+    <string name="azalpena_label">AZALPENA</string>
+    <string name="audio_listening">Entzuten… %1$s</string>
+    <string name="audio_finished">Audioa amaitu da</string>
+    <string name="audio_listen">Audioa entzun</string>
+    <string name="azalpena_read">Irakurri azalpena</string>
+    <string name="audio_play">Erreproduzitu</string>
+    <string name="audio_pause">Pausatu</string>
+
+    <string name="gps_follow_fixed">Finkatuta</string>
+    <string name="gps_follow_free">Aske</string>
+    <string name="gps_permission_needed">Aktibatu kokapen baimenak</string>
+    <string name="gps_locating">Zure kokapena bilatzen…</string>
+
+    <string name="com_google_android_gms_fonts_certs_dev" />
+
+    <string name="game_verify">EGIAZTATU</string>
+    <string name="game_drag_words">Hitzak arrastatu:</string>
+    <string name="game_drag_here">Hemen arrastatu</string>
+
+    <string name="game_taula_title">Hitzak tauletan sailkatu</string>
+    <string name="game_papresa_instruction">Sakatu ontzi egokia:</string>
+
+    <!-- Taula arrastrar - objektu arrastagarriak -->
+    <string name="taula_word_xanti_white_shirt">Alkandora zuria</string>
+    <string name="taula_word_xanti_red_vest">Txaleko gorria</string>
+    <string name="taula_word_xanti_beret">Txapela</string>
+    <string name="taula_word_xanti_blue_skirt">Gona urdina</string>
+
+    <string name="taula_word_maialen_white_blouse">Blusa zuria</string>
+    <string name="taula_word_maialen_black_corset">Kortse beltza</string>
+    <string name="taula_word_maialen_head_scarf">Zapia buruan</string>
+    <string name="taula_word_maialen_neck_scarf">Zapia lepoan</string>
+    <string name="taula_word_maialen_black_apron">Mantal beltza</string>
+
+    <string name="taula_word_extra_red_skirt">Gona gorria</string>
+    <string name="taula_word_unknown">Elementua</string>
+
+    <string name="game_crucigrama_title">GURUTZEGRAMA</string>
+    <string name="game_crucigrama_subtitle">Aizpitarte - Hitz gurutzatuak</string>
+    <string name="game_crucigrama_instructions_title">Ongi etorri Gurutzegrama!</string>
+    <string name="game_crucigrama_instructions_label">Argibideak:</string>
+    <string name="game_crucigrama_instruction_1">Egin klik pista baten zenbakian hitz hori aktibatzeko</string>
+    <string name="game_crucigrama_instruction_2">Aktibo dagoen hitzean soilik idatzi dezakezu (laranjaz markatuta)</string>
+    <string name="game_crucigrama_instruction_3">Sakatu EGIAZTATU zure erantzunak egiaztatzeko</string>
+    <string name="game_crucigrama_understood">Ulertuta</string>
+    <string name="game_crucigrama_correct_letters">Letra zuzenak: %1$d / %2$d</string>
+
+    <string name="game_crucigrama_clue_h1">Kobazulo barruan agertzen diren gela desberdinak.</string>
+    <string name="game_crucigrama_clue_h5">Egitura harritsu bertikal eta luzanga, sabaitik haitzuloko lurreraino hedatzen dena, edo bertan bermatzen dena.</string>
+    <string name="game_crucigrama_clue_v2">Kono irregularraren formako kareharri formazio, haitzulo baten lurretik gorantz hazten dena.</string>
+    <string name="game_crucigrama_clue_v3">Kobazulo baten sabaitik zintzirik dagoen egitura harritsua.</string>
+    <string name="game_crucigrama_clue_v4">Nola deitzen dira kobazuloetan aurkitzen diren irudiak? lehen gizakiek egindakoak.</string>
+
+    <string name="game_sopa_title">ZENTENARIOA</string>
+    <string name="game_sopa_subtitle">Zer musika tresna entzun dira?</string>
+    <string name="game_sopa_progress">Aurrerapena</string>
+    <string name="game_sopa_found_title">Aurkitutako tresnak:</string>
+
+    <string name="game_ordenatu_title">🧩 Ordenatu Jolasa</string>
+    <string name="game_ordenatu_subtitle">Arrastatu argazkiak eta kokatu zenbakietan</string>
+    <string name="game_ordenatu_photos">Argazkiak</string>
+    <string name="game_ordenatu_locations">Kokapenak</string>
+    <string name="game_ordenatu_hint">🚀 Gutxienez 3 ondo behar dituzu jarraitzeko</string>
+
+    <string name="game_quiz_question_of">Galdera %1$d/%2$d</string>
+
+    <string name="game_result_success_button">Jolasekin jarraitu!</string>
+    <string name="game_result_retry_button">Saiatu berriro!</string>
+    <string name="game_result_success_cd">Ondo eginda</string>
+    <string name="game_result_retry_cd">Saiatu berriro</string>
+
+    <string name="papresa_title">PAPRESA JOLASA</string>
+    <string name="papresa_prev">Aurrekoa</string>
+    <string name="papresa_next">Hurrengoa</string>
+
+    <string name="papresa_verify_icon">Egiaztatu</string>
+    <string name="papresa_verify_ready">Guztiak prest</string>
+    <string name="papresa_verify_progress">%1$d/%2$d</string>
+    <string name="papresa_verify_button">EGIAZTATU (%1$s)</string>
+
+    <string name="papresa_video_title">JOLASA GAINDITU DUZU!</string>
+    <string name="papresa_video_hint">ORAIN BIDEO BAT IKUSI BEHAR DUZU</string>
+    <string name="papresa_video_watch">BIDEOA IKUSI</string>
+    <string name="papresa_video_loading">Bideoa kargatzen…</string>
+    <string name="papresa_video_error">Ezin izan da bideoa erreproduzitu. Jarraitu dezakezu.</string>
+    <string name="papresa_video_continue">Jarraitu</string>
+
+    <string name="papresa_category_yellow">Horia</string>
+    <string name="papresa_category_blue">Urdina</string>
+    <string name="papresa_category_brown">Organikoa</string>
+    <string name="papresa_category_black">Inorganikoa</string>
+
+    <string name="papresa_category_yellow_desc">Plastikoa eta ontziak</string>
+    <string name="papresa_category_blue_desc">Papera eta kartoia</string>
+    <string name="papresa_category_brown_desc">Janari hondarrak</string>
+    <string name="papresa_category_black_desc">Birziklatu ezinak</string>
+
+    <string name="papresa_item_water_bottle">Ur botila</string>
+    <string name="papresa_item_soda_can">Freskagarri lata</string>
+    <string name="papresa_item_chips_bag">Patata poltsa</string>
+    <string name="papresa_item_plastic_cap">Plastikozko tapoia</string>
+    <string name="papresa_item_yogurt">Iogurta</string>
+    <string name="papresa_item_cereal_box">Zereal kutxa</string>
+    <string name="papresa_item_newspaper">Egunkaria</string>
+    <string name="papresa_item_notebook">Paper koadernoa</string>
+    <string name="papresa_item_cardboard_tube">Kartoi hodia</string>
+    <string name="papresa_item_envelope">Gutun-azala</string>
+    <string name="papresa_item_fruit_peel">Fruta azala</string>
+    <string name="papresa_item_veg_scraps">Barazki hondarrak</string>
+    <string name="papresa_item_bread">Ogia</string>
+    <string name="papresa_item_bones">Hezurrak</string>
+    <string name="papresa_item_food_scraps">Janari hondarrak</string>
+    <string name="papresa_item_gum">Txikleak</string>
+    <string name="papresa_item_cigarette_butts">Zigarro puntak</string>
+    <string name="papresa_item_pad">Konpresa</string>
+    <string name="papresa_item_bandages">Tiritak</string>
+    <string name="papresa_item_diaper">Pixoihala</string>
+
+    <string name="papresa_puzzle_loading">Puzzlea kargatzen…</string>
+    <string name="papresa_puzzle_complete">Puzzlea osatuta!</string>
+    <string name="papresa_puzzle_complete_cd">Puzzlea osatuta</string>
+    <string name="papresa_puzzle_continue">Jarraitu</string>
+    <string name="papresa_puzzle_title">Puzzlea</string>
+    <string name="papresa_puzzle_status_done">Osatuta</string>
+    <string name="papresa_puzzle_status_doing">Osatzen</string>
+
+    <string name="sanmarkos_title">TEST GALDERAK</string>
+    <string name="sanmarkos_subtitle">San Markos Gotorlekua</string>
+    <string name="sanmarkos_next_question">Hurrengo galdera</string>
+    <string name="sanmarkos_finish_quiz">Amaitu proba</string>
+    <string name="sanmarkos_question_label">GALDERA %1$d</string>
+
+    <string name="sanmarkos_q1_text">Zertarako eraiki zen San Markos gotorlekua?</string>
+    <string name="sanmarkos_q1_opt1">Erregeak bizitzeko</string>
+    <string name="sanmarkos_q1_opt2">Lurraldea babesteko eta zaintzeko</string>
+    <string name="sanmarkos_q1_opt3">Janaria gordetzeko</string>
+
+    <string name="sanmarkos_q2_text">Zein mendetan eraiki zen gotorlekua?</string>
+    <string name="sanmarkos_q2_opt1">XIX. mendean</string>
+    <string name="sanmarkos_q2_opt2">XXI. mendean</string>
+    <string name="sanmarkos_q2_opt3">XVI. mendean</string>
+
+    <string name="sanmarkos_q3_text">Gaur egun, gotorlekua erabiltzen da...</string>
+    <string name="sanmarkos_q3_opt1">Bisitak eta kultur jarduerak egiteko</string>
+    <string name="sanmarkos_q3_opt2">Soldaduak bizitzeko</string>
+    <string name="sanmarkos_q3_opt3">Armak gordetzeko</string>
+
+    <string name="sanmarkos_q_error_text">Errorea</string>
+    <string name="sanmarkos_q_error_opt">Errorea</string>
+
+    <string name="ranking_title">PUNTUAZIOAREN RANKING-A</string>
+    <string name="ranking_back">Itzuli</string>
+    <string name="ranking_points">%1$d puntu</string>
+    <string name="ranking_rest_title">RANKINGAREN GAINERAKOA</string>
+    <string name="ranking_podium_honor_title">OHOREZKO PODIUMA</string>
+    <string name="ranking_medal_gold">URREA</string>
+    <string name="ranking_medal_silver">ZILARRA</string>
+    <string name="ranking_medal_bronze">BRONTZEA</string>
+</resources>
