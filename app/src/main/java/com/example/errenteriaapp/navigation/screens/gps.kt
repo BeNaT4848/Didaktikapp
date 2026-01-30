@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
@@ -129,7 +130,12 @@ fun MapaOsmScreen(navController: NavController) {
         val context = LocalContext.current
 
         // Guardamos/recuperamos el usuario actual (lo actualiza el Login)
-        val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+        val sessionPrefs = remember {
+            context.getSharedPreferences(
+                "session",
+                android.content.Context.MODE_PRIVATE
+            )
+        }
         val activeUserName = sessionPrefs.getString("active_user_name", null)
 
         // Repositorio de progreso (por usuario)
@@ -379,17 +385,17 @@ fun MapaOsmScreen(navController: NavController) {
 
                             NavigationRailItem(
                                 selected = railSelectedIndex == 1,
-                                onClick = { railSelectedIndex = 1 },
+                                onClick = { navController.navigate(Routes.CHAT_SCREEN) },
                                 icon = {
                                     Icon(
-                                        Icons.Default.LocationOn,
-                                        "Ubicación",
+                                        Icons.Default.Build,
+                                        "ChatIA",
                                         tint = if (railSelectedIndex == 1) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        "GPS",
+                                        "Chat",
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
@@ -557,7 +563,8 @@ fun OsmMapView(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // Progreso por usuario (mismo usuario activo que en MapaOsmScreen)
-    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val sessionPrefs =
+        remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
     val activeUserName = sessionPrefs.getString("active_user_name", null)
 
     val progressRepo = remember(activeUserName) {
@@ -583,7 +590,13 @@ fun OsmMapView(
 
     fun distanceMeters(from: GeoPoint, toLat: Double, toLon: Double): Float {
         val results = FloatArray(1)
-        android.location.Location.distanceBetween(from.latitude, from.longitude, toLat, toLon, results)
+        android.location.Location.distanceBetween(
+            from.latitude,
+            from.longitude,
+            toLat,
+            toLon,
+            results
+        )
         return results[0]
     }
 
@@ -796,7 +809,8 @@ fun OsmMapView(
 
                     // Marcadores kokapenak
                     nireKokapenak.forEach { kokapena ->
-                        val canOpenInitial = progressRepo.isRouteUnlocked(kokapena.route) && isNearEnough(kokapena)
+                        val canOpenInitial =
+                            progressRepo.isRouteUnlocked(kokapena.route) && isNearEnough(kokapena)
 
                         val m = Marker(this).apply {
                             position = GeoPoint(kokapena.latitudea, kokapena.longitudea)
@@ -810,7 +824,8 @@ fun OsmMapView(
                         // Toggle de selección + mostrar InfoWindow
                         m.setOnMarkerClickListener { marker, mapView ->
                             // Regla nueva: solo clickable si es la ruta ACTUAL (no completada) y estás cerca.
-                            val canOpenNow = progressRepo.isRouteCurrent(kokapena.route) && isNearEnough(kokapena)
+                            val canOpenNow =
+                                progressRepo.isRouteCurrent(kokapena.route) && isNearEnough(kokapena)
                             if (!canOpenNow) {
                                 mapView?.invalidate()
                                 return@setOnMarkerClickListener true

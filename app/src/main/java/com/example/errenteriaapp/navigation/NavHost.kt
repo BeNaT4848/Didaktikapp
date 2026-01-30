@@ -424,5 +424,11 @@ fun AppNavigation(
                 }
             }
         }
+
+        composable(Routes.CHAT_SCREEN) {
+            ChatRoute(
+                onBack = { navController.navigate(Routes.GPS_SCREEN) }
+            )
+        }
     }
 }

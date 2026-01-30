@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +65,7 @@ fun RankingTopBar(
             },
             navigationIcon = {
                 IconButton(
-                    onClick = { navController.popBackStack() },
+                    onClick = { navController.navigate(Routes.GPS_SCREEN) },
                     modifier = Modifier.alpha(if (showContent) 1f else 0f)
                 ) {
                     Icon(

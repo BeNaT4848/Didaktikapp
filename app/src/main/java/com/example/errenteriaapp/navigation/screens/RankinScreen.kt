@@ -2,17 +2,22 @@ package com.example.errenteriaapp.screens.ranking
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.classes.RankingItem
 import com.example.errenteriaapp.database.viewModel.RankingViewModel
+import com.example.errenteriaapp.navigation.Routes
 import kotlinx.coroutines.delay
 
 @Composable
@@ -34,7 +39,7 @@ fun RankinScreen(
             RankingItem(
                 name = puntuazio.izenaAbizena, // Esto ahora debería funcionar
                 points = totalPoints,
-                color =Color.Red ,
+                color = Color.Red,
             )
         }
     }
@@ -45,6 +50,10 @@ fun RankinScreen(
         delay(100)
         isScreenLoaded = true
     }
+
+    val edgeDp = 48.dp
+    val edgePx = with(LocalDensity.current) { edgeDp.toPx() }
+    var dragStartX by remember { mutableStateOf<Float?>(null) }
 
     Scaffold(
         topBar = {
@@ -63,22 +72,40 @@ fun RankinScreen(
             }
         }
     ) { paddingValues ->
-        if (isLoading) {
-            // Mostrar indicador de carga mientras se cargan los datos
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { offset -> dragStartX = offset.x },
+                        onDragEnd = { dragStartX = null },
+                        onDragCancel = { dragStartX = null }
+                    ) { change, dragAmount ->
+                        val startedOnEdge = (dragStartX ?: Float.MAX_VALUE) <= edgePx
+                        if (startedOnEdge && dragAmount > 40f) {
+                            navController.navigate(Routes.GPS_SCREEN)
+                            change.consume()
+                        }
+                    }
+                }
+        ) {
+            if (isLoading) {
+                // Mostrar indicador de carga mientras se cargan los datos
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                RankingContent(
+                    isScreenLoaded = isScreenLoaded,
+                    rankingItems = rankingItems, // Usamos los datos REALES convertidos
+                    paddingValues = paddingValues
+                )
             }
-        } else {
-            RankingContent(
-                isScreenLoaded = isScreenLoaded,
-                rankingItems = rankingItems, // Usamos los datos REALES convertidos
-                paddingValues = paddingValues
-            )
         }
     }
 }
@@ -110,14 +137,14 @@ private fun RankingContent(
             }
 
             // RESTO DEL RANKING - Aparece después
-                val remainingItems = rankingItems.drop(3)
-                if (remainingItems.isNotEmpty()) {
-                    RestOfRankingSection(
-                        isScreenLoaded = isScreenLoaded,
-                        rankingData = remainingItems,
-                        onSurfaceColor = onSurfaceColor
-                    )
-                }
+            val remainingItems = rankingItems.drop(3)
+            if (remainingItems.isNotEmpty()) {
+                RestOfRankingSection(
+                    isScreenLoaded = isScreenLoaded,
+                    rankingData = remainingItems,
+                    onSurfaceColor = onSurfaceColor
+                )
             }
         }
     }
+}

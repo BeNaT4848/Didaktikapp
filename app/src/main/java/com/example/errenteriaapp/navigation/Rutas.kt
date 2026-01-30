@@ -20,4 +20,5 @@ object Routes {
 
     const val AJUSTES_SCREEN = "ajustes_screen"
 
+    const val CHAT_SCREEN = "chat_screen"
 }
