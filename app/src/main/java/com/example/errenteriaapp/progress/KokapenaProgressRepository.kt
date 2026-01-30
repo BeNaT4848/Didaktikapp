@@ -110,6 +110,9 @@ class KokapenaProgressRepository(
         if (route == Routes.BERTSOJOLASA_SCREEN) {
             return isRouteCurrent(Routes.BERTSOJOLASA_SCREEN) || isRouteCurrent(Routes.BERTSOJOLASA2_SCREEN)
         }
+        if (route == Routes.SANMARKOS_SCREEN) {
+            return isRouteCurrent(Routes.SANMARKOS_SCREEN) || isRouteCurrent(Routes.CRUCIGRAMA_SCREEN)
+        }
         return isRouteCurrent(route)
     }
 

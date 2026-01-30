@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.components.*
 import com.example.errenteriaapp.database.viewModel.BertsoViewModel
 import com.example.errenteriaapp.navigation.Routes
+import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
 @Composable
 fun BertsoJolasaScreen(
@@ -25,6 +28,13 @@ fun BertsoJolasaScreen(
     userName: String?,
     viewModel: BertsoViewModel
 ) {
+    val context = LocalContext.current
+    val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
+    val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
+
     val attempt = viewModel.attempt
     val hasNavigated = viewModel.hasNavigated
     val showWrong = viewModel.showWrongDialog
@@ -32,6 +42,7 @@ fun BertsoJolasaScreen(
     fun handleProgress() {
         viewModel.registerAnswer()
         viewModel.checkBertso1Completion {
+            progressRepo.markCompleted(Routes.BERTSOJOLASA_SCREEN)
             navController.navigate(Routes.BERTSOJOLASA2_SCREEN)
         }
     }
