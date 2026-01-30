@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.ui.theme.primaryLight
 
 @Composable
@@ -61,7 +63,7 @@ fun PodiumTitle(
                 modifier = Modifier.size(28.dp)
             )
             Text(
-                text = "OHOREZKO PODIUMA",
+                text = stringResource(R.string.ranking_podium_honor_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold,
                 color = onSurfaceColor,

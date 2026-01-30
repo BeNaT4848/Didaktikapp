@@ -141,6 +141,11 @@ fun MapaOsmScreen(navController: NavController) {
         // Fuerza recomposición cuando cambia el progreso (al volver desde un juego)
         var unlockedIndex by rememberSaveable { mutableStateOf(progressRepo.getUnlockedStepIndex()) }
 
+        LaunchedEffect(activeUserName) {
+            // Refresca el progreso al entrar en GPS o al cambiar usuario
+            unlockedIndex = progressRepo.getUnlockedStepIndex()
+        }
+
         // Releer prefs al volver a primer plano (después de jugar)
         val lifecycleOwner = LocalLifecycleOwner.current
         DisposableEffect(lifecycleOwner) {

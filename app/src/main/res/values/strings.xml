@@ -93,6 +93,21 @@
     <string name="game_taula_title">Clasifica palabras en tablas</string>
     <string name="game_papresa_instruction">Toca el contenedor correcto:</string>
 
+    <!-- Taula arrastrar - objetos arrastrables -->
+    <string name="taula_word_xanti_white_shirt">Camisa blanca</string>
+    <string name="taula_word_xanti_red_vest">Chaleco rojo</string>
+    <string name="taula_word_xanti_beret">Txapela</string>
+    <string name="taula_word_xanti_blue_skirt">Falda azul</string>
+
+    <string name="taula_word_maialen_white_blouse">Blusa blanca</string>
+    <string name="taula_word_maialen_black_corset">Corsé negro</string>
+    <string name="taula_word_maialen_head_scarf">Pañuelo en la cabeza</string>
+    <string name="taula_word_maialen_neck_scarf">Pañuelo al cuello</string>
+    <string name="taula_word_maialen_black_apron">Delantal negro</string>
+
+    <string name="taula_word_extra_red_skirt">Falda roja</string>
+    <string name="taula_word_unknown">Elemento</string>
+
     <string name="game_crucigrama_title">CRUCIGRAMA</string>
     <string name="game_crucigrama_subtitle">Aizpitarte - Palabras cruzadas</string>
     <string name="game_crucigrama_instructions_title">¡Bienvenido al crucigrama!</string>
@@ -188,8 +203,30 @@
     <string name="sanmarkos_finish_quiz">Finalizar prueba</string>
     <string name="sanmarkos_question_label">PREGUNTA %1$d</string>
 
-    <string name="ranking_title">Ranking de puntos</string>
-    <string name="ranking_back">Volver</string>
-    <string name="ranking_points">%1$d puntos</string>
-    <string name="ranking_rest_title">RESTO DEL RANKING</string>
+    <string name="sanmarkos_q1_text">¿Para que se construyo el fuerte de San Marcos?</string>
+    <string name="sanmarkos_q1_opt1">Para que viviera el rey</string>
+    <string name="sanmarkos_q1_opt2">Para proteger y vigilar el territorio</string>
+    <string name="sanmarkos_q1_opt3">Para guardar comida</string>
+
+    <string name="sanmarkos_q2_text">¿En que siglo se construyo el fuerte?</string>
+    <string name="sanmarkos_q2_opt1">Siglo XIX</string>
+    <string name="sanmarkos_q2_opt2">Siglo XXI</string>
+    <string name="sanmarkos_q2_opt3">Siglo XVI</string>
+
+    <string name="sanmarkos_q3_text">Hoy en dia, el fuerte se usa para...</string>
+    <string name="sanmarkos_q3_opt1">Visitas y actividades culturales</string>
+    <string name="sanmarkos_q3_opt2">Vivir soldados</string>
+    <string name="sanmarkos_q3_opt3">Guardar armas</string>
+
+    <string name="sanmarkos_q_error_text">Error</string>
+    <string name="sanmarkos_q_error_opt">Error</string>
+
+<string name="ranking_title">RANKING DE PUNTOS</string>
+<string name="ranking_back">Volver</string>
+<string name="ranking_points">%1$d puntos</string>
+<string name="ranking_rest_title">RESTO DEL RANKING</string>
+<string name="ranking_podium_honor_title">PODIO DE HONOR</string>
+<string name="ranking_medal_gold">ORO</string>
+<string name="ranking_medal_silver">PLATA</string>
+<string name="ranking_medal_bronze">BRONCE</string>
 </resources>

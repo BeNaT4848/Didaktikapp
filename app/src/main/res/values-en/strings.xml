@@ -94,6 +94,21 @@
     <string name="game_taula_title">Sort words into tables</string>
     <string name="game_papresa_instruction">Tap the correct container:</string>
 
+    <!-- Taula drag - draggable items -->
+    <string name="taula_word_xanti_white_shirt">White shirt</string>
+    <string name="taula_word_xanti_red_vest">Red vest</string>
+    <string name="taula_word_xanti_beret">Beret</string>
+    <string name="taula_word_xanti_blue_skirt">Blue skirt</string>
+
+    <string name="taula_word_maialen_white_blouse">White blouse</string>
+    <string name="taula_word_maialen_black_corset">Black corset</string>
+    <string name="taula_word_maialen_head_scarf">Head scarf</string>
+    <string name="taula_word_maialen_neck_scarf">Neck scarf</string>
+    <string name="taula_word_maialen_black_apron">Black apron</string>
+
+    <string name="taula_word_extra_red_skirt">Red skirt</string>
+    <string name="taula_word_unknown">Item</string>
+
     <string name="game_crucigrama_title">CROSSWORD</string>
     <string name="game_crucigrama_subtitle">Aizpitarte - Crossword</string>
     <string name="game_crucigrama_instructions_title">Welcome to the crossword!</string>
@@ -189,8 +204,30 @@
     <string name="sanmarkos_finish_quiz">Finish quiz</string>
     <string name="sanmarkos_question_label">QUESTION %1$d</string>
 
-    <string name="ranking_title">Points ranking</string>
+    <string name="sanmarkos_q1_text">Why was the Fort of San Marcos built?</string>
+    <string name="sanmarkos_q1_opt1">So the king could live there</string>
+    <string name="sanmarkos_q1_opt2">To protect and watch over the territory</string>
+    <string name="sanmarkos_q1_opt3">To store food</string>
+
+    <string name="sanmarkos_q2_text">In which century was the fort built?</string>
+    <string name="sanmarkos_q2_opt1">19th century</string>
+    <string name="sanmarkos_q2_opt2">21st century</string>
+    <string name="sanmarkos_q2_opt3">16th century</string>
+
+    <string name="sanmarkos_q3_text">Nowadays, the fort is used for...</string>
+    <string name="sanmarkos_q3_opt1">Visits and cultural activities</string>
+    <string name="sanmarkos_q3_opt2">Housing soldiers</string>
+    <string name="sanmarkos_q3_opt3">Storing weapons</string>
+
+    <string name="sanmarkos_q_error_text">Error</string>
+    <string name="sanmarkos_q_error_opt">Error</string>
+
+    <string name="ranking_title">POINTS RANKING</string>
     <string name="ranking_back">Back</string>
     <string name="ranking_points">%1$d points</string>
     <string name="ranking_rest_title">REST OF THE RANKING</string>
+    <string name="ranking_podium_honor_title">HALL OF HONOR PODIUM</string>
+    <string name="ranking_medal_gold">GOLD</string>
+    <string name="ranking_medal_silver">SILVER</string>
+    <string name="ranking_medal_bronze">BRONZE</string>
 </resources>

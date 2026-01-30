@@ -19,12 +19,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.RankingItem
 
 import kotlinx.coroutines.delay
@@ -36,8 +38,8 @@ fun PodiumItem(
     height: Dp,
     color: Color,
     textColor: Color,
-    pointsTextSize: TextUnit = 24.sp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pointsTextSize: TextUnit = 24.sp
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "bounce-animation")
     val bounce by infiniteTransition.animateFloat(
@@ -131,7 +133,7 @@ fun PodiumItem(
                         else -> 15.sp
                     },
                     textAlign = TextAlign.Center,
-                    color = Color.Black,
+                    color = textColor,
                     maxLines = 1
                 )
 
@@ -145,7 +147,7 @@ fun PodiumItem(
                             else -> 13.sp
                         },
                         textAlign = TextAlign.Center,
-                        color = Color.Black,
+                        color = textColor,
                         maxLines = 1
                     )
                 }
@@ -189,21 +191,13 @@ fun PodiumItem(
                         Text(
                             text = "${item.points}",
                             fontWeight = FontWeight.Black,
-                            fontSize = when (position) {
-                                1 -> 16.sp
-                                2 -> 16.sp
-                                else -> 16.sp
-                            },
+                            fontSize = pointsTextSize,
                             color = Color.White
                         )
                         Text(
                             text = "pts",
                             fontWeight = FontWeight.Bold,
-                            fontSize = when (position) {
-                                1 -> 14.sp
-                                2 -> 14.sp
-                                else -> 14.sp
-                            },
+                            fontSize = pointsTextSize,
                             color = Color.White.copy(alpha = 0.9f)
                         )
                     }
@@ -278,14 +272,14 @@ fun PodiumItem(
 
                 // Medalla decorativa
                 if (position <= 3) {
-                    val medalColor = when (position) {
-                        1 -> "ORO"
-                        2 -> "PLATA"
-                        else -> "BRONCE"
+                    val medalLabel = when (position) {
+                        1 -> stringResource(R.string.ranking_medal_gold)
+                        2 -> stringResource(R.string.ranking_medal_silver)
+                        else -> stringResource(R.string.ranking_medal_bronze)
                     }
                     Text(
-                        text = medalColor,
-                        color = Color.Black,
+                        text = medalLabel,
+                        color = textColor,
                         fontSize = when (position) {
                             1 -> 14.sp
                             2 -> 13.sp

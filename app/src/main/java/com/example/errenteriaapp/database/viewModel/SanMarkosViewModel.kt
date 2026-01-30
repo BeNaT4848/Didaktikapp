@@ -1,6 +1,7 @@
 // app/src/main/java/com/example/errenteriaapp/database/viewModel/SanMarkosViewModel.kt
 package com.example.errenteriaapp.database.viewModel
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -9,14 +10,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.database.Puntuazioa
 import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.launch
 
 data class PreguntaConOpcionesMezcladas(
-    val texto: String,
-    val opcionesOriginales: List<String>,
-    val opcionesMezcladas: List<String>,
+    @StringRes val texto: Int,
+    @StringRes val opcionesOriginales: List<Int>,
+    @StringRes val opcionesMezcladas: List<Int>,
     val respuestaCorrectaOriginal: Int,  // Índice en opcionesOriginales
     val respuestaCorrectaMezclada: Int   // Índice en opcionesMezcladas
 )
@@ -67,31 +69,31 @@ class SanMarkosViewModel(
         private set
 
     // Preguntas base con respuestas fijas
-    private val preguntasBase = listOf(
+    private val preguntasBase: List<Triple<Int, List<Int>, Int>> = listOf(
         Triple(
-            "Zertarako eraiki zen San Markos gotorlekua?",
+            R.string.sanmarkos_q1_text,
             listOf(
-                "Erregeak bizitzeko",
-                "Lurraldea babesteko eta zaintzeko",
-                "Janaria gordetzeko"
+                R.string.sanmarkos_q1_opt1,
+                R.string.sanmarkos_q1_opt2,
+                R.string.sanmarkos_q1_opt3
             ),
             1
         ),
         Triple(
-            "Zein mendetan eraiki zen gotorlekua?",
+            R.string.sanmarkos_q2_text,
             listOf(
-                "XIX. mendean",
-                "XXI. mendean",
-                "XVI. mendean"
+                R.string.sanmarkos_q2_opt1,
+                R.string.sanmarkos_q2_opt2,
+                R.string.sanmarkos_q2_opt3
             ),
             0
         ),
         Triple(
-            "Gaur egun, gotorlekua erabiltzen da...",
+            R.string.sanmarkos_q3_text,
             listOf(
-                "Bisitak eta kultur jarduerak egiteko",
-                "Soldaduak bizitzeko",
-                "Armak gordetzeko"
+                R.string.sanmarkos_q3_opt1,
+                R.string.sanmarkos_q3_opt2,
+                R.string.sanmarkos_q3_opt3
             ),
             0
         )
@@ -318,9 +320,9 @@ class SanMarkosViewModel(
     val currentPregunta: PreguntaConOpcionesMezcladas
         get() = galderak.getOrNull(galderaIndex) ?: galderak.firstOrNull() ?:
         PreguntaConOpcionesMezcladas(
-            texto = "Error",
-            opcionesOriginales = listOf("Error"),
-            opcionesMezcladas = listOf("Error"),
+            texto = R.string.sanmarkos_q_error_text,
+            opcionesOriginales = listOf(R.string.sanmarkos_q_error_opt),
+            opcionesMezcladas = listOf(R.string.sanmarkos_q_error_opt),
             respuestaCorrectaOriginal = 0,
             respuestaCorrectaMezclada = 0
         )

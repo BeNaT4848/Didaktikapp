@@ -94,6 +94,21 @@
     <string name="game_taula_title">Hitzak tauletan sailkatu</string>
     <string name="game_papresa_instruction">Sakatu ontzi egokia:</string>
 
+    <!-- Taula arrastrar - objektu arrastagarriak -->
+    <string name="taula_word_xanti_white_shirt">Alkandora zuria</string>
+    <string name="taula_word_xanti_red_vest">Txaleko gorria</string>
+    <string name="taula_word_xanti_beret">Txapela</string>
+    <string name="taula_word_xanti_blue_skirt">Gona urdina</string>
+
+    <string name="taula_word_maialen_white_blouse">Blusa zuria</string>
+    <string name="taula_word_maialen_black_corset">Kortse beltza</string>
+    <string name="taula_word_maialen_head_scarf">Zapia buruan</string>
+    <string name="taula_word_maialen_neck_scarf">Zapia lepoan</string>
+    <string name="taula_word_maialen_black_apron">Mantal beltza</string>
+
+    <string name="taula_word_extra_red_skirt">Gona gorria</string>
+    <string name="taula_word_unknown">Elementua</string>
+
     <string name="game_crucigrama_title">GURUTZEGRAMA</string>
     <string name="game_crucigrama_subtitle">Aizpitarte - Hitz gurutzatuak</string>
     <string name="game_crucigrama_instructions_title">Ongi etorri Gurutzegrama!</string>
@@ -189,8 +204,30 @@
     <string name="sanmarkos_finish_quiz">Amaitu proba</string>
     <string name="sanmarkos_question_label">GALDERA %1$d</string>
 
-    <string name="ranking_title">Puntuazioen ranking-a</string>
+    <string name="sanmarkos_q1_text">Zertarako eraiki zen San Markos gotorlekua?</string>
+    <string name="sanmarkos_q1_opt1">Erregeak bizitzeko</string>
+    <string name="sanmarkos_q1_opt2">Lurraldea babesteko eta zaintzeko</string>
+    <string name="sanmarkos_q1_opt3">Janaria gordetzeko</string>
+
+    <string name="sanmarkos_q2_text">Zein mendetan eraiki zen gotorlekua?</string>
+    <string name="sanmarkos_q2_opt1">XIX. mendean</string>
+    <string name="sanmarkos_q2_opt2">XXI. mendean</string>
+    <string name="sanmarkos_q2_opt3">XVI. mendean</string>
+
+    <string name="sanmarkos_q3_text">Gaur egun, gotorlekua erabiltzen da...</string>
+    <string name="sanmarkos_q3_opt1">Bisitak eta kultur jarduerak egiteko</string>
+    <string name="sanmarkos_q3_opt2">Soldaduak bizitzeko</string>
+    <string name="sanmarkos_q3_opt3">Armak gordetzeko</string>
+
+    <string name="sanmarkos_q_error_text">Errorea</string>
+    <string name="sanmarkos_q_error_opt">Errorea</string>
+
+    <string name="ranking_title">PUNTUAZIOAREN RANKING-A</string>
     <string name="ranking_back">Itzuli</string>
     <string name="ranking_points">%1$d puntu</string>
     <string name="ranking_rest_title">RANKINGAREN GAINERAKOA</string>
+    <string name="ranking_podium_honor_title">OHOREZKO PODIUMA</string>
+    <string name="ranking_medal_gold">URREA</string>
+    <string name="ranking_medal_silver">ZILARRA</string>
+    <string name="ranking_medal_bronze">BRONTZEA</string>
 </resources>

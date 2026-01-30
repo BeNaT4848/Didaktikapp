@@ -22,8 +22,8 @@ import com.example.errenteriaapp.R
 @Composable
 fun QuestionCard(
     galderaIndex: Int,
-    galderaText: String,
-    aukerak: List<String>,
+    galderaText: Int,
+    aukerak: List<Int>,
     erantzunZuzena: Int,
     aukeraHautatua: Int,
     galderakErantzunda: List<Int>,
@@ -67,7 +67,7 @@ fun QuestionCard(
 
             // Texto de la pregunta
             Text(
-                text = galderaText,
+                text = stringResource(galderaText),
                 color = Color(0xFF1A2C4A),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -90,7 +90,7 @@ fun QuestionCard(
 
                     OptionItem(
                         index = index,
-                        text = aukera,
+                        text = stringResource(aukera),
                         isSelected = isSelected,
                         estaErantzunda = estaErantzunda,
                         fueSeleccionada = fueSeleccionada,
