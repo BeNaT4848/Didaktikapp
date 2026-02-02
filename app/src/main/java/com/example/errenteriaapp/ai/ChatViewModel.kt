@@ -26,6 +26,7 @@ data class ChatUiState(
 class ChatViewModel : ViewModel() {
     private val repository = ChatRepository(ChatConfig.apiKey())
     private val userName: String? = readUserName()
+    private val appContext: Context? get() = AppContextHolder.appContext
 
     private val _uiState = MutableStateFlow(
         ChatUiState(
@@ -61,6 +62,10 @@ class ChatViewModel : ViewModel() {
             error = null
         )
 
+        appContext?.let { ctx ->
+            ChatLogWriter.appendMessage(ctx, "user", text)
+        }
+
         viewModelScope.launch {
             try {
                 val apiMessages = buildApiMessages(_uiState.value.messages)
@@ -75,6 +80,10 @@ class ChatViewModel : ViewModel() {
                     messages = _uiState.value.messages + assistantMessage,
                     isSending = false
                 )
+
+                appContext?.let { ctx ->
+                    ChatLogWriter.appendMessage(ctx, "assistant", reply)
+                }
             } catch (e: Exception) {
                 val message = when (e) {
                     is HttpException -> when (e.code()) {
