@@ -45,6 +45,7 @@
     <string name="nav_menu">Menua</string>
     <string name="nav_home">Hasiera</string>
     <string name="nav_gps">GPS</string>
+    <string name="nav_chat">Chat</string>
     <string name="nav_settings">Ezarpenak</string>
     <string name="nav_ranking">Ranking</string>
     <string name="nav_logout">Saioa itxi</string>

@@ -27,9 +27,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.FloatingActionButton
@@ -366,44 +368,29 @@ fun MapaOsmScreen(navController: NavController) {
 
                             NavigationRailItem(
                                 selected = railSelectedIndex == 0,
-                                onClick = { railSelectedIndex = 0 },
+                                onClick = {
+                                    navController.navigate(Routes.CHAT_SCREEN)
+                                },
                                 icon = {
                                     Icon(
-                                        Icons.Default.Home,
-                                        stringResource(R.string.nav_home),
+                                        Icons.Default.Send,
+                                        stringResource(R.string.nav_chat),
                                         tint = if (railSelectedIndex == 0) railSelected else railUnselected
                                     )
                                 },
                                 label = {
                                     Text(
-                                        stringResource(R.string.nav_home),
+                                        stringResource(R.string.nav_chat),
                                         modifier = Modifier.graphicsLayer { alpha = labelAlpha })
                                 },
                                 alwaysShowLabel = true,
                                 colors = itemColors
                             )
+
+                            Spacer(modifier = Modifier.height(12.dp))
 
                             NavigationRailItem(
                                 selected = railSelectedIndex == 1,
-                                onClick = { railSelectedIndex = 1 },
-                                icon = {
-                                    Icon(
-                                        Icons.Default.LocationOn,
-                                        stringResource(R.string.nav_gps),
-                                        tint = if (railSelectedIndex == 1) railSelected else railUnselected
-                                    )
-                                },
-                                label = {
-                                    Text(
-                                        stringResource(R.string.nav_gps),
-                                        modifier = Modifier.graphicsLayer { alpha = labelAlpha })
-                                },
-                                alwaysShowLabel = true,
-                                colors = itemColors
-                            )
-
-                            NavigationRailItem(
-                                selected = railSelectedIndex == 2,
                                 onClick = {
                                     navController.navigate(Routes.AJUSTES_SCREEN)
                                 },
@@ -411,7 +398,7 @@ fun MapaOsmScreen(navController: NavController) {
                                     Icon(
                                         Icons.Default.Settings,
                                         stringResource(R.string.nav_settings),
-                                        tint = if (railSelectedIndex == 2) railSelected else railUnselected
+                                        tint = if (railSelectedIndex == 1) railSelected else railUnselected
                                     )
                                 },
                                 label = {
@@ -426,7 +413,7 @@ fun MapaOsmScreen(navController: NavController) {
                             Spacer(modifier = Modifier.height(12.dp))
 
                             NavigationRailItem(
-                                selected = railSelectedIndex == 3,
+                                selected = railSelectedIndex == 2,
                                 onClick = {
                                     navController.navigate(Routes.RANKIN_SCREEN)
                                 },
@@ -434,7 +421,7 @@ fun MapaOsmScreen(navController: NavController) {
                                     Icon(
                                         Icons.Default.Star,
                                         stringResource(R.string.nav_ranking),
-                                        tint = if (railSelectedIndex == 3) railSelected else railUnselected
+                                        tint = if (railSelectedIndex == 2) railSelected else railUnselected
                                     )
                                 },
                                 label = {
@@ -449,7 +436,7 @@ fun MapaOsmScreen(navController: NavController) {
                             Spacer(modifier = Modifier.weight(1f, fill = true))
 
                             NavigationRailItem(
-                                selected = railSelectedIndex == 4,
+                                selected = railSelectedIndex == 3,
                                 onClick = {
                                     navController.navigate(Routes.LOGIN_SCREEN)
                                 },
@@ -457,7 +444,7 @@ fun MapaOsmScreen(navController: NavController) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.logout),
                                         contentDescription = stringResource(R.string.nav_logout),
-                                        tint = if (railSelectedIndex == 4) railSelected else railUnselected
+                                        tint = if (railSelectedIndex == 3) railSelected else railUnselected
                                     )
                                 },
                                 label = {
