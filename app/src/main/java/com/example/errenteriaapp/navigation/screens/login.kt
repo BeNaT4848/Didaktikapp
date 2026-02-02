@@ -1,5 +1,6 @@
 package com.example.errenteriaapp.navigation.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,7 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,6 +21,7 @@ import com.example.errenteriaapp.database.viewModel.LoginViewModel
 import com.example.errenteriaapp.navigation.Routes
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
@@ -26,11 +29,38 @@ fun LoginScreen(
 ) {
     var nombreCompleto by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessageResId by remember { mutableStateOf<Int?>(null) }
+    var errorMessage by remember { mutableStateOf("") }
     var isTeacherMode by remember { mutableStateOf(false) }
     val isSaving = loginViewModel.isSaving.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val allIrakasleak by loginViewModel.getAllIrakasleak().collectAsStateWithLifecycle(initialValue = emptyList())
+    var selectedClass by remember { mutableStateOf("") }
+    var isClassExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val sessionPrefs = remember(context) {
+        context.getSharedPreferences("session", Context.MODE_PRIVATE)
+    }
+    val validationError = remember(nombreCompleto, isTeacherMode) {
+        if (!isTeacherMode && nombreCompleto.isNotEmpty()) {
+            getValidationMessage(nombreCompleto)
+        } else {
+            null
+        }
+    }
+    val classOptions = listOf(
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B"
+    )
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
@@ -78,9 +108,7 @@ fun LoginScreen(
                             verticalArrangement = Arrangement.spacedBy(4.dp) // Muy poco espacio
                         ) {
                             Text(
-                                text = stringResource(
-                                    if (isTeacherMode) R.string.login_mode_teacher else R.string.login_mode_student
-                                ),
+                                text = if (isTeacherMode) "Irakasle modua" else "Ikasle modua",
                                 color = Color.White,
                                 fontSize = 16.sp, // Texto más pequeño
                                 fontWeight = FontWeight.Medium
@@ -94,12 +122,12 @@ fun LoginScreen(
                                     selected = !isTeacherMode,
                                     onClick = {
                                         isTeacherMode = false
-                                        errorMessageResId = null
+                                        errorMessage = ""
                                         password = "" // Limpiar contraseña al cambiar modo
                                     },
                                     label = {
                                         Text(
-                                            stringResource(R.string.login_student_label),
+                                            "Ikaslea",
                                             fontSize = 14.sp, // Texto más pequeño
                                             color = if (!isTeacherMode) MaterialTheme.colorScheme.primary else Color.White
                                         )
@@ -117,12 +145,12 @@ fun LoginScreen(
                                     selected = isTeacherMode,
                                     onClick = {
                                         isTeacherMode = true
-                                        errorMessageResId = null
+                                        errorMessage = ""
                                         password = "" // Limpiar contraseña al cambiar modo
                                     },
                                     label = {
                                         Text(
-                                            stringResource(R.string.login_teacher_label),
+                                            "Irakaslea",
                                             fontSize = 14.sp, // Texto más pequeño
                                             color = if (isTeacherMode) MaterialTheme.colorScheme.primary else Color.White
                                         )
@@ -153,10 +181,10 @@ fun LoginScreen(
                                     value = nombreCompleto,
                                     onValueChange = {
                                         nombreCompleto = it.filter { char -> char.isLetter() || char.isWhitespace() }
-                                        errorMessageResId = null
+                                        errorMessage = ""
                                     },
-                                    label = stringResource(R.string.login_teacher_name),
-                                    isError = errorMessageResId != null,
+                                    label = "Irakaslearen izena",
+                                    isError = errorMessage.isNotEmpty(),
                                     singleLine = true
                                 )
 
@@ -164,31 +192,99 @@ fun LoginScreen(
                                     value = password,
                                     onValueChange = {
                                         password = it
-                                        errorMessageResId = null
+                                        errorMessage = ""
                                     },
-                                    label = stringResource(R.string.login_password),
-                                    isError = errorMessageResId != null
+                                    label = "Pasahitza",
+                                    isError = errorMessage.isNotEmpty()
                                 )
                             } else {
+                                ExposedDropdownMenuBox(
+                                    expanded = isClassExpanded,
+                                    onExpandedChange = { isClassExpanded = !isClassExpanded }
+                                ) {
+                                    OutlinedTextField(
+                                        value = selectedClass,
+                                        onValueChange = {},
+                                        readOnly = true,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .menuAnchor(),
+                                        label = {
+                                            Text(
+                                                text = "Aukeratu zure klasea",
+                                                color = Color.White,
+                                                fontSize = 13.sp // Etiqueta más pequeña
+                                            )
+                                        },
+                                        textStyle = TextStyle(
+                                            color = Color.White,
+                                            fontSize = 14.sp // Texto más pequeño
+                                        ),
+                                        isError = errorMessage.isNotEmpty() && selectedClass.isEmpty(),
+                                        singleLine = true,
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                                expanded = isClassExpanded
+                                            )
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = Color.White.copy(alpha = 0.8f),
+                                            unfocusedBorderColor = Color.White.copy(alpha = 0.6f),
+                                            errorBorderColor = Color.Red,
+                                            focusedTextColor = Color.White,
+                                            unfocusedTextColor = Color.White,
+                                            cursorColor = Color.White,
+                                            focusedLabelColor = Color.White.copy(alpha = 0.9f),
+                                            unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                                            focusedTrailingIconColor = Color.White,
+                                            unfocusedTrailingIconColor = Color.White.copy(alpha = 0.7f)
+                                        )
+                                    )
+
+                                    ExposedDropdownMenu(
+                                        expanded = isClassExpanded,
+                                        onDismissRequest = { isClassExpanded = false }
+                                    ) {
+                                        classOptions.forEach { classOption ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = classOption,
+                                                        color = Color.Black,
+                                                        fontSize = 14.sp
+                                                    )
+                                                },
+                                                onClick = {
+                                                    selectedClass = classOption
+                                                    isClassExpanded = false
+                                                    errorMessage = ""
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                                 // Modo Ikaslea
                                 CompactTextField(
                                     value = nombreCompleto,
                                     onValueChange = {
-                                        nombreCompleto = it.filter { char -> char.isLetter() || char.isWhitespace() }
-                                        errorMessageResId = null
+                                        // Permitir solo letras y espacios
+                                        nombreCompleto = it.filter { char ->
+                                            char.isLetter() || char.isWhitespace() || char == 'ñ' || char == 'Ñ'
+                                        }
+                                        errorMessage = ""
                                     },
-                                    label = stringResource(R.string.login_student_name),
-                                    isError = errorMessageResId != null,
-                                    singleLine = true
+                                    label = "Zure izena eta abizena",
+                                    isError = errorMessage.isNotEmpty() || validationError != null,
+                                    singleLine = true,
+                                    validationError = validationError
                                 )
                             }
                         }
 
                         // Mensaje de error - más compacto
-                        val errorMessage = errorMessageResId
-                        if (errorMessage != null) {
+                        if (errorMessage.isNotEmpty()) {
                             Text(
-                                text = stringResource(errorMessage),
+                                text = errorMessage,
                                 color = MaterialTheme.colorScheme.error,
                                 fontSize = 12.sp, // Texto más pequeño
                                 modifier = Modifier.padding(vertical = 2.dp)
@@ -198,15 +294,14 @@ fun LoginScreen(
                         // Botón de acción - más compacto
                         val isFormValid = when {
                             isTeacherMode -> nombreCompleto.trim().isNotEmpty() && password.isNotEmpty()
-                            else -> nombreCompleto.trim().isNotEmpty()
+                            else -> nombreCompleto.trim().isNotEmpty() &&
+                                selectedClass.isNotEmpty() &&
+                                validationError == null
                         }
 
                         Button(
                             onClick = {
                                 scope.launch {
-                                    val ctx = navController.context
-                                    val sessionPrefs = ctx.getSharedPreferences("session", android.content.Context.MODE_PRIVATE)
-
                                     if (isTeacherMode) {
                                         // Validar irakaslea
                                         val irakasle = allIrakasleak.find {
@@ -215,29 +310,38 @@ fun LoginScreen(
 
                                         if (irakasle != null && irakasle.contraseña == password) {
                                             // Login exitoso para irakaslea
-                                            loginViewModel.guardarNombre(nombreCompleto)
+                                            loginViewModel.guardarNombre(nombreCompleto, asTeacher = true)
 
-                                            // Guardar usuario activo para progreso por usuario
                                             val cleanName = nombreCompleto.trim()
-                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
+                                            sessionPrefs.edit()
+                                                .putString("active_user_name", cleanName)
+                                                .putBoolean("is_teacher_mode", true)
+                                                .apply()
 
-                                            errorMessageResId = null
+                                            errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
                                         } else {
-                                            errorMessageResId = R.string.login_error_teacher_credentials
+                                            errorMessage = "Irakaslearen izena edo pasahitza okerrak dira"
                                         }
                                     } else {
-                                        // Modo ikaslea
+                                        // Modo ikaslea - CON VALIDACIÓN
                                         if (nombreCompleto.isBlank()) {
-                                            errorMessageResId = R.string.login_error_student_name
+                                            errorMessage = "Mesedez, idatzi zure izena eta abizena"
+                                        } else if (validationError != null) {
+                                            errorMessage = validationError
+                                        } else if (selectedClass.isBlank()) {
+                                            errorMessage = "Mesedez, aukeratu zure klasea"
                                         } else {
-                                            loginViewModel.guardarNombre(nombreCompleto)
+                                            // Validación exitosa
+                                            loginViewModel.guardarNombre(nombreCompleto, false, selectedClass)
 
-                                            // Guardar usuario activo para progreso por usuario
                                             val cleanName = nombreCompleto.trim()
-                                            sessionPrefs.edit().putString("active_user_name", cleanName).apply()
+                                            sessionPrefs.edit()
+                                                .putString("active_user_name", cleanName)
+                                                .putBoolean("is_teacher_mode", false)
+                                                .apply()
 
-                                            errorMessageResId = null
+                                            errorMessage = ""
                                             navController.navigate(Routes.GPS_SCREEN)
                                         }
                                     }
@@ -261,10 +365,9 @@ fun LoginScreen(
                                 )
                             } else {
                                 Text(
-                                    text = stringResource(
-                                        if (isTeacherMode) R.string.login_action_teacher else R.string.login_action_student
-                                    ),
-                                    fontSize = 16.sp // Texto más pequeño
+                                    text = if (isTeacherMode) "SAIOA HASI" else "HASI JOLASA",
+                                    fontSize = 16.sp, // Texto más pequeño
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -309,5 +412,23 @@ fun LoginScreen(
                 }
             }
         }
+    }
+}
+
+fun getValidationMessage(name: String): String? {
+    val trimmedName = name.trim()
+
+    if (trimmedName.isEmpty()) {
+        return null // No mostrar mensaje si está vacío
+    }
+
+    val parts = trimmedName.split("\\s+".toRegex())
+
+    return when {
+        parts.size < 2 -> "Sartu izena eta abizena (adibidez: Aitor Fernandez)"
+        parts[0].length < 2 -> "Izenak gutxienez 2 letra izan behar ditu"
+        parts.subList(1, parts.size).joinToString(" ").length < 3 ->
+            "Abizenak gutxienez 3 letra izan behar ditu"
+        else -> null
     }
 }

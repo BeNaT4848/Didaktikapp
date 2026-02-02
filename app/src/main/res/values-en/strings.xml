@@ -45,6 +45,7 @@
     <string name="nav_menu">Menu</string>
     <string name="nav_home">Home</string>
     <string name="nav_gps">GPS</string>
+    <string name="nav_chat">Chat</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_ranking">Ranking</string>
     <string name="nav_logout">Log out</string>
