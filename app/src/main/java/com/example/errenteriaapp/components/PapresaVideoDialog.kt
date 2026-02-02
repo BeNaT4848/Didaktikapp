@@ -1,8 +1,6 @@
 package com.example.errenteriaapp.components.video
 
 import androidx.compose.ui.draw.blur
-import android.content.pm.ActivityInfo
-
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,20 +21,18 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.C
 import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.DefaultRenderersFactory
 
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.example.errenteriaapp.R
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.media3.common.PlaybackException
+import androidx.media3.common.MimeTypes
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -44,37 +40,23 @@ fun VideoDialogoa(
     onVideoCompleted: () -> Unit
 ) {
     val context = LocalContext.current
-    fun Context.findActivity(): Activity {
-        var ctx = this
-        while (ctx is ContextWrapper) {
-            if (ctx is Activity) return ctx
-            ctx = ctx.baseContext
-        }
-        throw IllegalStateException("Activity not found")
-    }
-    val activity = context.findActivity()
 
-    // 🔄 GIRAR PANTALLA SOLO AQUÍ
-    DisposableEffect(Unit) {
-        val previousOrientation = activity.requestedOrientation
-
-        // 👉 Forzar horizontal real
-        activity.requestedOrientation =
-            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-
-        onDispose {
-            // 🔒 Volver a vertical
-            activity.requestedOrientation = previousOrientation
-        }
-    }
-
-    var hasPlaybackError by remember { mutableStateOf(false) }
+    var playbackError by remember { mutableStateOf<PlaybackException?>(null) }
     var isReady by remember { mutableStateOf(false) }
+    var playerKey by remember { mutableStateOf(0) }
 
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
+    val exoPlayer = remember(playerKey) {
+        val renderersFactory = DefaultRenderersFactory(context)
+            .setEnableDecoderFallback(true)
+
+        ExoPlayer.Builder(context, renderersFactory).build().apply {
             val rawUri = RawResourceDataSource.buildRawResourceUri(R.raw.papresa_bideoa)
-            setMediaItem(MediaItem.fromUri(rawUri))
+            val mediaItem = MediaItem.Builder()
+                .setUri(rawUri)
+                .setMimeType(MimeTypes.VIDEO_MP4)
+                .build()
+
+            setMediaItem(mediaItem)
 
             repeatMode = Player.REPEAT_MODE_OFF
             videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
@@ -90,7 +72,7 @@ fun VideoDialogoa(
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
-                    hasPlaybackError = true
+                    playbackError = error
                 }
             })
 
@@ -126,22 +108,20 @@ fun VideoDialogoa(
                     PlayerView(ctx).apply {
                         player = exoPlayer
                         useController = false
+                        keepScreenOn = true
 
-
-                        // Evita bordes blancos
+                        // Mantener video en vertical sin depender de rotación
                         resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-
-
                     }
                 },
                 modifier = Modifier
-                    .fillMaxWidth(0.75f)
+                    .fillMaxWidth(0.95f)
                     .fillMaxHeight(0.70f)
 
             )
         }
 
-        if (hasPlaybackError) {
+        if (playbackError != null) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -159,6 +139,16 @@ fun VideoDialogoa(
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            playbackError = null
+                            isReady = false
+                            playerKey += 1
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.papresa_video_retry))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = onVideoCompleted) {
                         Text(text = stringResource(R.string.papresa_video_continue))
                     }
@@ -178,7 +168,7 @@ fun VideoDialogoa(
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(exoPlayer) {
         onDispose {
             exoPlayer.release()
         }
