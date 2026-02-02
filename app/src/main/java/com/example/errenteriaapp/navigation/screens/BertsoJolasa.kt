@@ -34,7 +34,7 @@ fun BertsoJolasaScreen(
     val progressRepo = remember(effectiveUserName) {
         KokapenaProgressRepository(context, effectiveUserName ?: "default")
     }
-
+ 
     val attempt = viewModel.attempt
     val hasNavigated = viewModel.hasNavigated
     val showWrong = viewModel.showWrongDialog
