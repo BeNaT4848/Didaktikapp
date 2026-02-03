@@ -20,33 +20,54 @@ import com.example.errenteriaapp.i18n.LanguageManager
 import com.example.errenteriaapp.navigation.AppNavigation
 import com.example.errenteriaapp.ui.theme.AppTheme
 
+/**
+ * Aplikazioaren sarrera nagusiko aktibitatea.
+ * Hasiertako aktibitatea da eta nabigazioa eta aplikazioaren itxura kudeatzen ditu.
+ *
+ * @see AppNavigation
+ * @see AppTheme
+ * @see LanguageManager
+ */
 class MainActivity : ComponentActivity() {
+    /**
+     * Testuingurua inguratzen du hizkuntza kudeaketa gaitzeko.
+     */
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LanguageManager.wrapContext(newBase))
     }
 
+    /**
+     * Aktibitatea sortzean.
+     * Hizkuntza eta itxura konfiguratzen ditu eta Compose UIa ezartzen du.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Aplica el idioma persistido antes de setContent.
+        // Gordetako hizkuntza aplikatu setContent aurretik.
         LanguageManager.applySavedLanguage(this)
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
+            // Nabigazio kontroladorea memorizatu
             val navController = rememberNavController()
+            // Ilunpeko modua egoera aldakor gisa memorizatu
             var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
-            // Cada vez que cambie el idioma, reconstruimos el árbol Compose completo
-            // (sin recrear Activity). Esto hace que stringResource(...) se vuelva a resolver.
+            // Hizkuntza aldatzean, Compose zuhaitza osoki birkonstruitu
+            // (Aktibitatea berriz sortu gabe). Honek stringResource(...) berriz ebaztea eragiten du.
             val langNonce = AppLanguageState.nonce
 
+            // Hizkuntza aldaketak detektatzeko gakoa (Compose birkonposaketa eragiteko)
             key(langNonce) {
+                // Aplikazioaren itxura (tema) ezarri
                 AppTheme(darkTheme = isDarkMode, dynamicColor = false) {
+                    // Pantaila osoa betetzen duen kutxa
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .navigationBarsPadding()
                     ) {
+                        // Nabigazio nagusia ezarri
                         AppNavigation(
                             navController = navController,
                             isDarkMode = isDarkMode,
