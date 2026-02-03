@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -18,6 +16,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Galdetegiaren goiburua erakusten du.
+ * San Markos galdetegiaren pantailarako erabiltzen da.
+ */
 @Composable
 fun QuizHeader() {
     Card(
@@ -38,6 +40,7 @@ fun QuizHeader() {
                 .padding(vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Izenburua
             Text(
                 text = stringResource(R.string.sanmarkos_title),
                 color = Color.White,
@@ -48,6 +51,7 @@ fun QuizHeader() {
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // Azpizenburua
             Text(
                 text = stringResource(R.string.sanmarkos_subtitle),
                 color = Color(0xFF4FC3F7),

@@ -15,8 +15,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.errenteriaapp.R   // 👈 IMPORTANTE
+import com.example.errenteriaapp.R
 
+/**
+ * Pasahitzaren eremu trinko bat erakusten du.
+ * Pasahitzaren karaktereak ezkutatzeko/erakusteko aukera du.
+ *
+ * @param value Pasahitzaren testu-balioa
+ * @param onValueChange Pasahitza aldatzean deitzen den funtzioa
+ * @param label Eremuaren etiketa
+ * @param isError Pasahitzak errorea duen
+ */
 @Composable
 fun CompactPasswordField(
     value: String,
@@ -49,6 +58,7 @@ fun CompactPasswordField(
             imeAction = ImeAction.Done
         ),
         trailingIcon = {
+            // Begiaren ikonoa (pasahitza erakusteko/ezkutatzeko)
             IconButton(
                 onClick = { passwordVisible = !passwordVisible },
                 modifier = Modifier.size(20.dp)
@@ -56,12 +66,12 @@ fun CompactPasswordField(
                 Icon(
                     painter = painterResource(
                         id = if (passwordVisible)
-                            R.drawable.abierto   // 👁 ojo abierto
+                            R.drawable.abierto   // 👁 begi irekia
                         else
-                            R.drawable.cerrado   // 🙈 ojo cerrado
+                            R.drawable.cerrado   // 🙈 begi itxia
                     ),
                     contentDescription = if (passwordVisible) "Ocultar pasahitza" else "Erakutsi pasahitza",
-                    tint = Color.White.copy(alpha = 0.8f), // usa Color.Unspecified si tu icono ya tiene color
+                    tint = Color.White.copy(alpha = 0.8f), // Color.Unspecified erabili zure ikonoak kolorea badu
                     modifier = Modifier.size(18.dp)
                 )
             }

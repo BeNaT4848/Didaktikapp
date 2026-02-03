@@ -29,9 +29,25 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-// COMPONENTEA: Irudi bat erakusten du, arrastatu daitekeena eta klik egin daitekeena handitzeko.
-// Automatikoki doitzen da pantailaren tamainaren arabera.
-
+/**
+ * Irudi arrastagarri bat erakusten du.
+ * Erabiltzaileak irudia arrastatu, klik egin eta handitu dezake.
+ * Automatikoki doitzen da pantailaren tamainaren arabera.
+ *
+ * @param modifier Modifier gehigarria
+ * @param photoRes Irudiaren baliabide-identifikadorea
+ * @param photoNumber Irudiaren zenbakia (aukerakoa)
+ * @param isUsed Irudia erabili den (berriro erabili ezin daiteke)
+ * @param isInGrid Irudia sare batean dagoen (eguneratu tamaina)
+ * @param gridColumns Sarearen zutabe kopurua
+ * @param spacing Sarearen arteko tartea
+ * @param onPhotoPositioned Irudiaren posizioa ezagutzen denean deitzen da
+ * @param onEnlargeClick Irudia handitzeko klik egitean deitzen da
+ * @param onDragStart Arrastatzea hasten denean deitzen da
+ * @param onDrag Arrastatzean posizioa aldatzean deitzen da
+ * @param onDragEnd Arrastatzea amaitu denean deitzen da
+ * @param onDragCancel Arrastatzea bertan behera geratzean deitzen da
+ */
 @Composable
 fun DraggablePhoto(
     modifier: Modifier = Modifier,
@@ -48,6 +64,7 @@ fun DraggablePhoto(
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit
 ) {
+    // Oinarrizko Modifier-a: sarean edo pantaila osoko moduan
     val baseModifier = if (isInGrid) Modifier.fillMaxSize() else Modifier.fillMaxWidth(0.9f)
 
     Image(
@@ -59,13 +76,17 @@ fun DraggablePhoto(
             .then(baseModifier)
             .padding(spacing / 3)
             .clip(RoundedCornerShape(16.dp))
+            // Ertza: erabili dena grisa, bestela zuria
             .border(
                 width = if (isUsed) 1.dp else 2.dp,
                 color = if (isUsed) Color.Gray else Color.White,
                 shape = RoundedCornerShape(16.dp)
             )
+            // Posizioa ezagutu
             .onGloballyPositioned { coords -> onPhotoPositioned(coords.boundsInRoot()) }
+            // Handitzeko klik
             .clickable { onEnlargeClick() }
+            // Arrastatzeko gestuak
             .pointerInput(photoRes) {
                 detectDragGestures(
                     onDragStart = { onDragStart() },

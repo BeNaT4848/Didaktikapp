@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.errenteriaapp.classes.RankingItem
 import kotlinx.coroutines.delay
@@ -33,8 +33,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun RestOfRankingSection(
     isScreenLoaded: Boolean,
-    rankingData: List<RankingItem>,
-    onSurfaceColor: Color
+    rankingData: List<RankingItem>
 ) {
 
     var showTitle by remember { mutableStateOf(false) }
@@ -83,8 +82,7 @@ fun RestOfRankingSection(
                 .padding(horizontal = 8.dp, vertical = 16.dp)
         ) {
             RestOfRankingTitle(
-                modifier = Modifier.fillMaxWidth(),
-                onSurfaceColor = onSurfaceColor
+                modifier = Modifier.fillMaxWidth()
             )
         }
 

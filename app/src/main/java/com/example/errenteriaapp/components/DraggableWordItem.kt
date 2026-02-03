@@ -30,6 +30,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.classes.GameWords
 
+/**
+ * Hitz arrastagarri baten elementua erakusten du.
+ * Erabiltzaileak hitz hau arrastatu dezake beste leku batera.
+ *
+ * @param word Arrastatzen den hitzaren gakoa
+ * @param onDragStart Arrastatzea hasten denean deitzen den funtzioa (hasierako posizioa eta mugak)
+ * @param onDrag Arrastatzean posizioa aldatzean deitzen den funtzioa (x, y desplazamenduak)
+ * @param onDragEnd Arrastatzea amaitu denean deitzen den funtzioa
+ * @param onDragCancel Arrastatzea bertan behera geratzean deitzen den funtzioa
+ */
 @Composable
 fun DraggableWordItem(
     word: String,
@@ -46,9 +56,11 @@ fun DraggableWordItem(
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFFFFF3E0))
             .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+            // Elementuaren mugak gorde leihoan
             .onGloballyPositioned { coords ->
                 bounds = coords.boundsInWindow()
             }
+            // Arrastatze-gestuak detektatu
             .pointerInput(word) {
                 detectDragGestures(
                     onDragStart = { offset ->

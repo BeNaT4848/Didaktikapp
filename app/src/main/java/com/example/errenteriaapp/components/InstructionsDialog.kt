@@ -18,6 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Gurutze-hitzaren argibideen dialogoa erakusten du.
+ * Jokoaren argibideak erakusten ditu puntu-zerrenda batean.
+ *
+ * @param onDismiss Dialogoa ixtean deitzen den funtzioa
+ */
 @Composable
 fun InstructionsDialog(onDismiss: () -> Unit) {
     AlertDialog(
@@ -32,6 +38,7 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
         },
         text = {
             Column {
+                // Goiburua
                 Text(
                     text = stringResource(R.string.game_crucigrama_instructions_label),
                     fontSize = 14.sp,
@@ -40,6 +47,7 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
+                // Argibideen zerrenda
                 InstructionItem(stringResource(R.string.game_crucigrama_instruction_1))
                 InstructionItem(stringResource(R.string.game_crucigrama_instruction_2))
                 InstructionItem(stringResource(R.string.game_crucigrama_instruction_3))
@@ -60,13 +68,17 @@ fun InstructionsDialog(onDismiss: () -> Unit) {
     )
 }
 
+/**
+ * Argibide-elementu bat erakusten du puntu-zerrendan.
+ * @param text Argibidearen testua
+ */
 @Composable
 private fun InstructionItem(text: String) {
     Row(
         modifier = Modifier.padding(bottom = 4.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Text("• ", color = Color(0xFFFF9800))
+        Text("• ", color = Color(0xFFFF9800)) // Puntu laranja
         Text(
             text = text,
             modifier = Modifier.weight(1f)

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
@@ -14,8 +15,18 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.material3.MaterialTheme
 
+/**
+ * ModalBottomSheet birsagarri bat erakusten du.
+ * Beste konposatzaile batzuek erabili dezaketen orokortutako modala.
+ *
+ * @param sheetContainerColor Modalaren atzeko kolorea
+ * @param scrimAlpha Atzeko lausotzearen opakutasuna (0.0 - 1.0)
+ * @param sheetHeightFraction Modalaren altueraren frakzioa pantailarekiko (0.0 - 1.0)
+ * @param onDismiss Modal itxitzean deitzen den funtzioa
+ * @param sheetContent Modalaren edukia (itxi funtzioa jasotzen du)
+ * @param content Oinarrizko edukia (modal irekitzeko funtzioa jasotzen du)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReusableModalBottomSheet(
@@ -30,7 +41,7 @@ fun ReusableModalBottomSheet(
     val scope = rememberCoroutineScope()
     var showSheet by remember { mutableStateOf(false) }
 
-    // Forzar expansión cuando se abra
+    // Irekitzean zabaltzea behartu
     LaunchedEffect(showSheet) {
         if (showSheet) {
             delay(100)
@@ -38,12 +49,12 @@ fun ReusableModalBottomSheet(
         }
     }
 
-    // UI que recibe la función para abrir el sheet
+    // Modal irekitzeko funtzioa jasotzen duen UI
     content.invoke {
         scope.launch { showSheet = true }
     }
 
-    // Modal cuando es true
+    // Modal true denean erakutsi
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = {

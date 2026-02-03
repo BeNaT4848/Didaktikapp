@@ -20,10 +20,11 @@ import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.ui.theme.primaryLight
 
+
+
 @Composable
 fun RestOfRankingTitle(
-    modifier: Modifier = Modifier,
-    onSurfaceColor: Color
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -32,7 +33,7 @@ fun RestOfRankingTitle(
         // Línea decorativa superior
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(0.3f),
-            color = primaryLight.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
             thickness = 1.dp
         )
 
@@ -46,20 +47,20 @@ fun RestOfRankingTitle(
             Icon(
                 Icons.Default.Star,
                 contentDescription = null,
-                tint = primaryLight,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
             )
             Text(
                 text = stringResource(R.string.ranking_rest_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = onSurfaceColor,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 18.sp
             )
             Icon(
                 Icons.Default.Star,
                 contentDescription = null,
-                tint = primaryLight,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
             )
         }
@@ -69,7 +70,7 @@ fun RestOfRankingTitle(
         // Línea decorativa inferior
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(0.3f),
-            color = primaryLight.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
             thickness = 1.dp
         )
     }

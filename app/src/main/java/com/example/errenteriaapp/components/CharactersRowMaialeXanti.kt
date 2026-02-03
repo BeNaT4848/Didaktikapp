@@ -14,6 +14,18 @@ import androidx.compose.ui.unit.dp
 import com.example.errenteriaapp.classes.Character
 import com.example.errenteriaapp.classes.DragState
 
+/**
+ * Bi pertsonaien eremuak errenkada batean erakusten ditu (Maialen eta Xanti).
+ * Pertsonaia bakoitzaren "CharacterArea" konposatzailea erakusten du.
+ * "Slot"-etatik arrastatzea eta askatzea kudeatzen du.
+ *
+ * @param xantiAssignments Xanti pertsonaiko hitz-esleipenen zerrenda
+ * @param maialenAssignments Maialen pertsonaiko hitz-esleipenen zerrenda
+ * @param onXantiSlotPositioned Xanti pertsonaiko "slot"-aren posizioa ezagutzen denean deitzen da
+ * @param onMaialenSlotPositioned Maialen pertsonaiko "slot"-aren posizioa ezagutzen denean deitzen da
+ * @param dragState Arrastatzearen egoera
+ * @param onDrop Hitz bat eremu batean askatzean deitzen den funtzioa
+ */
 @Composable
 fun CharactersRow(
     xantiAssignments: List<String?>,
@@ -29,11 +41,13 @@ fun CharactersRow(
             .height(280.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        // MAIALEN pertsonaia (ezkerrean)
         CharacterArea(
             character = Character.MAIALEN,
             assignments = maialenAssignments,
             onSlotPositioned = onMaialenSlotPositioned,
             onDragStart = { character, index, startPosition, bounds ->
+                // Maialen pertsonaiko "slot"-etik arrastatzea hasi
                 maialenAssignments.getOrNull(index)?.let { word ->
                     dragState.isDraggingFromSlot = true
                     dragState.draggingSlotCharacter = character
@@ -45,6 +59,7 @@ fun CharactersRow(
             },
             onDrag = dragState::updateDrag,
             onDragEnd = {
+                // Arrastatzea amaitu: askatze-puntua pasatu
                 dragState.dragCenterPx?.let { dropPoint ->
                     onDrop(dropPoint)
                 }
@@ -55,11 +70,13 @@ fun CharactersRow(
 
         Spacer(modifier = Modifier.width(12.dp))
 
+        // XANTI pertsonaia (eskuinean)
         CharacterArea(
             character = Character.XANTI,
             assignments = xantiAssignments,
             onSlotPositioned = onXantiSlotPositioned,
             onDragStart = { character, index, startPosition, bounds ->
+                // Xanti pertsonaiko "slot"-etik arrastatzea hasi
                 xantiAssignments.getOrNull(index)?.let { word ->
                     dragState.isDraggingFromSlot = true
                     dragState.draggingSlotCharacter = character
@@ -71,6 +88,7 @@ fun CharactersRow(
             },
             onDrag = dragState::updateDrag,
             onDragEnd = {
+                // Arrastatzea amaitu: askatze-puntua pasatu
                 dragState.dragCenterPx?.let { dropPoint ->
                     onDrop(dropPoint)
                 }

@@ -2,25 +2,13 @@ package com.example.errenteriaapp.components
 
 import android.media.MediaPlayer
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +22,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.errenteriaapp.R
 
+/**
+ * Jokoaren emaitzen dialogoa erakusten du (zuzena edo okerra).
+ * Bi egoera kudeatzen ditu: arrakasta-dialogoa eta errore-dialogoa.
+ *
+ * @param showSuccess Arrakasta-dialogoa erakutsi behar den
+ * @param showWrong Errore-dialogoa erakutsi behar den
+ * @param onDismissSuccess Arrakasta-dialogoa ixtean deitzen den funtzioa
+ * @param onDismissWrong Errore-dialogoa ixtean deitzen den funtzioa
+ * @param onSuccessButton Arrakasta-dialogoko botoian klik egitean deitzen den funtzioa
+ * @param onWrongButton Errore-dialogoko botoian klik egitean deitzen den funtzioa
+ */
 @Composable
 fun GameResultDialogs(
     showSuccess: Boolean,
@@ -43,6 +42,7 @@ fun GameResultDialogs(
     onSuccessButton: () -> Unit,
     onWrongButton: () -> Unit
 ) {
+    // Arrakasta-dialogoa
     if (showSuccess) {
         ResultDialog(
             isSuccess = true,
@@ -54,6 +54,7 @@ fun GameResultDialogs(
             onButtonClick = onSuccessButton
         )
     }
+    // Errore-dialogoa
     if (showWrong) {
         ResultDialog(
             isSuccess = false,
@@ -67,6 +68,19 @@ fun GameResultDialogs(
     }
 }
 
+/**
+ * Emaitzen dialogoa erakusten du (zuzena edo okerra).
+ * Audioa erreproduzitzen du eta irudi bat erakusten du.
+ *
+ * @param isSuccess Dialogoa arrakasta-dialogoa den (false bada, errore-dialogoa)
+ * @param imageRes Erakutsiko den irudiaren baliabide-identifikadorea
+ * @param audioRes Errreproduzituko den audioaren baliabide-identifikadorea
+ * @param buttonText Botoian erakutsiko den testua
+ * @param buttonColor Botoiaren kolorea
+ * @param onDismiss Dialogoa ixtean deitzen den funtzioa
+ * @param onButtonClick Botoian klik egitean deitzen den funtzioa
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun ResultDialog(
     isSuccess: Boolean,
@@ -80,6 +94,8 @@ fun ResultDialog(
 ) {
     val context = LocalContext.current
     var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
+
+    // Audioa erreproduzitu dialogoa irekitzean
     LaunchedEffect(Unit) {
         mediaPlayer = MediaPlayer.create(context, audioRes).apply {
             setOnCompletionListener {
@@ -89,12 +105,15 @@ fun ResultDialog(
             start()
         }
     }
+
+    // Audioa askatu dialogoa ixtean
     DisposableEffect(Unit) {
         onDispose {
             mediaPlayer?.release()
             mediaPlayer = null
         }
     }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = modifier
@@ -106,6 +125,7 @@ fun ResultDialog(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Irudia
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -122,9 +142,11 @@ fun ResultDialog(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+
+                // Botoia
                 Button(
                     onClick = {
-                        // Detener el audio antes de cerrar
+                        // Audioa gelditu dialogoa ixtean
                         mediaPlayer?.release()
                         mediaPlayer = null
                         onButtonClick()

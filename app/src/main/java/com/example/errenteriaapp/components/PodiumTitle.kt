@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -14,18 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
-import com.example.errenteriaapp.ui.theme.primaryLight
 
 @Composable
 fun PodiumTitle(
-    modifier: Modifier = Modifier,
-    onSurfaceColor: Color
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -40,9 +35,9 @@ fun PodiumTitle(
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            Color.Transparent,
-                            primaryLight,
-                            Color.Transparent
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
                 )
@@ -59,21 +54,21 @@ fun PodiumTitle(
             Icon(
                 Icons.Default.Star,
                 contentDescription = null,
-                tint = primaryLight,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp)
             )
             Text(
                 text = stringResource(R.string.ranking_podium_honor_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold,
-                color = onSurfaceColor,
+                color = MaterialTheme.colorScheme.onSurface,
                 letterSpacing = 1.sp,
                 fontSize = 24.sp
             )
             Icon(
                 Icons.Default.Star,
                 contentDescription = null,
-                tint = primaryLight,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(28.dp)
             )
         }
@@ -87,9 +82,9 @@ fun PodiumTitle(
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            Color.Transparent,
-                            primaryLight,
-                            Color.Transparent
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
                 )

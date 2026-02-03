@@ -17,17 +17,24 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.errenteriaapp.R
 
+/**
+ * Papresa jokoaren bideoaren argibideen dialogoa erakusten du.
+ * Erabiltzaileari bideo bat ikusteko eskatzen dio.
+ * Dialogo hau ezin da itxi - erabiltzaileak botoia sakatu behar du.
+ *
+ * @param onWatchVideo Bideoa ikusteko botoian klik egitean deitzen den funtzioa
+ */
 @Composable
 fun InstruccionesVideoPapresa(
     onWatchVideo: () -> Unit
 ) {
     Dialog(
         onDismissRequest = {
-            // NO HACER NADA - No se puede cerrar
+            // EZ DEZU EGIN EZER - Ezin da itxi
         },
         properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
+            dismissOnBackPress = false,      // Atzeko botoiaz ezin da itxi
+            dismissOnClickOutside = false    // Kanpoan klik egitean ezin da itxi
         )
     ) {
         Card(
@@ -46,11 +53,12 @@ fun InstruccionesVideoPapresa(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
+                // Trofeoaren ikonoa
                 Box(
                     modifier = Modifier
                         .size(80.dp)
                         .background(
-                            Color(0xFFFFF3CD),
+                            Color(0xFFFFF3CD), // Hori argia
                             shape = RoundedCornerShape(16.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -61,9 +69,11 @@ fun InstruccionesVideoPapresa(
                     )
                 }
 
+                // Testu edukia
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Izenburua
                     Text(
                         text = stringResource(R.string.papresa_video_title),
                         color = Color(0xFF1A2C4A),
@@ -74,9 +84,10 @@ fun InstruccionesVideoPapresa(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Argibide-kutxa
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFE3F2FD)
+                            containerColor = Color(0xFFE3F2FD) // Urdin argia
                         ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -95,6 +106,7 @@ fun InstruccionesVideoPapresa(
                     }
                 }
 
+                // Bideoa ikusteko botoia
                 Button(
                     onClick = onWatchVideo,
                     modifier = Modifier

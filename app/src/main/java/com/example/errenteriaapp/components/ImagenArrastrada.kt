@@ -1,6 +1,5 @@
 package com.example.errenteriaapp.components
 
-// DraggingImage.kt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.height
@@ -20,9 +19,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlin.math.roundToInt
 
-
-// COMPONENTE PARA MOSTRAR LA IMAGEN MIENTRAS SE ARRASTRA
-
+/**
+ * Arrastatzen ari den irudia erakusten du.
+ * Erabiltzailea irudi bat arrastatzen ari denean agertzen da.
+ *
+ * @param photoRes Irudiaren baliabide-identifikadorea
+ * @param boundsTopLeft Irudiaren jatorrizko goi-ezkerreko posizioa (pixeletan)
+ * @param dragOffsetPx Arrastatzearen desplazamendua (pixeletan)
+ * @param widthDp Irudiaren zabalera (dp-tan)
+ * @param heightDp Irudiaren altuera (dp-tan)
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun DraggingImage(
     photoRes: Int,
@@ -37,14 +44,15 @@ fun DraggingImage(
         contentDescription = "Foto en arrastre",
         contentScale = ContentScale.Crop,
         modifier = modifier
+            // Posizioa kalkulatu desplazamendua kontuan hartuta
             .offset {
                 val offsetPx = boundsTopLeft + dragOffsetPx
                 IntOffset(offsetPx.x.roundToInt(), offsetPx.y.roundToInt())
             }
-            .width(widthDp * 1.2f)   // 🔹 más grande
-            .height(heightDp * 1.2f) // 🔹 más grande
+            .width(widthDp * 1.2f)   // 🔹 handiagoa
+            .height(heightDp * 1.2f) // 🔹 handiagoa
             .clip(RoundedCornerShape(16.dp))
             .border(2.dp, Color.White, RoundedCornerShape(16.dp))
-            .zIndex(1f)
+            .zIndex(1f) // Gainetik egoteko
     )
 }

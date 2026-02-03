@@ -2,13 +2,7 @@ package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -25,6 +19,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.classes.Character
 
+/**
+ * Pertsonaiaren eremua erakusten du, bere "slot"-ekin.
+ * Pertsonaiaren izena eta hitz "slot" guztiak erakusten ditu.
+ * "Slot"-ak hitzak hartzeko eta arrastatzeko modukoak dira.
+ *
+ * @param character Pertsonaiaren informazioa (Character enum)
+ * @param assignments Pertsonaiari esleitutako hitzen zerrenda (null = hutsik)
+ * @param onSlotPositioned "Slot"-aren posizioa ezagutu denean deitzen da (UI elementuaren mugak)
+ * @param onDragStart "Slot"-etik arrastatzea hasten denean deitzen da
+ * @param onDrag Arrastatzean posizioa aldatzean deitzen da
+ * @param onDragEnd Arrastatzea amaitu denean deitzen da
+ * @param onDragCancel Arrastatzea bertan behera geratzean deitzen da
+ */
 @Composable
 fun CharacterArea(
     character: Character,
@@ -45,6 +52,7 @@ fun CharacterArea(
             .padding(vertical = 16.dp, horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Pertsonaiaren izena
         Text(
             text = character.displayName,
             fontSize = 18.sp,
@@ -53,6 +61,7 @@ fun CharacterArea(
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
+        // Hitz "slot"-en zerrenda
         Column(
             modifier = Modifier
                 .fillMaxWidth()

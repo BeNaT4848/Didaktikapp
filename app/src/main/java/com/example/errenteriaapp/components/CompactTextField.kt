@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,6 +12,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Testu-eremu trinko bat erakusten du.
+ * Login eta erregistro pantailarako erabiltzen da.
+ *
+ * @param value Testuaren balioa
+ * @param onValueChange Testua aldatzean deitzen den funtzioa
+ * @param label Eremuaren etiketa
+ * @param isError Errorea duen
+ * @param singleLine Lerro bakarra erakutsi behar den
+ * @param validationError Balidazio-errorearen mezua (null bada, ez da erakusten)
+ */
 @Composable
 fun CompactTextField(
     value: String,
@@ -31,12 +40,12 @@ fun CompactTextField(
             Text(
                 text = label,
                 color = Color.White,
-                fontSize = 13.sp // Etiqueta más pequeña
+                fontSize = 13.sp // Etiketa txikiagoa
             )
         },
         textStyle = TextStyle(
             color = Color.White,
-            fontSize = 14.sp // Texto más pequeño
+            fontSize = 14.sp // Testu txikiagoa
         ),
         isError = isError,
         singleLine = singleLine,
@@ -52,6 +61,8 @@ fun CompactTextField(
             unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
         )
     )
+
+    // Balidazio-errorea erakutsi behar bada
     validationError?.let { error ->
         Text(
             text = error,

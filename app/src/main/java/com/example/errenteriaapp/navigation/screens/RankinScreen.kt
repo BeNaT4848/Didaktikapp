@@ -2,6 +2,7 @@ package com.example.errenteriaapp.screens.ranking
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -31,15 +32,24 @@ fun RankinScreen(
     // Obtener datos REALES del ViewModel
     val rankingData by viewModel.rankingData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
+    val primaryColor = MaterialTheme.colorScheme.primary
     // Convertir datos REALES de la base de datos a RankingItem
-    val rankingItems = remember(rankingData) {
+    val rankingItems = remember(rankingData, primaryColor) {
         rankingData.mapIndexed { index, puntuazio ->
             val totalPoints = viewModel.calculateTotalPoints(puntuazio)
+
+            // Para las primeras 3 posiciones, mantener colores del podio
+            val itemColor = when (index) {
+                0 -> Color(0xFFFFC107) // Oro - mantenido
+                1 -> Color(0xFF9E9E9E) // Plata - mantenido
+                2 -> Color(0xFF8D6E63) // Bronce - mantenido
+                else -> primaryColor // Usar el color primario del theme
+            }
+
             RankingItem(
-                name = puntuazio.izenaAbizena, // Esto ahora debería funcionar
+                name = puntuazio.izenaAbizena,
                 points = totalPoints,
-                color = Color.Red,
+                color = itemColor
             )
         }
     }
@@ -97,7 +107,9 @@ fun RankinScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             } else {
                 RankingContent(
@@ -113,25 +125,24 @@ fun RankinScreen(
 @Composable
 private fun RankingContent(
     isScreenLoaded: Boolean,
-    rankingItems: List<RankingItem>, // Solo necesitamos esta lista
+    rankingItems: List<RankingItem>,
     paddingValues: PaddingValues
 ) {
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-
     // Fondo inmediato
-    RankingBackground(
-        modifier = Modifier.padding(paddingValues)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
             val podiumItems = rankingItems.take(3)
             if (podiumItems.isNotEmpty()) {
-
                 PodiumSection(
                     isVisible = isScreenLoaded,
                     rankingData = podiumItems,
-                    onSurfaceColor = onSurfaceColor,
                     totalItemsCount = rankingItems.size
                 )
             }
@@ -141,8 +152,7 @@ private fun RankingContent(
             if (remainingItems.isNotEmpty()) {
                 RestOfRankingSection(
                     isScreenLoaded = isScreenLoaded,
-                    rankingData = remainingItems,
-                    onSurfaceColor = onSurfaceColor
+                    rankingData = remainingItems
                 )
             }
         }

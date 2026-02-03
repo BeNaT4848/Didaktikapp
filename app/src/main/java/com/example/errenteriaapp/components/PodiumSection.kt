@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,11 +34,8 @@ import kotlinx.coroutines.delay
 fun PodiumSection(
     isVisible: Boolean,
     rankingData: List<RankingItem>,
-    onSurfaceColor: Color,
     totalItemsCount: Int? = null
 ) {
-
-
     // Estados para animar cada elemento del podio individualmente
     var showTitle by remember { mutableStateOf(false) }
     var showFirstPlace by remember { mutableStateOf(false) }
@@ -75,8 +73,7 @@ fun PodiumSection(
                 .padding(horizontal = 16.dp)
         ) {
             PodiumTitle(
-                modifier = Modifier.fillMaxWidth(),
-                onSurfaceColor = onSurfaceColor
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -110,7 +107,7 @@ fun PodiumSection(
                                 position = 1,
                                 item = rankingData[0],
                                 height = 200.dp,
-                                color = Color(0xFFFFC107),
+                                color = Color(0xFFFFC107), // Oro - Mantenido
                                 textColor = Color(0xFF333333),
                                 pointsTextSize = 22.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -135,8 +132,8 @@ fun PodiumSection(
                                 position = 2,
                                 item = rankingData[1],
                                 height = 160.dp,
-                                color = Color(0xFF9E9E9E),
-                                textColor = onSurfaceColor,
+                                color = Color(0xFF9E9E9E), // Plata - Mantenido
+                                textColor = MaterialTheme.colorScheme.onSurface,
                                 pointsTextSize = 20.sp,
                                 modifier = Modifier.fillMaxHeight()
                             )
@@ -155,7 +152,7 @@ fun PodiumSection(
                                 position = 1,
                                 item = rankingData[0],
                                 height = 200.dp,
-                                color = Color(0xFFFFC107),
+                                color = Color(0xFFFFC107), // Oro - Mantenido
                                 textColor = Color(0xFF333333),
                                 pointsTextSize = 22.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -181,8 +178,8 @@ fun PodiumSection(
                                 position = 2,
                                 item = rankingData[1],
                                 height = 160.dp,
-                                color = Color(0xFF9E9E9E),
-                                textColor = onSurfaceColor,
+                                color = Color(0xFF9E9E9E), // Plata - Mantenido
+                                textColor = MaterialTheme.colorScheme.onSurface,
                                 pointsTextSize = 20.sp,
                                 modifier = Modifier.fillMaxHeight()
                             )
@@ -201,7 +198,7 @@ fun PodiumSection(
                                 position = 1,
                                 item = rankingData[0],
                                 height = 200.dp,
-                                color = Color(0xFFFFC107),
+                                color = Color(0xFFFFC107), // Oro - Mantenido
                                 textColor = Color(0xFF333333),
                                 pointsTextSize = 22.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -221,8 +218,8 @@ fun PodiumSection(
                                 position = 3,
                                 item = rankingData[2],
                                 height = 120.dp,
-                                color = Color(0xFF8D6E63),
-                                textColor = Color(0xFFFFFFFF),
+                                color = Color(0xFF8D6E63), // Bronce - Mantenido
+                                textColor = MaterialTheme.colorScheme.onPrimary,
                                 pointsTextSize = 18.sp,
                                 modifier = Modifier.fillMaxHeight()
                             )

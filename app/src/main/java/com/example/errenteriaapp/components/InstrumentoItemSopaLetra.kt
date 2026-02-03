@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +16,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Instrumentu baten elementua erakusten du.
+ * Egoera erakusten du (aurkitu den edo ez) eta kolore bereizgarria.
+ *
+ * @param nombre Instrumentuaren izena
+ * @param encontrado Instrumentua aurkitu den
+ * @param color Instrumentuaren kolore bereizgarria
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun InstrumentoItem(
     nombre: String,
@@ -42,7 +49,7 @@ fun InstrumentoItem(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Indicador de estado
+            // Egoera-adierazlea
             Box(
                 modifier = Modifier
                     .size(11.dp)
@@ -57,7 +64,7 @@ fun InstrumentoItem(
 
             Spacer(modifier = Modifier.width(10.dp))
 
-            // Nombre del instrumento
+            // Instrumentuaren izena
             Text(
                 text = nombre,
                 color = Color.Black,
@@ -66,7 +73,7 @@ fun InstrumentoItem(
                 modifier = Modifier.weight(1f)
             )
 
-            // Checkmark si está encontrado
+            // Egiaztatze-marka aurkitu bada
             if (encontrado) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(

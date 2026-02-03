@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -10,6 +8,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.example.errenteriaapp.R
 
+/**
+ * Eliza baten atzeko planoa erakusten du.
+ * San Markos galdetegiaren pantailarako erabiltzen da.
+ */
 @Composable
 fun BackgroundChurch() {
     Image(

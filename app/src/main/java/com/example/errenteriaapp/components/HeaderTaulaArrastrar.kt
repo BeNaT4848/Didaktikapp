@@ -11,7 +11,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
-
+/**
+ * "Taula Arrastrar" pantailarako goiburua erakusten du.
+ * Jokoaren izenburua erakusten du.
+ */
 @Composable
 fun HeaderTaulaArrastrar() {
     Text(

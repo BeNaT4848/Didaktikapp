@@ -17,12 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.errenteriaapp.classes.Character
 import com.example.errenteriaapp.classes.DragState
 import com.example.errenteriaapp.classes.GameWords
 
+/**
+ * Arrastatzen ari den hitzaren gaineko geruza erakusten du.
+ * Erabiltzailea hitz bat arrastatzen ari denean agertzen da.
+ *
+ * @param dragState Arrastatzearen egoera
+ */
 @Composable
 fun DraggingWordOverlay(dragState: DragState) {
     val density = LocalDensity.current
@@ -31,6 +37,7 @@ fun DraggingWordOverlay(dragState: DragState) {
         dragState.dragStartBounds?.let { bounds ->
             Box(
                 modifier = Modifier
+                    // Posizioa kalkulatu desplazamendua kontuan hartuta
                     .offset(
                         x = with(density) { (bounds.topLeft.x + dragState.dragOffsetPx.x).toDp() },
                         y = with(density) { (bounds.topLeft.y + dragState.dragOffsetPx.y).toDp() }
@@ -48,7 +55,7 @@ fun DraggingWordOverlay(dragState: DragState) {
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     maxLines = 2,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier.padding(8.dp)
                 )
             }

@@ -2,16 +2,7 @@ package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,11 +13,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.classes.PalabraInfo
 
+/**
+ * Gurutze-hitz bateko pista baten informazioa.
+ *
+ * @property numero Pisten zenbakia (gurutze-hitzaren zenbakiarekin bat datorrena)
+ * @property texto Pistaren testua
+ */
 data class PistaInfo(
     val numero: Int,
     val texto: String
 )
 
+/**
+ * Gurutze-hitzaren pisten atala erakusten du (horizontalak eta bertikalak).
+ * Pista bakoitza klik egiteko modukoa da, hitz aktibo bat aukeratzeko.
+ *
+ * @param pistasHorizontales Pistaren zerrenda horizontalean
+ * @param pistasVerticales Pistaren zerrenda bertikalean
+ * @param palabraActiva Uneko hitz aktiboa (null bada, ez dago aktiborik)
+ * @param onActivateWord Pista batean klik egitean deitzen den funtzioa (pistaren zenbakia pasatzen du)
+ */
 @Composable
 fun CluesSection(
     pistasHorizontales: List<PistaInfo>,
@@ -36,7 +42,7 @@ fun CluesSection(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    // Sección de pistas HORIZONTALES
+    // HORIZONTAL pisten atala
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,6 +59,7 @@ fun CluesSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            // Atalaren izenburua
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -74,6 +81,7 @@ fun CluesSection(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Pistaren zerrenda
             pistasHorizontales.forEach { pista ->
                 PistaClicableItem(
                     numero = pista.numero,
@@ -91,7 +99,7 @@ fun CluesSection(
 
     Spacer(modifier = Modifier.height(12.dp))
 
-    // Sección de pistas VERTICALES
+    // BERTIKAL pisten atala
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,6 +116,7 @@ fun CluesSection(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            // Atalaren izenburua
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -129,6 +138,7 @@ fun CluesSection(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Pistaren zerrenda
             pistasVerticales.forEach { pista ->
                 PistaClicableItem(
                     numero = pista.numero,

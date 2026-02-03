@@ -11,8 +11,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Gurutze-hitzaren pantailarako goiburua erakusten du.
+ * Izenburua eta azpizenburua erakusten ditu.
+ */
 @Composable
 fun CrucigramaHeader() {
+    // Izenburua
     Text(
         text = stringResource(R.string.game_crucigrama_title),
         fontSize = 24.sp,
@@ -21,6 +26,7 @@ fun CrucigramaHeader() {
         modifier = Modifier.padding(bottom = 4.dp, top = 10.dp)
     )
 
+    // Azpizenburua
     Text(
         text = stringResource(R.string.game_crucigrama_subtitle),
         fontSize = 12.sp,

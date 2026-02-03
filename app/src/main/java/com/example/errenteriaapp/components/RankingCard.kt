@@ -1,8 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
-
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.RankingItem
-
-import com.example.errenteriaapp.ui.theme.*
 
 @Composable
 fun RankingCard(
@@ -60,8 +55,8 @@ fun RankingCard(
             .height(70.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = surfaceContainerLowestLight,
-            contentColor = onSurfaceLight
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = elevation
@@ -84,7 +79,7 @@ fun RankingCard(
                     text = item.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
-                    color = onSurfaceLight,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     fontSize = 16.sp
                 )
@@ -96,13 +91,13 @@ fun RankingCard(
                     Icon(
                         Icons.Default.Star,
                         contentDescription = "Puntos",
-                        tint = primaryLight,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(13.dp)
                     )
                     Text(
                         text = stringResource(R.string.ranking_points, item.points),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onSurfaceVariantLight,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp
                     )
@@ -118,7 +113,10 @@ fun RankingCard(
                     .border(
                         width = 1.5.dp,
                         brush = Brush.linearGradient(
-                            colors = listOf(Color.White, item.color)
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surface,
+                                item.color.copy(alpha = 0.8f)
+                            )
                         ),
                         shape = CircleShape
                     ),
@@ -126,7 +124,7 @@ fun RankingCard(
             ) {
                 Text(
                     text = "$position",
-                    color = if (item.color == Color(0xFFFFC107)) Color.Black else Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.Black,
                     fontSize = 18.sp
                 )

@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,6 +11,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Jokoaren argibide-testua erakusten du.
+ * Papresa (hondakinak sailkatzeko) jokoarako erabiltzen da.
+ *
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun InstructionText(
     modifier: Modifier = Modifier

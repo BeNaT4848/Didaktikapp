@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -28,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.RankingItem
-
 import kotlinx.coroutines.delay
 
 @Composable
@@ -98,7 +95,7 @@ fun PodiumItem(
                         },
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                Color.White.copy(alpha = 0.9f),
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
                                 color.copy(alpha = 0.8f)
                             )
                         ),
@@ -108,7 +105,7 @@ fun PodiumItem(
             ) {
                 Text(
                     text = item.name.split(" ").joinToString("") { it.first().toString() },
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = when (position) {
                         1 -> 22.sp
                         2 -> 20.sp
@@ -166,8 +163,8 @@ fun PodiumItem(
                         .background(
                             brush = Brush.linearGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.7f),
-                                    Color.Black.copy(alpha = 0.9f)
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                    MaterialTheme.colorScheme.surfaceVariant
                                 )
                             )
                         )
@@ -185,20 +182,20 @@ fun PodiumItem(
                         Icon(
                             Icons.Default.Star,
                             contentDescription = "puntu",
-                            tint = Color(0xFFFFD700),
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = "${item.points}",
                             fontWeight = FontWeight.Black,
                             fontSize = pointsTextSize,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "pts",
                             fontWeight = FontWeight.Bold,
                             fontSize = pointsTextSize,
-                            color = Color.White.copy(alpha = 0.9f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -233,9 +230,9 @@ fun PodiumItem(
                     },
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.9f),
-                            Color.White.copy(alpha = 0.7f),
-                            Color.White.copy(alpha = 0.4f)
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                         )
                     ),
                     shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
@@ -249,7 +246,7 @@ fun PodiumItem(
             ) {
                 Text(
                     text = "$position°",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = when (position) {
                         1 -> 32.sp
                         2 -> 28.sp
