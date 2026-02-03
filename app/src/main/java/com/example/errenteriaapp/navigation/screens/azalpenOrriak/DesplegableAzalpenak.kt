@@ -111,14 +111,15 @@ fun AzalpenBase(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Spacer(modifier = Modifier.height(-20.dp))
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .padding(top = if (!audioFinished && tieneAudio) 60.dp else 0.dp)
+                .align(Alignment.TopCenter)
         ) {
+            // REDUCIDO: Espacio superior más pequeño
+            Spacer(modifier = Modifier.height(8.dp))
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,7 +135,7 @@ fun AzalpenBase(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 20.dp)
+                                .padding(top = 4.dp) // REDUCIDO: menos padding superior
                         ) {
                             AudioPlayerCard(
                                 isPlaying = isPlaying,
@@ -179,7 +180,8 @@ fun AzalpenBase(
                                 }
                             )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            // REDUCIDO: menos espacio entre el player y las imágenes
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             // Solo mostrar imágenes si la lista no está vacía
                             if (isPlaying && contenido.imagenesAudio.isNotEmpty()) {
@@ -197,7 +199,7 @@ fun AzalpenBase(
                                                 painter = painterResource(id = contenido.imagenesAudio[index]),
                                                 contentDescription = null,
                                                 modifier = Modifier
-                                                    .size(200.dp)
+                                                    .size(180.dp) // REDUCIDO: tamaño de imagen más pequeño
                                                     .clip(RoundedCornerShape(12.dp))
                                             )
                                         }
@@ -210,7 +212,6 @@ fun AzalpenBase(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 20.dp)
                         ) {
                             // Solo mostrar título si no está vacío
                             if (contenido.tituloTexto.isNotEmpty()) {
@@ -220,7 +221,7 @@ fun AzalpenBase(
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(6.dp)) // REDUCIDO: menos espacio
                             }
 
                             // Solo mostrar texto didáctico si no está vacío
@@ -230,23 +231,23 @@ fun AzalpenBase(
                                     color = MaterialTheme.colorScheme.primary,
                                     fontSize = 14.sp
                                 )
-                                Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(8.dp)) // REDUCIDO: menos espacio
                             }
 
                             Button(
                                 onClick = onNavigateToGame,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(54.dp),
+                                    .height(48.dp), // REDUCIDO: altura del botón
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.primary,
                                 ),
-                                shape = RoundedCornerShape(28.dp)
+                                shape = RoundedCornerShape(24.dp) // REDUCIDO: bordes menos redondeados
                             ) {
                                 Text(
                                     text = contenido.textoBoton,
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontSize = 16.sp,
+                                    fontSize = 15.sp, // REDUCIDO: tamaño de texto
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -255,7 +256,8 @@ fun AzalpenBase(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            // REDUCIDO: mucho menos espacio al final
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -279,15 +281,15 @@ fun AudioPlayerCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(20.dp) // REDUCIDO: bordes menos redondeados
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) { // REDUCIDO: padding interno
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Solo mostrar botón de play si hay audio
                 if (tieneAudio) {
                     Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .size(48.dp) // REDUCIDO: tamaño del botón
                             .clip(RoundedCornerShape(50))
                             .background(Color.White)
                             .clickable(enabled = !isLoading && !audioFinished, onClick = onPlayPauseClick),
@@ -295,9 +297,9 @@ fun AudioPlayerCard(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(20.dp), // REDUCIDO: tamaño del spinner
                                 color = MaterialTheme.colorScheme.primary,
-                                strokeWidth = 3.dp
+                                strokeWidth = 2.dp
                             )
                         } else {
                             val iconRes = when {
@@ -310,12 +312,12 @@ fun AudioPlayerCard(
                                 contentDescription = stringResource(
                                     if (isPlaying) R.string.audio_pause else R.string.audio_play
                                 ),
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(24.dp) // REDUCIDO: tamaño del icono
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp)) // REDUCIDO: espacio horizontal
                 }
 
                 Column(modifier = Modifier.weight(1f)) {
@@ -326,7 +328,7 @@ fun AudioPlayerCard(
                             stringResource(R.string.azalpena_label)
                         },
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 18.sp,
+                        fontSize = 16.sp, // REDUCIDO: tamaño de texto
                         fontWeight = FontWeight.Bold
                     )
                     Text(
@@ -343,7 +345,7 @@ fun AudioPlayerCard(
                             stringResource(R.string.azalpena_read)
                         },
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 14.sp
+                        fontSize = 13.sp // REDUCIDO: tamaño de texto
                     )
                 }
 
@@ -351,19 +353,19 @@ fun AudioPlayerCard(
                     Text(
                         text = formatTime(totalDuration - currentPosition),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp, // REDUCIDO: tamaño de texto
                         fontWeight = FontWeight.Medium
                     )
                 }
             }
 
             if (tieneAudio && isPlaying && totalDuration > 0) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp)) // REDUCIDO: espacio
                 LinearProgressIndicator(
                     progress = currentPosition.toFloat() / totalDuration.toFloat(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(3.dp),
+                        .height(2.dp), // REDUCIDO: altura de la barra
                     color = MaterialTheme.colorScheme.onPrimary,
                     trackColor = MaterialTheme.colorScheme.primary
                 )

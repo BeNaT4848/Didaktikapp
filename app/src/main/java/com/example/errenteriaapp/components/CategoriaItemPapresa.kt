@@ -27,6 +27,16 @@ import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
 
+/**
+ * Hondakinen edukiontzien errenkada erakusten du.
+ * Kategoria bakoitzaren edukiontzia erakusten du eta klik egiteko modukoa da.
+ * Erabiltzaileak hondakin bat kategoria batean sartzean erakusten du.
+ *
+ * @param currentWasteItem Uneko hondakin-elementua (null bada, ez dago elementurik)
+ * @param userAnswers Erabiltzailearen erantzunen mapa (hondakin-id → kategoria)
+ * @param onContainerClick Edukiontzi batean klik egitean deitzen den funtzioa
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun WasteContainersRow(
     currentWasteItem: WasteItem?,
@@ -42,7 +52,7 @@ fun WasteContainersRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         WasteCategory.values().forEach { category ->
-            // Contenedor clicable
+            // Edukiontzi klikagarria
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -51,6 +61,7 @@ fun WasteContainersRow(
                     .background(MaterialTheme.colorScheme.primary)
                     .border(
                         3.dp,
+                        // Uneko hondakin-elementua kategoria honetan badago, ertz-kolore berezia
                         if (currentWasteItem?.let { userAnswers[it.id] == category } == true)
                             category.color
                         else Color.LightGray,
@@ -61,7 +72,7 @@ fun WasteContainersRow(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // SOLO EMOJI - Sin Box de fondo
+                // EMOJI BAKARRIK - Atzeko kaxarik gabe
                 Text(
                     text = when(category) {
                         WasteCategory.YELLOW -> "🟡"
@@ -69,13 +80,13 @@ fun WasteContainersRow(
                         WasteCategory.BROWN -> "🟤"
                         WasteCategory.BLACK -> "⚫"
                     },
-                    fontSize = 30.sp, // Más grande para mejor visibilidad
+                    fontSize = 30.sp, // Ikusgarritasun hobea tamaina handiagoarekin
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Nombre
+                // Izena
                 Text(
                     text = stringResource(category.displayNameResId),
                     fontSize = 11.sp,
@@ -87,7 +98,7 @@ fun WasteContainersRow(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                // Descripción optimizada
+                // Deskribapen optimizatua
                 Text(
                     text = stringResource(category.descriptionResId),
                     fontSize = 9.sp,

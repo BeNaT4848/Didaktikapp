@@ -1,13 +1,10 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +14,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Sopa-letren jokoaren zelda bat erakusten du.
+ * Letra bat erakusten du eta klik egiteko modukoa da.
+ * Erabiltzaileak letra hautatzean markatuta geratzen da.
+ *
+ * @param letra Zelda honetan erakusten den letra
+ * @param encontrada Erabiltzaileak letra hau hautatu duen (markatuta dagoen)
+ * @param onClick Zeldan klik egitean deitzen den funtzioa
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun CeldaSopa(
     letra: Char,
@@ -24,7 +31,8 @@ fun CeldaSopa(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colorFondo = if (encontrada) Color(0xFFC8E6C9)else Color.Transparent
+    // Koloreak egoeraren arabera
+    val colorFondo = if (encontrada) Color(0xFFC8E6C9) else Color.Transparent
     val colorTexto = if (encontrada) Color.Black else Color.Black
 
     Box(
