@@ -8,6 +8,12 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.CeldaEstado
 
+/**
+ * Gurutze-hitzaren egiaztapen-adierazlea erakusten du.
+ * Zenbat letra zuzen dauden eta zenbat dauden guztira erakusten du.
+ *
+ * @param celdas Zelda guztien zerrenda
+ */
 @Composable
 fun VerificationIndicator(celdas: List<CeldaEstado>) {
     val correctas = celdas.count { !it.esNegra && it.esCorrecta }

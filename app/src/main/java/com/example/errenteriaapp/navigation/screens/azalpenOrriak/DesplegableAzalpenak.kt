@@ -30,24 +30,28 @@ import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
 /**
- * CONTENIDO BÁSICO - Audio opcional
+ * AZALPEN OROKORRA - Audio aukerakoa
+ * @property audioResource Audio baliabidearen IDa (aukerakoa)
+ * @property imagenesAudio Audioaren denboralekuko irudien IDen zerrenda
+ * @property timelineAudio Denboralekua: denbora (ms) -> irudi indizea
+ * @property tituloTexto Azalpenaren titulua
+ * @property textoDidactico Hezkuntza testua
+ * @property textoBoton Botoian erakutsiko den testua
  */
 data class AzalpenContenido(
-    // Audio ahora es opcional
     val audioResource: Int? = null,
     val imagenesAudio: List<Int>,
     val timelineAudio: List<Pair<Long, Int>>,
-
-    // Texto final obligatorio
     val tituloTexto: String,
     val textoDidactico: String,
-
-    // Botón obligatorio
     val textoBoton: String,
 )
 
 /**
- * PANTALLA BASE REUTILIZABLE
+ * AZALPEN PANTALLA BERRIZ ERABILGARRIA
+ * @param contenido Azalpenaren edukia
+ * @param onClose Azalpena ixteko callback-a
+ * @param onNavigateToGame Jokora nabigatzeko callback-a
  */
 @Composable
 fun AzalpenBase(
@@ -60,7 +64,7 @@ fun AzalpenBase(
 
     var isPlaying by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
-    // Si no hay audio, marcamos como terminado desde el inicio
+    // Ez badago audiorik, hasieratik amaitu bezala markatzen da
     var audioFinished by remember {
         mutableStateOf(contenido.audioResource == null)
     }
@@ -87,7 +91,7 @@ fun AzalpenBase(
                 val currentPos = mediaPlayer?.currentPosition ?: 0
                 currentPosition = currentPos.toLong()
 
-                // Solo procesar timeline si no está vacío
+                // Timeline soilik prozesatu hutsa ez bada
                 if (contenido.timelineAudio.isNotEmpty()) {
                     contenido.timelineAudio.forEach { (timeMs, imageIndex) ->
                         if (currentPos >= timeMs && currentImageIndex < imageIndex) {
@@ -117,7 +121,7 @@ fun AzalpenBase(
                 .padding(16.dp)
                 .align(Alignment.TopCenter)
         ) {
-            // REDUCIDO: Espacio superior más pequeño
+            // MURRIZTUA: Goiko espazio txikiagoa
             Spacer(modifier = Modifier.height(8.dp))
 
             Box(
@@ -130,12 +134,12 @@ fun AzalpenBase(
                     transitionSpec = { fadeIn(tween(500)) togetherWith fadeOut(tween(300)) },
                     label = "PlayerToText"
                 ) { finished ->
-                    // Si no está terminado Y hay audio, mostrar player
+                    // Ez badago amaitua ETA audioa badago, erreproduzitzailea erakutsi
                     if (!finished && tieneAudio) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(top = 4.dp) // REDUCIDO: menos padding superior
+                                .padding(top = 4.dp) // MURRIZTUA: goiko padding txikiagoa
                         ) {
                             AudioPlayerCard(
                                 isPlaying = isPlaying,
@@ -180,10 +184,10 @@ fun AzalpenBase(
                                 }
                             )
 
-                            // REDUCIDO: menos espacio entre el player y las imágenes
+                            // MURRIZTUA: espazio gutxiago erreproduzitzailea eta irudien artean
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Solo mostrar imágenes si la lista no está vacía
+                            // Irudiak soilik erakutsi zerrenda hutsa ez bada
                             if (isPlaying && contenido.imagenesAudio.isNotEmpty()) {
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
@@ -193,13 +197,13 @@ fun AzalpenBase(
                                         targetState = currentImageIndex,
                                         animationSpec = tween(1000)
                                     ) { index ->
-                                        // Verificación adicional de índice
+                                        // Indizearen egiaztapen gehigarria
                                         if (index < contenido.imagenesAudio.size) {
                                             Image(
                                                 painter = painterResource(id = contenido.imagenesAudio[index]),
                                                 contentDescription = null,
                                                 modifier = Modifier
-                                                    .size(180.dp) // REDUCIDO: tamaño de imagen más pequeño
+                                                    .size(180.dp) // MURRIZTUA: irudiaren tamaina txikiagoa
                                                     .clip(RoundedCornerShape(12.dp))
                                             )
                                         }
@@ -208,12 +212,12 @@ fun AzalpenBase(
                             }
                         }
                     } else {
-                        // MOSTRAR TEXTO Y BOTÓN (con o sin audio)
+                        // TESTUA ETA BOTOIA ERKUTSI (audiorekin edo gabe)
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
                         ) {
-                            // Solo mostrar título si no está vacío
+                            // Titulua soilik erakutsi hutsa ez bada
                             if (contenido.tituloTexto.isNotEmpty()) {
                                 Text(
                                     text = contenido.tituloTexto,
@@ -221,33 +225,33 @@ fun AzalpenBase(
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
-                                Spacer(modifier = Modifier.height(6.dp)) // REDUCIDO: menos espacio
+                                Spacer(modifier = Modifier.height(6.dp)) // MURRIZTUA: espazio gutxiago
                             }
 
-                            // Solo mostrar texto didáctico si no está vacío
+                            // Hezkuntza testua soilik erakutsi hutsa ez bada
                             if (contenido.textoDidactico.isNotEmpty()) {
                                 Text(
                                     text = contenido.textoDidactico,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontSize = 14.sp
                                 )
-                                Spacer(modifier = Modifier.height(8.dp)) // REDUCIDO: menos espacio
+                                Spacer(modifier = Modifier.height(8.dp)) // MURRIZTUA: espazio gutxiago
                             }
 
                             Button(
                                 onClick = onNavigateToGame,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(48.dp), // REDUCIDO: altura del botón
+                                    .height(48.dp), // MURRIZTUA: botoiaren altuera
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.primary,
                                 ),
-                                shape = RoundedCornerShape(24.dp) // REDUCIDO: bordes menos redondeados
+                                shape = RoundedCornerShape(24.dp) // MURRIZTUA: ertzak gutxiago biribildu
                             ) {
                                 Text(
                                     text = contenido.textoBoton,
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    fontSize = 15.sp, // REDUCIDO: tamaño de texto
+                                    fontSize = 15.sp, // MURRIZTUA: testuaren tamaina
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -256,12 +260,22 @@ fun AzalpenBase(
                 }
             }
 
-            // REDUCIDO: mucho menos espacio al final
+            // MURRIZTUA: askoz espazio gutxiago bukaeran
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
+/**
+ * Audio erreproduzitzailearen txartela konposatzen du
+ * @param isPlaying Audio erreproduzitzen ari den ala ez
+ * @param isLoading Audio kargatzen ari den ala ez
+ * @param currentPosition Uneko posizioa milisegundutan
+ * @param totalDuration Audioaren iraupen osoa milisegundutan
+ * @param audioFinished Audioa amaitu den ala ez
+ * @param tieneAudio Audio baliabidea baduen ala ez
+ * @param onPlayPauseClick Play/pause botoiari klik egiterakoan deitzen den callback-a
+ */
 @Composable
 fun AudioPlayerCard(
     isPlaying: Boolean,
@@ -272,6 +286,11 @@ fun AudioPlayerCard(
     tieneAudio: Boolean,
     onPlayPauseClick: () -> Unit
 ) {
+    /**
+     * Denbora formatatzen du milisegundutatik MM:ss formatura
+     * @param milliseconds Milisegundoak
+     * @return Formateatutako denbora katea
+     */
     fun formatTime(milliseconds: Long): String {
         val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
         val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) % 60
@@ -281,15 +300,15 @@ fun AudioPlayerCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary),
-        shape = RoundedCornerShape(20.dp) // REDUCIDO: bordes menos redondeados
+        shape = RoundedCornerShape(20.dp) // MURRIZTUA: ertzak gutxiago biribildu
     ) {
-        Column(modifier = Modifier.padding(12.dp)) { // REDUCIDO: padding interno
+        Column(modifier = Modifier.padding(12.dp)) { // MURRIZTUA: barneko padding txikiagoa
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Solo mostrar botón de play si hay audio
+                // Play botoia soilik erakutsi audioa badago
                 if (tieneAudio) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp) // REDUCIDO: tamaño del botón
+                            .size(48.dp) // MURRIZTUA: botoiaren tamaina
                             .clip(RoundedCornerShape(50))
                             .background(Color.White)
                             .clickable(enabled = !isLoading && !audioFinished, onClick = onPlayPauseClick),
@@ -297,7 +316,7 @@ fun AudioPlayerCard(
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp), // REDUCIDO: tamaño del spinner
+                                modifier = Modifier.size(20.dp), // MURRIZTUA: spinnerraren tamaina
                                 color = MaterialTheme.colorScheme.primary,
                                 strokeWidth = 2.dp
                             )
@@ -312,12 +331,12 @@ fun AudioPlayerCard(
                                 contentDescription = stringResource(
                                     if (isPlaying) R.string.audio_pause else R.string.audio_play
                                 ),
-                                modifier = Modifier.size(24.dp) // REDUCIDO: tamaño del icono
+                                modifier = Modifier.size(24.dp) // MURRIZTUA: ikonoaren tamaina
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.width(12.dp)) // REDUCIDO: espacio horizontal
+                    Spacer(modifier = Modifier.width(12.dp)) // MURRIZTUA: espazio horizontala
                 }
 
                 Column(modifier = Modifier.weight(1f)) {
@@ -328,7 +347,7 @@ fun AudioPlayerCard(
                             stringResource(R.string.azalpena_label)
                         },
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 16.sp, // REDUCIDO: tamaño de texto
+                        fontSize = 16.sp, // MURRIZTUA: testuaren tamaina
                         fontWeight = FontWeight.Bold
                     )
                     Text(
@@ -345,7 +364,7 @@ fun AudioPlayerCard(
                             stringResource(R.string.azalpena_read)
                         },
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 13.sp // REDUCIDO: tamaño de texto
+                        fontSize = 13.sp // MURRIZTUA: testuaren tamaina
                     )
                 }
 
@@ -353,19 +372,19 @@ fun AudioPlayerCard(
                     Text(
                         text = formatTime(totalDuration - currentPosition),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 13.sp, // REDUCIDO: tamaño de texto
+                        fontSize = 13.sp, // MURRIZTUA: testuaren tamaina
                         fontWeight = FontWeight.Medium
                     )
                 }
             }
 
             if (tieneAudio && isPlaying && totalDuration > 0) {
-                Spacer(modifier = Modifier.height(8.dp)) // REDUCIDO: espacio
+                Spacer(modifier = Modifier.height(8.dp)) // MURRIZTUA: espazioa
                 LinearProgressIndicator(
                     progress = currentPosition.toFloat() / totalDuration.toFloat(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(2.dp), // REDUCIDO: altura de la barra
+                        .height(2.dp), // MURRIZTUA: barraren altuera
                     color = MaterialTheme.colorScheme.onPrimary,
                     trackColor = MaterialTheme.colorScheme.primary
                 )

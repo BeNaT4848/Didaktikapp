@@ -1,11 +1,7 @@
 package com.example.errenteriaapp.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +11,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.errenteriaapp.R
 
+/**
+ * Pertsonaia bat erakusten du burbuila batekin (hitz egiten badu).
+ * Xanti edo Maialen pertsonaia erakusten du, egoeraren arabera.
+ *
+ * @param isSpeaking Pertsonaia hitz egiten ari den
+ * @param isXanti Xanti pertsonaia den (false bada, Maialen da)
+ * @param message Pertsonaiak esaten duen mezua (null bada, ez da mezurik)
+ * @param modifier Modifier gehigarria
+ * @param imageHeight Irudiaren altuera
+ */
 @Composable
 fun CharacterWithSpeech(
     isSpeaking: Boolean,
@@ -28,6 +34,7 @@ fun CharacterWithSpeech(
         horizontalAlignment = if (isXanti) Alignment.Start else Alignment.End,
         verticalArrangement = Arrangement.Bottom
     ) {
+        // Burbuila erakutsi hitz egiten ari bada eta mezua badu
         if (isSpeaking && !message.isNullOrEmpty()) {
             SpeechBubble(
                 text = message,
@@ -36,6 +43,7 @@ fun CharacterWithSpeech(
             )
         }
 
+        // Pertsonaiaren irudia (egoeraren arabera)
         Image(
             painter = if (isXanti) {
                 if (isSpeaking) painterResource(R.drawable.xanti_silla_hablando)

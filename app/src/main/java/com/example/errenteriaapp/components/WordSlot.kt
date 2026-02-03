@@ -30,6 +30,21 @@ import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.GameWords
 import com.example.errenteriaapp.classes.Character
 
+/**
+ * Hitzaren "slot"-a erakusten du (pertsonaia bati esleitzeko lekua).
+ * Hutsik egon daiteke edo hitz bat izan dezake.
+ * Hitzak arrastatzeko modukoak dira "slot"-etik.
+ *
+ * @param modifier Modifier gehigarria
+ * @param slotIndex "Slot"-aren indizea pertsonaia horren zerrendan
+ * @param assignedWord Esleitutako hitza (null bada, hutsik)
+ * @param character Pertsonaia zeinen "slot"-a den
+ * @param onSlotPositioned "Slot"-aren posizioa ezagutzen denean deitzen da (UI elementuaren mugak)
+ * @param onDragStart "Slot"-etik arrastatzea hasten denean deitzen da
+ * @param onDrag Arrastatzean posizioa aldatzean deitzen da
+ * @param onDragEnd Arrastatzea amaitu denean deitzen da
+ * @param onDragCancel Arrastatzea bertan behera geratzean deitzen da
+ */
 @Composable
 fun WordSlot(
     modifier: Modifier = Modifier,
@@ -58,12 +73,13 @@ fun WordSlot(
                 shape = RoundedCornerShape(10.dp),
             )
             .onGloballyPositioned { coords ->
-                // AQUÍ ESTÁ LA CLAVE: coords.boundsInWindow() ya devuelve Rect de Compose
+                // GAKOA HEMEN DA: coords.boundsInWindow() Compose-ko Rect itzultzen du
                 bounds = coords.boundsInWindow()
                 onSlotPositioned(coords.boundsInWindow())
             }
     ) {
         if (assignedWord != null) {
+            // Hitz esleituta: arrastagarria da
             Text(
                 text = stringResource(GameWords.labelRes(assignedWord)),
                 fontSize = 14.sp,
@@ -88,6 +104,7 @@ fun WordSlot(
                     }
             )
         } else {
+            // Hutsik: "arrastatu hona" testua
             Text(
                 text = stringResource(R.string.game_drag_here),
                 fontSize = 13.sp,

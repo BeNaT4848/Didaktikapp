@@ -50,6 +50,12 @@ import com.example.errenteriaapp.ai.ChatUiMessage
 import com.example.errenteriaapp.ai.ChatUiState
 import com.example.errenteriaapp.ai.ChatViewModel
 
+/**
+ * Chat nabigazio bidea konposatzen du
+ * @param onBack Atzera egiteko callback-a
+ * @param modifier Modifier konposaketa
+ * @param viewModel Chat-aren ViewModela (lehenetsitakoa erabiltzen da)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatRoute(
@@ -67,6 +73,14 @@ fun ChatRoute(
     )
 }
 
+/**
+ * Chat pantaila nagusia konposatzen du
+ * @param state Chat-aren UI egoera
+ * @param onBack Atzera egiteko callback-a
+ * @param onInputChange Sarrera testua aldatzeko callback-a
+ * @param onSend Mezua bidaltzeko callback-a
+ * @param modifier Modifier konposaketa
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -214,6 +228,10 @@ fun ChatScreen(
     }
 }
 
+/**
+ * Chat burbuila (mezu bat) konposatzen du
+ * @param message Erakutsiko den mezua
+ */
 @Composable
 private fun ChatBubble(message: ChatUiMessage) {
     Row(
@@ -238,6 +256,9 @@ private fun ChatBubble(message: ChatUiMessage) {
     }
 }
 
+/**
+ * Idazten ari denaren adierazlea konposatzen du (hiru puntu animatua)
+ */
 @Composable
 private fun TypingIndicator() {
     val transition = rememberInfiniteTransition(label = "typing")
@@ -289,6 +310,9 @@ private fun TypingIndicator() {
     }
 }
 
+/**
+ * Aurreikuspen pantaila prestatzen du
+ */
 @Preview(showBackground = true)
 @Composable
 private fun ChatScreenPreview() {

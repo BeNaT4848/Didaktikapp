@@ -8,6 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Bertsoaren testua erakusten du.
+ * Bertso jolaserako erabiltzen da.
+ *
+ * @param textobertsoa Erakusteko bertsoaren testua
+ */
 @Composable
 fun textoBertsoa(textobertsoa: String) {
     Text(

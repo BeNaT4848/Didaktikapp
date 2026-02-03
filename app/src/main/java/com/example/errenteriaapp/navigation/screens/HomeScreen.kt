@@ -28,23 +28,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.errenteriaapp.R // Necesitas importar R para las imágenes
+import com.example.errenteriaapp.R // R behar da irudiak inportatzeko
 import com.example.errenteriaapp.components.CharacterWithSpeech
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.database.viewModel.ConversacionViewModel
 
-// ConversationScreen.kt
+/**
+ * Hasierako pantaila konposatzen du (izen-bidearen elkarrizketa)
+ * @param modifier Modifier konposaketa
+ * @param viewModel Elkarrizketa ViewModela (lehenetsitakoa erabiltzen da)
+ * @param navController Nabigazio kontrolatzailea
+ */
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: ConversacionViewModel = viewModel(),
     navController: NavController,
-
-    ) {
+) {
     val state by viewModel.state.collectAsState()
     val currentMessage = state.currentMessage?.let { stringResource(it.textResId) }
 
-    // Iniciar conversación cuando se carga la pantalla
+    // Elkarrizketa hasi pantaila kargatzean
     LaunchedEffect(Unit) {
         viewModel.startConversation()
     }
@@ -62,9 +66,9 @@ fun HomeScreen(
             modifier = Modifier.matchParentSize()
         )
 
-        // Botón "Skip" eliminado para que no aparezca.
+        // "Saltatu" botoia ezabatuta agertu ez dadin
 
-        // Fila principal con los personajes
+        // Pertsonaien lerro nagusia
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -73,7 +77,7 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.Bottom
         ) {
-            // XANTI (izquierda)
+            // XANTI (ezkerrera)
             CharacterWithSpeech(
                 isSpeaking = state.currentMessage?.isFromXanti == true,
                 isXanti = true,
@@ -81,7 +85,7 @@ fun HomeScreen(
                 modifier = Modifier.weight(1f),
                 imageHeight = imageHeight
             )
-            // MAIALEN (derecha)
+            // MAIALEN (eskumara)
             CharacterWithSpeech(
                 isSpeaking = state.currentMessage?.isFromXanti == false,
                 isXanti = false,
@@ -91,7 +95,7 @@ fun HomeScreen(
             )
         }
 
-        // Botón "Empezar Juego" (solo visible al final)
+        // "Jokoa Hasi" botoia (bukaeran soilik ikusgai)
         if (state.showStartButton) {
             Button(
                 onClick = {

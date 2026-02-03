@@ -6,6 +6,15 @@ import com.example.errenteriaapp.components.ReusableModalBottomSheet
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.navigation.screens.azalpenOrriak.*
 
+/**
+ * Kokaleku baten arabera dagokion azalpen-modal bat erakusten du.
+ * Erabiltzaileak kokaleku batean klik egitean, jokoaren azalpena erakusten du.
+ *
+ * @param kokapena Erabiltzaileak hautatutako kokalekua
+ * @param navController Nabigazio-kontrolatzailea (jokora nabigatzeko)
+ * @param onClose Modal itxitzean deitzen den funtzioa
+ * @param onNavigateToGame Joko batera nabigatzean deitzen den funtzioa
+ */
 @Composable
 fun KokapenaAzalpen(
     kokapena: Kokapena,

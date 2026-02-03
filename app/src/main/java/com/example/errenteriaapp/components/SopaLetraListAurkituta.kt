@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,7 +16,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
-
+/**
+ * Sopa-letren jokoaren hitzen zerrenda erakusten du.
+ * Topatutako hitzak markatuta erakusten ditu.
+ *
+ * @param palabras Hitz guztien zerrenda
+ * @param palabrasEncontradas Topatutako hitzen zerrenda
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun SopaPalabrasList(
     palabras: List<com.example.errenteriaapp.classes.PalabraSopa>,
@@ -34,6 +39,7 @@ fun SopaPalabrasList(
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
+            // Goiburua
             Text(
                 text = stringResource(R.string.game_sopa_found_title),
                 color = Color.Black,
@@ -42,6 +48,7 @@ fun SopaPalabrasList(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
+            // 2 zutabetan antolatutako zerrenda
             val columnas = 2
             val filasNecesarias = (palabras.size + columnas - 1) / columnas
 
@@ -71,6 +78,7 @@ fun SopaPalabrasList(
                                     )
                                 }
                             } else {
+                                // Hutsunea betetzeko
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }

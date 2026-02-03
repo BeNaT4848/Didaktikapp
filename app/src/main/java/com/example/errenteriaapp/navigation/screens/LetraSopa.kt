@@ -18,6 +18,12 @@ import com.example.errenteriaapp.progress.KokapenaProgressRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Sopa de letras jokoaren pantaila nagusia konposatzen du
+ * @param navController Nabigazio kontrolatzailea
+ * @param userName Erabiltzailearen izena (aukerakoa)
+ * @param viewModel Sopa de letras jokoaren ViewModela
+ */
 @Composable
 fun LetraSopaScreen(
     navController: NavController,
@@ -35,20 +41,20 @@ fun LetraSopaScreen(
     val gameState by viewModel.gameState.collectAsState()
     val scope = rememberCoroutineScope()
 
-    // MediaPlayer para el audio
+    // Audioarentzako MediaPlayer
     val mediaPlayer = remember { MediaPlayer() }
 
-    // Animación de confeti
+    // Konfetiaren animazioa
     val confettiScale = remember { mutableStateOf(0f) }
 
-    // Inicializar y preparar el audio
+    // Audioa hasieratu eta prestatu
     LaunchedEffect(Unit) {
         try {
             val audioResource = R.raw.zentenarioa_musika_audioa
             mediaPlayer.setDataSource(context.resources.openRawResourceFd(audioResource))
             mediaPlayer.prepareAsync()
 
-            mediaPlayer.isLooping = true // Cambia a false si no quieres que se repita
+            mediaPlayer.isLooping = true // Aldatu false-ra ez baduzu errepikatu nahi
 
             mediaPlayer.setOnPreparedListener {
                 mediaPlayer.start()
@@ -58,7 +64,7 @@ fun LetraSopaScreen(
         }
     }
 
-    // Pausar y liberar el MediaPlayer cuando se sale de la pantalla
+    // MediaPlayer gelditu eta askatu pantaila uzterakoan
     DisposableEffect(Unit) {
         onDispose {
             if (mediaPlayer.isPlaying) {
@@ -68,16 +74,16 @@ fun LetraSopaScreen(
         }
     }
 
-    // Efecto para cuando se completa el juego
+    // Jokoa osatzerakoan efektua
     LaunchedEffect(gameState.mostrarExito) {
         if (gameState.mostrarExito) {
             scope.launch {
-                // Opcional: Detener el audio cuando se completa el juego
+                // Aukerakoa: Audioa gelditu jokoa osatzerakoan
                 mediaPlayer.pause()
 
                 delay(500)
 
-                // Animación de confeti
+                // Konfetiaren animazioa
                 confettiScale.value = 0f
                 repeat(3) {
                     confettiScale.value = 1f
@@ -99,16 +105,16 @@ fun LetraSopaScreen(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Encabezado
+            // Goiburua
             SopaHeader()
 
-            // Barra de progreso
+            // Aurrerapen barra
             SopaProgressBar(
                 encontradas = gameState.palabrasEncontradas.size,
                 total = viewModel.palabras.size
             )
 
-            // Tablero de sopa de letras
+            // Sopa de letrasen taula
             SopaDeLetrasTablero(
                 tablero = viewModel.tablero,
                 palabras = viewModel.palabras,
@@ -121,14 +127,14 @@ fun LetraSopaScreen(
                 modifier = Modifier.padding(bottom = 18.dp)
             )
 
-            // Lista de palabras
+            // Hitz zerrenda
             SopaPalabrasList(
                 palabras = viewModel.palabras,
                 palabrasEncontradas = gameState.palabrasEncontradas
             )
         }
 
-        // Diálogo de éxito
+        // Arrakasta elkarrizketa
         if (gameState.mostrarExito) {
             GameResultDialogs(
                 showSuccess = true,
@@ -140,7 +146,7 @@ fun LetraSopaScreen(
                 onSuccessButton = {
                     viewModel.hideSuccessDialog()
                     progressRepo.markCompleted(Routes.SOPALETRA_SCREEN)
-                    // Al terminar, ir a Ranking
+                    // Amaitzerakoan, Ranking-era joan
                     navController.navigate(Routes.RANKIN_SCREEN)
                 },
                 onWrongButton = { }

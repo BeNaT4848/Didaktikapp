@@ -26,6 +26,14 @@ import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.RankingItem
 
+/**
+ * Rankingaren txartela erakusten du.
+ * Parte-hartzaile baten informazioa erakusten du animazioekin.
+ *
+ * @param position Parte-hartzailearen posizioa rankingan
+ * @param item RankingItem objektua erabiltzailearen informazioarekin
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun RankingCard(
     position: Int,
@@ -34,6 +42,7 @@ fun RankingCard(
 ) {
     var isHovered by remember { mutableStateOf(false) }
 
+    // Eskalaren animazioa (gainetik pasatzean)
     val scale by animateFloatAsState(
         targetValue = if (isHovered) 1.03f else 1f,
         animationSpec = spring(
@@ -43,6 +52,7 @@ fun RankingCard(
         label = "card-scale"
     )
 
+    // Altueraren animazioa (gainetik pasatzean)
     val elevation by animateDpAsState(
         targetValue = if (isHovered) 8.dp else 4.dp,
         animationSpec = tween(durationMillis = 200),
@@ -70,11 +80,12 @@ fun RankingCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Información del participante
+            // Parte-hartzailearen informazioa
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
+                // Izena
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.titleLarge,
@@ -84,6 +95,7 @@ fun RankingCard(
                     fontSize = 16.sp
                 )
 
+                // Puntuak
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -104,7 +116,7 @@ fun RankingCard(
                 }
             }
 
-            // Número de posición
+            // Posizioaren zenbakia
             Box(
                 modifier = Modifier
                     .size(38.dp)

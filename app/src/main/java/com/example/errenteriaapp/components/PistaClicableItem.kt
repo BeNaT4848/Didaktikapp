@@ -4,12 +4,24 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.text.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+/**
+ * Pistaren elementu klikagarria erakusten du.
+ * Erabiltzaileak pista batean klik egin dezake hitz aktiboa aukeratzeko.
+ *
+ * @param numero Pistaren zenbakia
+ * @param texto Pistaren testua
+ * @param esActiva Pista hau aktibatuta dagoen
+ * @param esHorizontal Pista horizontala den (false bada, bertikala da)
+ * @param onClick Pistaren elementuan klik egitean deitzen den funtzioa
+ */
 @Composable
 fun PistaClicableItem(
     numero: Int,
@@ -20,7 +32,7 @@ fun PistaClicableItem(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    // Determinar colores según horizontal/vertical
+    // Koloreak horizontala/bertikala denaren arabera zehaztu
     val (colorPrincipal, colorContenedor, colorSobreContenedor) = if (esHorizontal) {
         Triple(
             colorScheme.secondary,
@@ -51,7 +63,7 @@ fun PistaClicableItem(
                 .padding(vertical = 10.dp, horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Indicador visual H/V
+            // Adierazle bisuala H/V (norabidea)
             Surface(
                 shape = MaterialTheme.shapes.extraSmall,
                 color = if (esActiva) colorScheme.onSecondary else colorPrincipal,
@@ -69,7 +81,7 @@ fun PistaClicableItem(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Número de pista
+            // Pistaren zenbakia
             Surface(
                 shape = MaterialTheme.shapes.small,
                 color = if (esActiva) colorScheme.onSecondary else colorScheme.surface,
@@ -88,7 +100,7 @@ fun PistaClicableItem(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Texto de la pista
+            // Pistaren testua
             Text(
                 text = texto,
                 fontSize = 14.sp,
@@ -96,7 +108,7 @@ fun PistaClicableItem(
                 modifier = Modifier.weight(1f)
             )
 
-            // Indicador de activo
+            // Aktibo adierazlea
             if (esActiva) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(

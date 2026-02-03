@@ -22,6 +22,12 @@ import com.example.errenteriaapp.database.viewModel.BertsoViewModel
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
+/**
+ * Bertso-jokoaren pantaila nagusia konposatzen du
+ * @param navController Nabigazio kontrolatzailea
+ * @param userName Erabiltzailearen izena (aukerakoa)
+ * @param viewModel Bertso jokoaren ViewModela
+ */
 @Composable
 fun BertsoJolasaScreen(
     navController: NavController,
@@ -34,11 +40,14 @@ fun BertsoJolasaScreen(
     val progressRepo = remember(effectiveUserName) {
         KokapenaProgressRepository(context, effectiveUserName ?: "default")
     }
- 
+
     val attempt = viewModel.attempt
     val hasNavigated = viewModel.hasNavigated
     val showWrong = viewModel.showWrongDialog
 
+    /**
+     * Aurrerapena kudeatzen du
+     */
     fun handleProgress() {
         viewModel.registerAnswer()
         viewModel.checkBertso1Completion {
@@ -59,7 +68,7 @@ fun BertsoJolasaScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = 60.dp)
         ) {
-            // Título principal
+            // Titulu nagusia
             item {
                 Text(
                     text = "📝 Bertso Jolasa",
@@ -71,7 +80,7 @@ fun BertsoJolasaScreen(
                 )
             }
 
-            // Primera card
+            // Lehenengo txartela
             item {
                 ParagraphCard(
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer,
@@ -112,7 +121,7 @@ fun BertsoJolasaScreen(
                 }
             }
 
-            // Segunda card
+            // Bigarren txartela
             item {
                 ParagraphCard(
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer,
@@ -155,7 +164,7 @@ fun BertsoJolasaScreen(
                 }
             }
 
-            // Tercera card
+            // Hirugarren txartela
             item {
                 ParagraphCard(
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer,
@@ -213,7 +222,7 @@ fun BertsoJolasaScreen(
             }
         }
 
-        // Diálogo de error
+        // Errore elkarrizketa
         if (showWrong) {
             GameResultDialogs(
                 showSuccess = false,
@@ -227,6 +236,9 @@ fun BertsoJolasaScreen(
     }
 }
 
+/**
+ * Aurreikuspen pantaila prestatzen du
+ */
 @Preview(showBackground = true)
 @Composable
 private fun BertsoJolasaPreview() {

@@ -15,19 +15,40 @@ import com.example.errenteriaapp.database.Puntuazioa
 import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.launch
 
+/**
+ * Galdera baten datuak aukera nahastuekin gordetzeko klasea
+ * @property texto Galderaren testua (string baliabidearen IDa)
+ * @property opcionesOriginales Aukera originalen zerrenda (string baliabideen IDak)
+ * @property opcionesMezcladas Aukera nahastuen zerrenda (string baliabideen IDak)
+ * @property respuestaCorrectaOriginal Erantzun zuzenaren indizea aukera originaletan
+ * @property respuestaCorrectaMezclada Erantzun zuzenaren indizea aukera nahastuetan
+ */
 data class PreguntaConOpcionesMezcladas(
     @StringRes val texto: Int,
     @StringRes val opcionesOriginales: List<Int>,
     @StringRes val opcionesMezcladas: List<Int>,
-    val respuestaCorrectaOriginal: Int,  // Índice en opcionesOriginales
-    val respuestaCorrectaMezclada: Int   // Índice en opcionesMezcladas
+    val respuestaCorrectaOriginal: Int,  // Aukera originaletan indizea
+    val respuestaCorrectaMezclada: Int   // Aukera nahastuetan indizea
 )
 
+/**
+ * ViewModela erabili San Markos galdera-jokoaren egoera kudeatzeko
+ * @see ViewModel
+ * @param puntuazioaDao Puntuazioak datu-basean gordetzeko erabiltzen den DAOa
+ * @param configJuego Jokoaren konfigurazioa, ConfigJuego.DEFAULT_SAN_MARKOS balioa erabiltzen du berez
+ */
 class SanMarkosViewModel(
     private val puntuazioaDao: PuntuazioaDao?,
     private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_SAN_MARKOS
 ) : ViewModel() {
 
+    /**
+     * Jokoaren konfigurazioaren datu-klasea
+     * @property minCorrectosRequeridos Onargarriak diren erantzun kopuru minimoa
+     * @property puntosPorRespuestaCorrecta Erantzun zuzen bakoitzeko puntuak
+     * @property puntosExtraPerfecto Partida perfektuarentzako puntu gehigarriak
+     * @property puntosPorTodasCorrectas Erantzun guztiak zuzenak izateagatik puntu gehigarriak
+     */
     data class ConfigJuego(
         val minCorrectosRequeridos: Int,
         val puntosPorRespuestaCorrecta: Int = 5,
@@ -35,6 +56,9 @@ class SanMarkosViewModel(
         val puntosPorTodasCorrectas: Int = 5
     ) {
         companion object {
+            /**
+             * San Markos jokoarentzako konfigurazio lehenetsia
+             */
             val DEFAULT_SAN_MARKOS = ConfigJuego(
                 minCorrectosRequeridos = 2,
                 puntosPorRespuestaCorrecta = 5,
@@ -44,31 +68,61 @@ class SanMarkosViewModel(
         }
     }
 
+    /**
+     * Oraingo erabiltzailearen izena gordetzeko
+     */
     var currentUserName: String? = null
 
-    // Estado del juego
+    // Jokoaren egoera
+    /**
+     * Unean erakusten ari den galderaren indizea
+     */
     var galderaIndex by mutableIntStateOf(0)
         private set
 
+    /**
+     * Hautatutako aukeraren indizea (-1 ezer hautatu gabe)
+     */
     var aukeraHautatua by mutableIntStateOf(-1)
         private set
 
+    /**
+     * Erantzun zuzen kopurua
+     */
     var erantzunZuzenak by mutableIntStateOf(0)
         private set
 
+    /**
+     * Puntuazio totala
+     */
     var puntuacionTotal by mutableIntStateOf(0)
         private set
 
+    /**
+     * Erantzundako galderen indizeen zerrenda
+     */
     val galderakErantzunda = mutableStateListOf<Int>()
+
+    /**
+     * Erantzunen mapa: galdera-indizea -> (hautatutako indizea, zuzena den ala ez)
+     */
     val erantzunak = mutableStateMapOf<Int, Pair<Int, Boolean>>()
 
+    /**
+     * Arrakasta elkarrizketaren bistaratzea kontrolatzeko
+     */
     var showSuccessDialog by mutableStateOf(false)
         private set
 
+    /**
+     * Errore elkarrizketaren bistaratzea kontrolatzeko
+     */
     var showWrongDialog by mutableStateOf(false)
         private set
 
-    // Preguntas base con respuestas fijas
+    /**
+     * Galdera baseak erantzun finkoekin
+     */
     private val preguntasBase: List<Triple<Int, List<Int>, Int>> = listOf(
         Triple(
             R.string.sanmarkos_q1_text,
@@ -99,7 +153,9 @@ class SanMarkosViewModel(
         )
     )
 
-    // Preguntas con opciones mezcladas
+    /**
+     * Aukera nahastuekin dauden galderak
+     */
     var galderak by mutableStateOf<List<PreguntaConOpcionesMezcladas>>(emptyList())
         private set
 
@@ -107,22 +163,24 @@ class SanMarkosViewModel(
         mezclarTodo()
     }
 
-    // Función para mezclar preguntas Y respuestas
+    /**
+     * Galderak ETA erantzunak nahasten ditu
+     */
     private fun mezclarTodo() {
-        // 1. Mezclar el orden de las preguntas
+        // 1. Galderen ordena nahastu
         val preguntasMezcladas = preguntasBase.shuffled()
 
-        // 2. Para cada pregunta, mezclar las opciones
+        // 2. Galdera bakoitzean, aukerak nahastu
         val nuevasGalderak = mutableListOf<PreguntaConOpcionesMezcladas>()
 
         preguntasMezcladas.forEach { (texto, opciones, respuestaCorrecta) ->
-            // Crear lista de índices para mezclar
+            // Nahasteko indizeen zerrenda sortu
             val indices = opciones.indices.toList().shuffled()
 
-            // Crear las opciones mezcladas
+            // Aukera nahastuak sortu
             val opcionesMezcladas = indices.map { opciones[it] }
 
-            // Encontrar la nueva posición de la respuesta correcta
+            // Erantzun zuzenaren kokapena aurkitu aukera nahastuetan
             val nuevaPosicionCorrecta = indices.indexOf(respuestaCorrecta)
 
             nuevasGalderak.add(
@@ -138,18 +196,21 @@ class SanMarkosViewModel(
 
         galderak = nuevasGalderak
 
-        // Resetear estado
+        // Egoera berrabiarazi
         resetGame()
 
-        println("DEBUG - Preguntas y respuestas mezcladas:")
+        println("DEBUG - Galderak eta erantzunak nahastuak:")
         galderak.forEachIndexed { index, pregunta ->
-            println("Pregunta $index: ${pregunta.texto}")
-            println("Opciones mezcladas: ${pregunta.opcionesMezcladas}")
-            println("Respuesta correcta (posición mezclada): ${pregunta.respuestaCorrectaMezclada}")
+            println("Galdera $index: ${pregunta.texto}")
+            println("Aukera nahastuak: ${pregunta.opcionesMezcladas}")
+            println("Erantzun zuzena (kokapen nahastua): ${pregunta.respuestaCorrectaMezclada}")
         }
     }
 
-    // Método para seleccionar una opción
+    /**
+     * Aukera bat hautatzerakoan deitzen da
+     * @param optionIndex Hautatutako aukeraren indizea
+     */
     fun onOptionSelected(optionIndex: Int) {
         if (!galderakErantzunda.contains(galderaIndex)) {
             aukeraHautatua = optionIndex
@@ -160,105 +221,114 @@ class SanMarkosViewModel(
 
             if (correct) {
                 erantzunZuzenak++
-                println("DEBUG - Respuesta CORRECTA!")
+                println("DEBUG - Erantzun ZUZENA!")
             } else {
-                println("DEBUG - Respuesta INCORRECTA. La correcta era: ${preguntaActual.respuestaCorrectaMezclada}")
+                println("DEBUG - Erantzun OKERRA. Zuzena zen: ${preguntaActual.respuestaCorrectaMezclada}")
             }
 
             galderakErantzunda.add(galderaIndex)
         }
     }
 
-    // Método para ir a la siguiente pregunta o terminar
+    /**
+     * Hurrengo galderara joateko edo jokoa amaitzeko deitzen da
+     */
     fun onNextQuestion() {
         if (galderaIndex < galderak.size - 1) {
-            // Ir a la siguiente pregunta
+            // Hurrengo galderara joan
             galderaIndex++
             aukeraHautatua = -1
         } else {
-            // Verificar resultados
+            // Emaitzak egiaztatu
             verificarResultados()
         }
     }
 
-    // Verificar resultados y calcular puntos
+    /**
+     * Emaitzak egiaztatzen ditu eta puntuak kalkulatzen ditu
+     */
     private fun verificarResultados() {
         val haAprobado = erantzunZuzenak >= configJuego.minCorrectosRequeridos
 
-        println("DEBUG === RESULTADOS FINALES ===")
-        println("DEBUG - Respuestas correctas: $erantzunZuzenak/${galderak.size}")
-        println("DEBUG - Mínimo requerido: ${configJuego.minCorrectosRequeridos}")
-        println("DEBUG - Ha aprobado: $haAprobado")
+        println("DEBUG === EMAITZA FINALAK ===")
+        println("DEBUG - Erantzun zuzenak: $erantzunZuzenak/${galderak.size}")
+        println("DEBUG - Gutxieneko beharrezkoa: ${configJuego.minCorrectosRequeridos}")
+        println("DEBUG - Gainditu du: $haAprobado")
 
         if (haAprobado) {
-            // Calcular puntuación
+            // Puntuazioa kalkulatu
             puntuacionTotal = calcularPuntuacion()
 
-            // Guardar puntos en base de datos
+            // Puntuak datu-basean gorde
             guardarPuntuacion()
 
-            // Mostrar diálogo de éxito
+            // Arrakasta elkarrizketa erakutsi
             showSuccessDialog = true
         } else {
-            // Mostrar diálogo de error
+            // Errore elkarrizketa erakutsi
             showWrongDialog = true
         }
     }
 
-    // Calcular puntuación
+    /**
+     * Puntuazioa kalkulatzen du
+     * @return Puntuazio totala
+     */
     private fun calcularPuntuacion(): Int {
         var puntos = 0
 
-        // Puntos por respuestas correctas
+        // Erantzun zuzen bakoitzeko puntuak
         val puntosBase = erantzunZuzenak * configJuego.puntosPorRespuestaCorrecta
         puntos += puntosBase
 
-        println("DEBUG - Puntos base: $erantzunZuzenak × ${configJuego.puntosPorRespuestaCorrecta} = $puntosBase")
+        println("DEBUG - Puntu oinarrizkoak: $erantzunZuzenak × ${configJuego.puntosPorRespuestaCorrecta} = $puntosBase")
 
-        // Bonus por todas correctas
+        // Bonus erantzun guztiak zuzenak izateagatik
         if (erantzunZuzenak == galderak.size) {
             puntos += configJuego.puntosPorTodasCorrectas
-            println("DEBUG - Bonus todas correctas: +${configJuego.puntosPorTodasCorrectas}")
+            println("DEBUG - Bonus guztiak zuzenak: +${configJuego.puntosPorTodasCorrectas}")
         }
 
-        // Bonus extra por desempeño perfecto
+        // Bonus gehigarria partida perfektuarentzat
         if (erantzunZuzenak == galderak.size) {
             puntos += configJuego.puntosExtraPerfecto
-            println("DEBUG - Bonus extra perfecto: +${configJuego.puntosExtraPerfecto}")
+            println("DEBUG - Bonus perfektua: +${configJuego.puntosExtraPerfecto}")
         }
 
-        println("DEBUG - Puntos totales: $puntos")
+        println("DEBUG - Puntu guztira: $puntos")
         return puntos
     }
 
-    // Guardar puntuación en base de datos - CORREGIDO
+    /**
+     * Puntuazioa datu-basean gordetzen du - ZUZENDUTA
+     */
     private fun guardarPuntuacion() {
         viewModelScope.launch {
             try {
-                println("DEBUG === GUARDANDO PUNTUACIÓN ===")
-                println("DEBUG - Usuario actual: $currentUserName")
-                println("DEBUG - Puntuación a guardar: $puntuacionTotal")
+                println("DEBUG === PUNTUAZIOA GORDETZEN ===")
+                println("DEBUG - Oraingo erabiltzailea: $currentUserName")
+                println("DEBUG - Gorde beharreko puntuazioa: $puntuacionTotal")
 
                 currentUserName?.let { nombreUsuario ->
-                    println("DEBUG - Usuario válido: $nombreUsuario")
+                    println("DEBUG - Erabiltzaile balioduna: $nombreUsuario")
 
                     puntuazioaDao?.let { dao ->
-                        println("DEBUG - DAO disponible")
+                        println("DEBUG - DAO eskuragarri")
 
-                        // Obtener la puntuación actual
+                        // Oraingo puntuazioa lortu
                         val puntuazioActual = dao.getByName(nombreUsuario)
-                        println("DEBUG - Puntuación actual en BD: ${puntuazioActual?.puntuazioaGalderak}")
+                        println("DEBUG - Oraingo puntuazioa DBn: ${puntuazioActual?.puntuazioaGalderak}")
 
                         val nuevaPuntuazio = if (puntuazioActual != null) {
-                            // Sumar los nuevos puntos a los existentes
+                            // Puntu berriak existitzen direnei gehitu
                             val puntosTotales = puntuazioActual.puntuazioaGalderak + puntuacionTotal
-                            println("DEBUG - Sumando puntos: ${puntuazioActual.puntuazioaGalderak} + $puntuacionTotal = $puntosTotales")
+                            println("DEBUG - Puntuak gehitzen: ${puntuazioActual.puntuazioaGalderak} + $puntuacionTotal = $puntosTotales")
 
                             puntuazioActual.copy(
                                 puntuazioaGalderak = puntosTotales
                             )
                         } else {
-                            println("DEBUG - Creando nuevo registro")
+                            println("DEBUG - Erregistro berria sortzen")
                             Puntuazioa(
                                 izenaAbizena = nombreUsuario,
                                 puntuazioaBertso = 0,
@@ -271,24 +341,26 @@ class SanMarkosViewModel(
                             )
                         }
 
-                        // Insertar o actualizar
+                        // Sartu edo eguneratu
                         dao.insert(nuevaPuntuazio)
-                        println("DEBUG - Puntuación guardada exitosamente: ${nuevaPuntuazio.puntuazioaGalderak}")
+                        println("DEBUG - Puntuazioa arrakastaz gordeta: ${nuevaPuntuazio.puntuazioaGalderak}")
 
                     } ?: run {
-                        println("DEBUG - ERROR: puntuazioaDao es null")
+                        println("DEBUG - ERROREA: puntuazioaDao null da")
                     }
                 } ?: run {
-                    println("DEBUG - ERROR: currentUserName es null")
+                    println("DEBUG - ERROREA: currentUserName null da")
                 }
             } catch (e: Exception) {
-                println("DEBUG - ERROR al guardar puntuación: ${e.message}")
+                println("DEBUG - ERROREA puntuazioa gordetzean: ${e.message}")
                 e.printStackTrace()
             }
         }
     }
 
-    // Reiniciar el juego
+    /**
+     * Jokoa berrabiarazten du
+     */
     fun resetGame() {
         galderaIndex = 0
         aukeraHautatua = -1
@@ -298,25 +370,44 @@ class SanMarkosViewModel(
         erantzunak.clear()
         showSuccessDialog = false
         showWrongDialog = false
-        println("DEBUG - Juego reiniciado")
+        println("DEBUG - Jokoa berrabiarazita")
     }
 
-    // Métodos para controlar diálogos
+    /**
+     * Elkarrizketak kontrolatzeko metodoak
+     */
+
+    /**
+     * Arrakasta elkarrizketa ixteko
+     */
     fun dismissSuccessDialog() {
         showSuccessDialog = false
     }
 
+    /**
+     * Errore elkarrizketa ixteko
+     */
     fun dismissWrongDialog() {
         showWrongDialog = false
     }
 
-    // Método para establecer el usuario
+    /**
+     * Erabiltzailea ezartzen du
+     * @param nombre Erabiltzailearen izena
+     */
     fun setUsuario(nombre: String) {
         currentUserName = nombre
-        println("DEBUG - Usuario establecido: $nombre")
+        println("DEBUG - Erabiltzailea ezarrita: $nombre")
     }
 
-    // Propiedades computadas
+    /**
+     * Kalkulaturiko propietateak
+     */
+
+    /**
+     * Uneko galdera lortzen du
+     * @return Uneko galdera edo lehenetsitako galdera errore bat baldin bada
+     */
     val currentPregunta: PreguntaConOpcionesMezcladas
         get() = galderak.getOrNull(galderaIndex) ?: galderak.firstOrNull() ?:
         PreguntaConOpcionesMezcladas(

@@ -12,6 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Paragrafoak erakusteko txartel orokorra.
+ * Atzeko kolorea eta ertz-kolorea pertsonaliza daitezke.
+ *
+ * @param backgroundColor Txartelaren atzeko kolorea
+ * @param borderColor Txartelaren ertz-kolorea
+ * @param modifier Modifier gehigarria
+ * @param content Txartelaren edukia (ColumnScope-en barruan)
+ */
 @Composable
 fun ParagraphCard(
     backgroundColor: Color,

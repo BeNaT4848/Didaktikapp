@@ -4,6 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.errenteriaapp.R
 
+/**
+ * San Markos jokoaren azalpen pantaila konposatzen du
+ * @param onClose Azalpena ixteko erabiltzen den callback-a
+ * @param onNavigateToGame Jokora nabigatzeko erabiltzen den callback-a
+ * @see AzalpenContenido
+ * @see AzalpenBase
+ */
 @Composable
 fun AzalpenSanMarkos(
     onClose: () -> Unit,

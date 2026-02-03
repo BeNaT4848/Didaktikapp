@@ -11,8 +11,18 @@ import com.example.errenteriaapp.database.Puntuazioa
 import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModela erabili irudiak ordenatzeko jokoaren egoera kudeatzeko
+ * @see ViewModel
+ * @param puntuazioaDao Puntuazioak datu-basean gordetzeko erabiltzen den DAOa
+ */
 class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewModel() {
-    // Mapeo foto -> número correcto
+
+    /**
+     * Irudien eta haien zenbaki zuzenen arteko mapeoa
+     * @property key Irudiaren baliabide-identifikadorea (R.drawable.*)
+     * @property value Irudiaren zenbaki zuzena (1-6)
+     */
     val photoNumberMap = mapOf(
         R.drawable.errota_prozesua_1 to 1,
         R.drawable.errota_prozesua_2 to 2,
@@ -22,26 +32,42 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
         R.drawable.errota_prozesua_6 to 6
     )
 
-    // Lista de fotos (puede venir barajada o definida manualmente)
+    /**
+     * Jokoan erabiliko diren irudien zerrenda
+     */
     var photos by mutableStateOf(photoNumberMap.keys.toList())
         private set
 
-    // Asignaciones de slots: índice -> resourceId o null
+    /**
+     * Zokaloetan (slot) esleitutako irudiak: indizea -> baliabide-identifikadorea edo null
+     */
     val slotAssignments = mutableStateListOf<Int?>()
 
-    // Dialogs y estados globales del juego
+    /**
+     * Arrakasta elkarrizketaren bistaratzea kontrolatzeko
+     */
     var showSuccessDialog by mutableStateOf(false)
         private set
+
+    /**
+     * Errore elkarrizketaren bistaratzea kontrolatzeko
+     */
     var showWrongDialog by mutableStateOf(false)
         private set
 
-    // Añade esta variable para el nombre del usuario
+    /**
+     * Oraingo erabiltzailearen izena gordetzeko
+     */
     var currentUserName: String? = null
 
     init {
         initGame(shuffle = true)
     }
 
+    /**
+     * Jokoa hasieratzen du
+     * @param shuffle Irudiak nahastu behar diren ala ez (lehenetsia: bai)
+     */
     fun initGame(shuffle: Boolean = true) {
         photos = if (shuffle) photoNumberMap.keys.toList().shuffled() else photoNumberMap.keys.toList()
         slotAssignments.clear()
@@ -50,22 +76,30 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
         showWrongDialog = false
     }
 
-    // Asignar una foto a un slot (desde drag desde panel de fotos)
+    /**
+     * Irudi bat zokalo batera esleitzen du (irudien paneletik arrastratuz)
+     * @param photoRes Esleitu beharreko irudiaren baliabide-identifikadorea
+     * @param targetIndex Helburu zokaloaren indizea
+     */
     fun assignPhotoToSlot(photoRes: Int, targetIndex: Int) {
         if (targetIndex !in slotAssignments.indices) return
 
-        // Si la foto ya estaba en otro slot, limpiar ese slot
+        // Irudia beste zokalo batean bazegoen, zokalo hori garbitzen du
         val previousSlot = slotAssignments.indexOf(photoRes)
         if (previousSlot != -1 && previousSlot != targetIndex) {
             slotAssignments[previousSlot] = null
         }
 
-        // Si en target hay una foto, se queda (o puedes hacer swap según lógica)
+        // Helburu zokaloan irudi bat badago, geratzen da (edo trukatzea erabaki dezakezu)
         slotAssignments[targetIndex] = photoRes
         checkCompletion()
     }
 
-    // Swap entre dos slots (drag desde slot a slot)
+    /**
+     * Bi zokaloen arteko trukea egiten du (zokalotik zokaloara arrastratuz)
+     * @param sourceIndex Iturburu zokaloaren indizea
+     * @param targetIndex Helburu zokaloaren indizea
+     */
     fun swapSlots(sourceIndex: Int, targetIndex: Int) {
         if (sourceIndex !in slotAssignments.indices || targetIndex !in slotAssignments.indices) return
         if (sourceIndex == targetIndex) return
@@ -75,28 +109,49 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
         checkCompletion()
     }
 
+    /**
+     * Zuzen esleitutako irudien kopurua kalkulatzen du
+     * @return Zuzen esleitutako irudien kopurua
+     */
     private val correctCount: Int
         get() = slotAssignments.withIndex().count { (slotIndex, photoRes) ->
             photoRes != null && photoNumberMap[photoRes] == slotIndex + 1
         }
 
+    /**
+     * Jokoa osatuta dagoen egiaztatzen du (zokalo guztiak beteta daude)
+     * @return Jokoa osatuta dagoen ala ez
+     */
     private val isComplete: Boolean
         get() = slotAssignments.all { it != null }
 
+    /**
+     * Jokoaren osaketa egiaztatzen du
+     */
     private fun checkCompletion() {
         if (!isComplete) return
         verificarCompletado()
     }
 
+    /**
+     * Jokoa berrabiarazten du
+     */
     fun resetGame() {
         initGame(shuffle = true)
     }
 
+    /**
+     * Elkarrizketa guztiak ixteko
+     */
     fun dismissDialogs() {
         showSuccessDialog = false
         showWrongDialog = false
     }
 
+    /**
+     * Puntuazioa datu-basean gordetzen du
+     * @param puntos Gorde beharreko puntu kopurua
+     */
     fun guardarPuntuacion(puntos: Int) {
         viewModelScope.launch {
             currentUserName?.let { nombreUsuario ->
@@ -126,11 +181,13 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
         }
     }
 
-    // Función que verifica si el juego está completado
+    /**
+     * Jokoa osatuta dagoen egiaztatzen du eta puntuak kalkulatzen ditu
+     */
     private fun verificarCompletado() {
         val puntosCorrectos = calcularPuntos()
-        if (puntosCorrectos >= 3) { // Según tu mensaje "gutxienez 3 ondo"
-            // Guardar puntos cuando el juego se completa exitosamente
+        if (puntosCorrectos >= 3) { // Zure mezuan "gutxienez 3 ondo" adierazten duzun bezala
+            // Puntuazioa gordetzen du jokoa arrakastaz osatzen denean
             guardarPuntuacion(puntosCorrectos)
             showSuccessDialog = true
         } else {
@@ -138,8 +195,11 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
         }
     }
 
+    /**
+     * Puntu kopurua kalkulatzen du
+     * @return Zuzen esleitutako irudien kopurua
+     */
     private fun calcularPuntos(): Int {
-        // Lógica para calcular cuántas fotos están en la posición correcta
         var puntos = 0
         slotAssignments.forEachIndexed { index, photoRes ->
             if (photoRes != null && photoNumberMap[photoRes] == index + 1) {
@@ -149,7 +209,10 @@ class OrdenatuJolasaViewModel(private val puntuazioaDao: PuntuazioaDao?) : ViewM
         return puntos
     }
 
-    // Método para establecer el usuario
+    /**
+     * Erabiltzailea ezartzen du
+     * @param nombre Erabiltzailearen izena
+     */
     fun setUsuario(nombre: String) {
         currentUserName = nombre
     }

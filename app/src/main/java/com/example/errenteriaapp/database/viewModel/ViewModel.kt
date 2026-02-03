@@ -19,6 +19,15 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+/**
+ * ViewModela erabili saioa hasteko eta erabiltzailearen egoera kudeatzeko
+ * @see ViewModel
+ * @param ikasleDao Ikasleak datu-basean gordetzeko erabiltzen den DAOa
+ * @param irakasleDao Irakasleak datu-basean gordetzeko erabiltzen den DAOa
+ * @param partidaDao Partidak datu-basean gordetzeko erabiltzen den DAOa
+ * @param puntuazioaDao Puntuazioak datu-basean gordetzeko erabiltzen den DAOa
+ * @param izenTaldeaDao Izenak eta taldeak datu-basean gordetzeko erabiltzen den DAOa
+ */
 class LoginViewModel(
     private val ikasleDao: IkasleDao,
     private val irakasleDao: IrakasleDao,
@@ -27,20 +36,39 @@ class LoginViewModel(
     private val izenTaldeaDao: IzenTaldeaDao
 ) : ViewModel() {
 
+    /**
+     * Oraingo erabiltzailearen izena gordetzeko
+     */
     private val _currentUser = MutableStateFlow<String?>(null)
     val currentUser: StateFlow<String?> = _currentUser
+
+    /**
+     * Datuak gordetzen ari diren egoera kontrolatzeko
+     */
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
 
+    /**
+     * Saioa hastea arrakastatsua izan den egiaztatzeko
+     */
     private val _loginSuccess = MutableStateFlow(false)
     val loginSuccess: StateFlow<Boolean> = _loginSuccess
 
+    /**
+     * Errore mezuak gordetzeko
+     */
     private val _errorMessage = MutableStateFlow("")
     val errorMessage: StateFlow<String> = _errorMessage
 
+    /**
+     * ViewModela hasieratuta dagoen egiaztatzeko
+     */
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized
 
+    /**
+     * Irakasle modua aktibatuta dagoen kontrolatzeko
+     */
     private val _isTeacherMode = MutableStateFlow(false)
     val isTeacherMode: StateFlow<Boolean> = _isTeacherMode
 
@@ -51,10 +79,20 @@ class LoginViewModel(
         }
     }
 
+    /**
+     * Irakasle modua aktibatu edo desaktibatzen du
+     * @param enabled Irakasle modua aktibatu behar den ala ez
+     */
     fun setTeacherMode(enabled: Boolean) {
         _isTeacherMode.value = enabled
     }
 
+    /**
+     * Erabiltzailearen izena datu-basean gordetzen du
+     * @param nombreCompleto Erabiltzailearen izen osoa
+     * @param asTeacher Irakasle moduan gorde behar den ala ez
+     * @param taldea Ikaslearen taldea (aukerakoa)
+     */
     fun guardarNombre(nombreCompleto: String, asTeacher: Boolean = false, taldea: String? = null) {
         viewModelScope.launch {
             _isSaving.value = true
@@ -75,7 +113,7 @@ class LoginViewModel(
                         )
                         ikasleDao.insert(nuevoIkasle)
 
-                        // Insertar en IzenTaldea si se proporcionó una clase
+                        // IzenTaldean sartu klasea eman bada
                         taldea?.let { clase ->
                             val nuevoIzenTaldea = IzenTaldea(
                                 izenaAbizena = nombreTrimmed,
@@ -117,21 +155,34 @@ class LoginViewModel(
             }
         }
     }
-    // Añade estas funciones de validación al principio de LoginScreen:
 
+    /**
+     * Ranking osoa ezabatzen du (ikasle, partida eta puntuazio guztiak)
+     */
     suspend fun deleteEntireRanking() {
         ikasleDao.deleteAll()
         partidaDao.deleteAll()
         puntuazioaDao.deleteAll()
     }
 
+    /**
+     * Rankingaren puntuazio guztiak berrabiarazten ditu (zerora itzultzen ditu)
+     */
     suspend fun resetRankingScores() {
         puntuazioaDao.resetScores()
     }
 
+    /**
+     * Irakasle guztiak lortzen ditu
+     * @return Irakasleen zerrenda
+     */
     fun getAllIrakasleak(): Flow<List<Irakasle>> {
         return irakasleDao.getAll()
     }
 
+    /**
+     * Oraingo erabiltzailea lortzen du
+     * @return Oraingo erabiltzailearen izena edo null
+     */
     fun getCurrentUser(): String? = _currentUser.value
 }

@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -17,6 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Sopa-letren aurrerapen-barra erakusten du.
+ * Topatutako hitzen kopurua erakusten du.
+ *
+ * @param encontradas Topatutako hitz kopurua
+ * @param total Hitz kopuru osoa
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun SopaProgressBar(
     encontradas: Int,
@@ -39,11 +45,13 @@ fun SopaProgressBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
+                // "Aurkitutako hitzak:" testua
                 Text(
-                    text = stringResource(com.example.errenteriaapp.R.string.game_sopa_progress),
+                    text = stringResource(R.string.game_sopa_progress),
                     color = Color.Black,
                     fontSize = 12.sp
                 )
+                // Kopurua (adibidez, "3/8")
                 Text(
                     text = "$encontradas/$total",
                     color = MaterialTheme.colorScheme.onPrimary,

@@ -21,6 +21,11 @@ import com.example.errenteriaapp.database.viewModel.LoginViewModel
 import com.example.errenteriaapp.navigation.Routes
 import kotlinx.coroutines.launch
 
+/**
+ * Saioa hasteko pantaila konposatzen du (erabiltzailearen erregistroa)
+ * @param loginViewModel Saioa hasteko ViewModela
+ * @param navController Nabigazio kontrolatzailea
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
@@ -77,17 +82,17 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp), // Menos padding vertical
+                    .padding(horizontal = 16.dp, vertical = 8.dp), // Padding bertikala gutxiago
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-                Spacer(Modifier.height(20.dp)) // Menos espacio arriba
+                Spacer(Modifier.height(20.dp)) // Goiko espazio gutxiago
 
                 LoginTitle()
 
-                Spacer(Modifier.height(16.dp)) // Menos espacio
+                Spacer(Modifier.height(16.dp)) // Espazio gutxiago
 
-                // Card más compacto
+                // Txartel trinkoagoa
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -95,22 +100,22 @@ fun LoginScreen(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // Elevación más suave
-                    shape = MaterialTheme.shapes.extraLarge // Bordes más redondeados
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // Altxamendu leunagoa
+                    shape = MaterialTheme.shapes.extraLarge // Ertzak gehiago biribildu
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp), // Padding interno reducido
-                        verticalArrangement = Arrangement.spacedBy(12.dp) // Menos espacio entre elementos
+                        modifier = Modifier.padding(16.dp), // Barneko padding murriztua
+                        verticalArrangement = Arrangement.spacedBy(12.dp) // Elementuen artean espazio gutxiago
                     ) {
-                        // Selector de modo - más compacto
+                        // Modu hautatzailea - trinkoagoa
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(4.dp) // Muy poco espacio
+                            verticalArrangement = Arrangement.spacedBy(4.dp) // Espazio oso gutxi
                         ) {
                             Text(
                                 text = if (isTeacherMode) "Irakasle modua" else "Ikasle modua",
                                 color = Color.White,
-                                fontSize = 16.sp, // Texto más pequeño
+                                fontSize = 16.sp, // Testu txikiagoa
                                 fontWeight = FontWeight.Medium
                             )
 
@@ -123,12 +128,12 @@ fun LoginScreen(
                                     onClick = {
                                         isTeacherMode = false
                                         errorMessage = ""
-                                        password = "" // Limpiar contraseña al cambiar modo
+                                        password = "" // Pasahitza garbitu modua aldatzean
                                     },
                                     label = {
                                         Text(
                                             "Ikaslea",
-                                            fontSize = 14.sp, // Texto más pequeño
+                                            fontSize = 14.sp, // Testu txikiagoa
                                             color = if (!isTeacherMode) MaterialTheme.colorScheme.primary else Color.White
                                         )
                                     },
@@ -146,12 +151,12 @@ fun LoginScreen(
                                     onClick = {
                                         isTeacherMode = true
                                         errorMessage = ""
-                                        password = "" // Limpiar contraseña al cambiar modo
+                                        password = "" // Pasahitza garbitu modua aldatzean
                                     },
                                     label = {
                                         Text(
                                             "Irakaslea",
-                                            fontSize = 14.sp, // Texto más pequeño
+                                            fontSize = 14.sp, // Testu txikiagoa
                                             color = if (isTeacherMode) MaterialTheme.colorScheme.primary else Color.White
                                         )
                                     },
@@ -164,19 +169,19 @@ fun LoginScreen(
                             }
                         }
 
-                        // Divider más fino
+                        // Bereizlea finagoa
                         Divider(
                             color = Color.White.copy(alpha = 0.2f),
                             thickness = 0.5.dp,
                             modifier = Modifier.padding(vertical = 4.dp)
                         )
 
-                        // Campos según el modo - más compactos
+                        // Moduaren araberako eremuak - trinkoagoak
                         Column(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             if (isTeacherMode) {
-                                // Modo Irakaslea
+                                // Irakasle modua
                                 CompactTextField(
                                     value = nombreCompleto,
                                     onValueChange = {
@@ -213,12 +218,12 @@ fun LoginScreen(
                                             Text(
                                                 text = "Aukeratu zure klasea",
                                                 color = Color.White,
-                                                fontSize = 13.sp // Etiqueta más pequeña
+                                                fontSize = 13.sp // Etiketa txikiagoa
                                             )
                                         },
                                         textStyle = TextStyle(
                                             color = Color.White,
-                                            fontSize = 14.sp // Texto más pequeño
+                                            fontSize = 14.sp // Testu txikiagoa
                                         ),
                                         isError = errorMessage.isNotEmpty() && selectedClass.isEmpty(),
                                         singleLine = true,
@@ -263,11 +268,11 @@ fun LoginScreen(
                                         }
                                     }
                                 }
-                                // Modo Ikaslea
+                                // Ikasle modua
                                 CompactTextField(
                                     value = nombreCompleto,
                                     onValueChange = {
-                                        // Permitir solo letras y espacios
+                                        // Bakarrik letrak eta zuriuneak baimendu
                                         nombreCompleto = it.filter { char ->
                                             char.isLetter() || char.isWhitespace() || char == 'ñ' || char == 'Ñ'
                                         }
@@ -281,35 +286,35 @@ fun LoginScreen(
                             }
                         }
 
-                        // Mensaje de error - más compacto
+                        // Errore mezua - trinkoagoa
                         if (errorMessage.isNotEmpty()) {
                             Text(
                                 text = errorMessage,
                                 color = MaterialTheme.colorScheme.error,
-                                fontSize = 12.sp, // Texto más pequeño
+                                fontSize = 12.sp, // Testu txikiagoa
                                 modifier = Modifier.padding(vertical = 2.dp)
                             )
                         }
 
-                        // Botón de acción - más compacto
+                        // Ekintza botoia - trinkoagoa
                         val isFormValid = when {
                             isTeacherMode -> nombreCompleto.trim().isNotEmpty() && password.isNotEmpty()
                             else -> nombreCompleto.trim().isNotEmpty() &&
-                                selectedClass.isNotEmpty() &&
-                                validationError == null
+                                    selectedClass.isNotEmpty() &&
+                                    validationError == null
                         }
 
                         Button(
                             onClick = {
                                 scope.launch {
                                     if (isTeacherMode) {
-                                        // Validar irakaslea
+                                        // Irakaslea egiaztatu
                                         val irakasle = allIrakasleak.find {
                                             it.izenaAbizena.equals(nombreCompleto.trim(), ignoreCase = true)
                                         }
 
                                         if (irakasle != null && irakasle.contraseña == password) {
-                                            // Login exitoso para irakaslea
+                                            // Arrakastatsua irakaslearentzat
                                             loginViewModel.guardarNombre(nombreCompleto, asTeacher = true)
 
                                             val cleanName = nombreCompleto.trim()
@@ -324,7 +329,7 @@ fun LoginScreen(
                                             errorMessage = "Irakaslearen izena edo pasahitza okerrak dira"
                                         }
                                     } else {
-                                        // Modo ikaslea - CON VALIDACIÓN
+                                        // Ikasle modua - EGIAZTAPEN EKIN
                                         if (nombreCompleto.isBlank()) {
                                             errorMessage = "Mesedez, idatzi zure izena eta abizena"
                                         } else if (validationError != null) {
@@ -332,7 +337,7 @@ fun LoginScreen(
                                         } else if (selectedClass.isBlank()) {
                                             errorMessage = "Mesedez, aukeratu zure klasea"
                                         } else {
-                                            // Validación exitosa
+                                            // Egiaztapen arrakastatsua
                                             loginViewModel.guardarNombre(nombreCompleto, false, selectedClass)
 
                                             val cleanName = nombreCompleto.trim()
@@ -350,8 +355,8 @@ fun LoginScreen(
                             enabled = isFormValid && !isSaving.value,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp), // Botón más pequeño
-                            shape = MaterialTheme.shapes.large, // Bordes redondeados
+                                .height(48.dp), // Botoi txikiagoa
+                            shape = MaterialTheme.shapes.large, // Ertzak biribildu
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.tertiary,
                                 contentColor = MaterialTheme.colorScheme.onTertiary
@@ -361,12 +366,12 @@ fun LoginScreen(
                                 CircularProgressIndicator(
                                     color = MaterialTheme.colorScheme.onTertiary,
                                     strokeWidth = 2.dp,
-                                    modifier = Modifier.size(20.dp) // Indicador más pequeño
+                                    modifier = Modifier.size(20.dp) // Adierazle txikiagoa
                                 )
                             } else {
                                 Text(
                                     text = if (isTeacherMode) "SAIOA HASI" else "HASI JOLASA",
-                                    fontSize = 16.sp, // Texto más pequeño
+                                    fontSize = 16.sp, // Testu txikiagoa
                                     fontWeight = FontWeight.Medium
                                 )
                             }
@@ -374,19 +379,19 @@ fun LoginScreen(
                     }
                 }
 
-                Spacer(Modifier.height(8.dp)) // Menos espacio
+                Spacer(Modifier.height(8.dp)) // Espazio gutxiago
 
-                // Divider más pequeño
+                // Bereizle txikiagoa
                 LoginDivider()
             }
 
-            // Personajes
+            // Pertsonaiak
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 30.dp), // Menos espacio abajo
-                horizontalArrangement = Arrangement.spacedBy(12.dp), // Menos espacio entre personajes
+                    .padding(bottom = 30.dp), // Beheko espazio gutxiago
+                horizontalArrangement = Arrangement.spacedBy(12.dp), // Pertsonaien artean espazio gutxiago
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -396,7 +401,7 @@ fun LoginScreen(
                     CharacterItemLogin(
                         imageRes = R.drawable.xanti_silla_hablando,
                         name = "Xanti",
-                        imageHeight = imageHeight * 0.9f // Personajes un poco más pequeños
+                        imageHeight = imageHeight * 0.9f // Pertsonaiak pixka bat txikiagoak
                     )
                 }
 
@@ -407,7 +412,7 @@ fun LoginScreen(
                     CharacterItemLogin(
                         imageRes = R.drawable.maialen_silla_hablando,
                         name = "Maialen",
-                        imageHeight = imageHeight * 0.9f // Personajes un poco más pequeños
+                        imageHeight = imageHeight * 0.9f // Pertsonaiak pixka bat txikiagoak
                     )
                 }
             }
@@ -415,11 +420,16 @@ fun LoginScreen(
     }
 }
 
+/**
+ * Izenaren balidazio mezua lortzen du
+ * @param name Egiaztatu beharreko izen osoa
+ * @return Balidazio errore mezua edo null balidazio zuzena bada
+ */
 fun getValidationMessage(name: String): String? {
     val trimmedName = name.trim()
 
     if (trimmedName.isEmpty()) {
-        return null // No mostrar mensaje si está vacío
+        return null // Ez erakutsi mezurik hutsik badago
     }
 
     val parts = trimmedName.split("\\s+".toRegex())

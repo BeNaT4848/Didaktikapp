@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,10 +13,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Login pantailarako izenburua erakusten du.
+ * Galdera bat eta azpizenburua erakusten ditu.
+ */
 @Composable
 fun LoginTitle() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
+        // Izenburu nagusia (galdera)
         Text(
             text = stringResource(R.string.login_title_question),
             fontSize = 32.sp,
@@ -29,6 +31,7 @@ fun LoginTitle() {
 
         Spacer(Modifier.height(12.dp))
 
+        // Azpizenburua
         Text(
             text = stringResource(R.string.login_title_subtitle),
             fontSize = 18.sp,

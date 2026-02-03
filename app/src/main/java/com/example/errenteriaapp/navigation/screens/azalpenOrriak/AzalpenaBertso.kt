@@ -4,6 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.errenteriaapp.R
 
+/**
+ * Bertso-jokoaren azalpen pantaila konposatzen du
+ * @param onClose Azalpena ixteko erabiltzen den callback-a
+ * @param onNavigateToGame Jokora nabigatzeko erabiltzen den callback-a
+ * @see AzalpenContenido
+ * @see AzalpenBase
+ */
 @Composable
 fun AzalpenBertso(
     onClose: () -> Unit,
@@ -17,9 +24,9 @@ fun AzalpenBertso(
             R.drawable.xenpela_eta_txirrita_2
         ),
         timelineAudio = listOf(
-            5000L to 0,
-            15000L to 1,
-            25000L to 2
+            5000L to 0,   // 5 segunduan 0. irudira aldatu
+            15000L to 1,  // 15 segunduan 1. irudira aldatu
+            25000L to 2   // 25 segunduan 2. irudira aldatu
         ),
         tituloTexto = stringResource(R.string.azalpen_bertso_title),
         textoDidactico = stringResource(R.string.azalpen_bertso_body),

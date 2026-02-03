@@ -4,8 +4,18 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-
-
+/**
+ * Ikasle entitatearen datu-klasea, datu-baseko taula batekin mapeatzen duena
+ * @see Entity
+ * @property izenaAbizena Ikaslearen izen eta abizenak (gako nagusia)
+ * @property rol Ikaslearen rol edo funtzioa (lehenetsia: "Default")
+ *
+ * @param foreignKeys Atzerriko giltzak definitzen ditu Ikasle entitatearekin erlazionatzeko
+ * @param entity Atzerriko giltzarekin erlazionatzen den entitatea
+ * @param parentColumns Atzerriko giltzaren jatorriko eremuak
+ * @param childColumns Atzerriko giltzaren helburuko eremuak
+ * @param onDelete Atzerriko giltzaren jatorriko erregistroa ezabatzerakoan zein ekintza burutu (CASCADE: kateatutako ezabaketa)
+ */
 @Entity(
     foreignKeys = [ForeignKey(
         entity = Ikasle::class,
@@ -14,7 +24,6 @@ import androidx.room.PrimaryKey
         onDelete = ForeignKey.CASCADE
     )]
 )
-
 data class Ikasle(
     @PrimaryKey val izenaAbizena: String,
     val rol: String = "Default"

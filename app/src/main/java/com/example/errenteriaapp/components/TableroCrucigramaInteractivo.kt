@@ -22,7 +22,20 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
 import com.example.errenteriaapp.classes.*
-
+/**
+ * Gurutze-hitzaren taula interaktiboa erakusten du.
+ * Zelda interaktiboak erakusten ditu testu-eremuekin.
+ *
+ * @param celdas Zelda guztien zerrenda
+ * @param focusRequesters Zelda bakoitzaren fokus-eskakizunen mapa
+ * @param onLetraCambiada Letra aldatzean deitzen den funtzioa
+ * @param onBorrar Letra ezabatzeko deitzen den funtzioa
+ * @param onEnterPressed Enter sakatzeko deitzen den funtzioa
+ * @param focusManager Fokus-kudeatzailea
+ * @param palabraActiva Hitz aktiboa (null bada, ez dago aktiborik)
+ * @param crucigramaEstado Gurutze-hitzaren egoera orokorra
+ * @param onClickCelda Zelda batean klik egitean deitzen den funtzioa
+ */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun TableroCrucigramaInteractivo(
@@ -88,7 +101,19 @@ fun TableroCrucigramaInteractivo(
         }
     }
 }
-
+/**
+ * Zelda interaktibo bat erakusten du.
+ * Testu-eremua erakusten du letrak sartzeko.
+ *
+ * @param celda Zelda-egoera
+ * @param focusRequester Zelda honen fokus-eskakizuna
+ * @param onLetraCambiada Letra aldatzean deitzen den funtzioa
+ * @param onBorrar Letra ezabatzeko deitzen den funtzioa
+ * @param onEnterPressed Enter sakatzeko deitzen den funtzioa
+ * @param focusManager Fokus-kudeatzailea
+ * @param estaActiva Zelda hitz aktiboari dagokion
+ * @param onClickCelda Zelda batean klik egitean deitzen den funtzioa
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CeldaInteractivaUI(
@@ -112,39 +137,39 @@ fun CeldaInteractivaUI(
         )
     }
 
-    // Determinar si la celda es editable
+    // Zelda editagarria den zehaztu
     val esEditable = !celda.esNegra && !celda.esCorrecta && estaActiva
 
-    // Determinar color de fondo usando los colores del tema
+    // Atzeko kolorea gaiaren arabera
     val backgroundColor = when {
-        celda.esNegra -> Color.Black  // Mantenemos negro para celdas negras
-        celda.esCorrecta -> Color(0xFFC8E6C9) // Usamos tertiaryContainer para correctas
-        estaActiva -> colorScheme.primaryContainer  // Usamos primaryContainer para activas
-        else -> colorScheme.surfaceContainer  // Usamos surfaceContainer para normales
+        celda.esNegra -> Color.Black  // Beltza mantentzen dugu zelda beltzetarako
+        celda.esCorrecta -> Color(0xFFC8E6C9) // tertiaryContainer erabili zuzenetarako
+        estaActiva -> colorScheme.primaryContainer  // primaryContainer aktiboetarako
+        else -> colorScheme.surfaceContainer  // surfaceContainer normaleetarako
     }
 
-    // Determinar color del texto usando los colores del tema
+    // Testu-kolorea gaiaren arabera
     val textColor = when {
-        celda.esNegra -> colorScheme.onSurface  // Texto claro sobre negro
-        celda.esCorrecta -> colorScheme.onTertiaryContainer  // Texto sobre tertiaryContainer
-        estaActiva -> colorScheme.onPrimaryContainer  // Texto sobre primaryContainer
-        else -> colorScheme.onSurfaceVariant  // Texto sutil para normales
+        celda.esNegra -> colorScheme.onSurface  // Testu argia beltzean
+        celda.esCorrecta -> colorScheme.onTertiaryContainer  // Testua tertiaryContainer gainean
+        estaActiva -> colorScheme.onPrimaryContainer  // Testua primaryContainer gainean
+        else -> colorScheme.onSurfaceVariant  // Testu sotila normaleetan
     }
 
-    // Color del borde usando los colores del tema
+    // Ertz-kolorea gaiaren arabera
     val borderColor = when {
-        celda.esNegra -> colorScheme.outlineVariant  // Borde sutil para negras
-        estaActiva -> colorScheme.primary  // Borde primary para activas
-        celda.esCorrecta -> colorScheme.tertiary  // Borde tertiary para correctas
-        else -> colorScheme.outlineVariant  // Borde sutil para normales
+        celda.esNegra -> colorScheme.outlineVariant  // Ertz sotila beltzetarako
+        estaActiva -> colorScheme.primary  // Ertz nagusia aktiboetarako
+        celda.esCorrecta -> colorScheme.tertiary  // Ertz tertiary zuzenetarako
+        else -> colorScheme.outlineVariant  // Ertz sotila normaleetarako
     }
 
-    // Color del número de pista usando los colores del tema
+    // Pistaren zenbakiaren kolorea gaiaren arabera
     val numeroPistaColor = when {
-        estaActiva -> colorScheme.error  // Error para destacar en activas
-        !esEditable && !celda.esNegra -> colorScheme.outline  // Outline para no editables
-        celda.esCorrecta -> colorScheme.onTertiaryContainer  // Color de texto correcto
-        else -> colorScheme.primary  // Primary para normales
+        estaActiva -> colorScheme.error  // Errorea aktiboetan nabarmentzeko
+        !esEditable && !celda.esNegra -> colorScheme.outline  // Outline editagarriak ez direnetarako
+        celda.esCorrecta -> colorScheme.onTertiaryContainer  // Testu-kolorea zuzenetan
+        else -> colorScheme.primary  // Nagusia normaleetan
     }
 
     Box(
@@ -174,10 +199,11 @@ fun CeldaInteractivaUI(
             )
         }
 
+
         if (celda.esNegra) {
-            // Celda negra - solo fondo negro
+            // Zelda beltza - atzeko planoa bakarrik
         } else if (celda.esCorrecta) {
-            // Celda correcta - mostrar letra pero no editable
+            // Zelda zuzena - letra erakutsi baina ez editatu
             Text(
                 text = celda.letraUsuario?.toString() ?: "",
                 fontSize = 20.sp,
@@ -193,20 +219,20 @@ fun CeldaInteractivaUI(
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { newValue ->
-                    // Solo procesar cambios si la celda es editable
+                    // Aldaketak bakarrik editagarria bada
                     if (!esEditable) return@BasicTextField
 
-                    // Si es la misma letra, ignorar
+                    // Letra bera bada, alde batera utzi
                     if (newValue.text == textFieldValue.text) return@BasicTextField
 
-                    // BACKSPACE - cuando el texto se hace vacío
+                    // BACKSPACE - testua hutsik denean
                     if (newValue.text.isEmpty()) {
                         onBorrar()
                         textFieldValue = TextFieldValue("", TextRange(0))
                         return@BasicTextField
                     }
 
-                    // Escribir una letra nueva
+                    // Letra berria idatzi
                     if (newValue.text.length == 1) {
                         val nuevaLetra = newValue.text.first().uppercaseChar()
                         if (celda.letraUsuario != nuevaLetra) {
@@ -214,7 +240,7 @@ fun CeldaInteractivaUI(
                             onLetraCambiada(nuevaLetra)
                         }
                     }
-                    // Si es más de una letra (pegar texto), tomar solo la primera
+                    // Letra bat baino gehiago bada (testua itsatsi), lehenengoa hartu
                     else if (newValue.text.length > 1) {
                         val primeraLetra = newValue.text.first().uppercaseChar()
                         if (celda.letraUsuario != primeraLetra) {

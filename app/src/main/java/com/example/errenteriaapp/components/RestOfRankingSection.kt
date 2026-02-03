@@ -6,54 +6,45 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.errenteriaapp.classes.RankingItem
 import kotlinx.coroutines.delay
 
-
+/**
+ * Rankingaren gainerako atala erakusten du (4. postutik aurrera).
+ * Elementuak animazio eskalonatuetan erakusten ditu.
+ *
+ * @param isScreenLoaded Pantaila kargatuta dagoen
+ * @param rankingData Rankingaren datuak (4. postutik aurrera)
+ */
 @Composable
 fun RestOfRankingSection(
     isScreenLoaded: Boolean,
     rankingData: List<RankingItem>
 ) {
-
     var showTitle by remember { mutableStateOf(false) }
     val visibleItems = remember { mutableStateListOf<Boolean>() }
 
-
-    // Inicializar la lista de visibilidad
+    // Ikusgarritasunaren zerrenda hasieratu
     LaunchedEffect(rankingData) {
         visibleItems.clear()
         visibleItems.addAll(List(rankingData.size) { false })
     }
 
-    // Controlar animaciones escalonadas
+    // Animazio eskalonatuak kontrolatu
     LaunchedEffect(isScreenLoaded) {
         if (isScreenLoaded) {
             delay(200)
             showTitle = true
             delay(100)
 
-            // Animar items uno por uno
+            // Elementuak banan-banan animatu
             rankingData.forEachIndexed { index, _ ->
                 delay(25)
                 if (index < visibleItems.size) {
@@ -69,7 +60,7 @@ fun RestOfRankingSection(
             .fillMaxHeight()
             .padding(horizontal = 8.dp)
     ) {
-        // Título del resto del ranking
+        // Rankingaren gainerako izenburua
         AnimatedVisibility(
             visible = showTitle,
             enter = fadeIn(animationSpec = tween(200)) +
@@ -86,7 +77,7 @@ fun RestOfRankingSection(
             )
         }
 
-        // Lista optimizada sin animateItemPlacement
+        // Optimizatutako zerrenda (animateItemPlacement gabe)
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -109,7 +100,7 @@ fun RestOfRankingSection(
                     )
                 ) {
                     RankingCard(
-                        position = index + 4, // Empieza desde la posición 4
+                        position = index + 4, // 4. postutik hasten da
                         item = item,
                         modifier = Modifier
                             .padding(horizontal = 8.dp, vertical = 6.dp)

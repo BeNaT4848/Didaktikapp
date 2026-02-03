@@ -14,6 +14,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Egiaztatzeko botoia erakusten du "Taula Arrastrar" jokoan.
+ * Botoia aktibatu egiten da erabiltzaileak leku guztiak betetzen dituenean.
+ *
+ * @param allSlotsFilled Pertsonaia bakoitzeko leku guztiak beteta dauden
+ * @param onVerifyClick Botoian klik egitean deitzen den funtzioa
+ */
 @Composable
 fun VerifyButtonnn(
     allSlotsFilled: Boolean,

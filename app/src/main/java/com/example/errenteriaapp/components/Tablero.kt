@@ -1,8 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -10,13 +7,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.errenteriaapp.classes.PalabraSopa
 
+/**
+ * Sopa-letren jokoaren taula erakusten du.
+ * Letraz osatutako taula bat erakusten du eta hitzen atzipena kudeatzen du.
+ *
+ * @param tablero Letraz osatutako taula (array bikoitza)
+ * @param palabras Hitz guztien zerrenda
+ * @param palabrasEncontradas Topatutako hitzen zerrenda
+ * @param onCeldaClick Zelda batean klik egitean deitzen den funtzioa (errenkada, zutabea, hitza)
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun SopaDeLetrasTablero(
     tablero: Array<CharArray>,
@@ -35,7 +41,7 @@ fun SopaDeLetrasTablero(
             for (fila in tablero.indices) {
                 Row {
                     for (columna in tablero[fila].indices) {
-                        // Buscar si esta celda pertenece a alguna palabra
+                        // Zelda hau zein hitzen parte den bilatu
                         var palabraAsociada: String? = null
                         var encontrada = false
 

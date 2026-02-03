@@ -29,6 +29,17 @@ import com.example.errenteriaapp.i18n.LanguageManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Ezarpenen pantaila konposatzen du
+ * @param modifier Modifier konposaketa
+ * @param isTeacherMode Irakasle modua aktibatuta dagoen ala ez
+ * @param isDarkMode Ilun modua aktibatuta dagoen ala ez
+ * @param onThemeToggle Gaitasun aldaketa callback-a
+ * @param onDeleteRanking Rankinga ezabatzeko callback-a
+ * @param onResetScores Puntuazioak berrabiarazteko callback-a
+ * @param isDeletingRanking Rankinga ezabatzen ari den ala ez
+ * @param isResettingScores Puntuazioak berrabiarazten ari den ala ez
+ */
 @Composable
 fun AjustesScreen(
     modifier: Modifier = Modifier,
@@ -57,6 +68,9 @@ fun AjustesScreen(
     }
 }
 
+/**
+ * Ezarpenen eduki pribatua konposatzen du
+ */
 @Composable
 private fun AjustesContent(
     modifier: Modifier = Modifier,
@@ -222,6 +236,9 @@ private fun AjustesContent(
     }
 }
 
+/**
+ * Hizkuntza hautatzailea konposatzen du
+ */
 @Composable
 private fun LanguageSelector() {
     val context = LocalContext.current
@@ -231,6 +248,10 @@ private fun LanguageSelector() {
     var selected by remember { mutableStateOf(LanguageManager.getSavedLanguageTag(context)) }
     var showApplying by remember { mutableStateOf(false) }
 
+    /**
+     * Hizkuntza aplikatzen du
+     * @param tag Aplikatzeko hizkuntza-etiketa
+     */
     fun apply(tag: String) {
         showApplying = true
         if (selected == tag) return
@@ -239,7 +260,7 @@ private fun LanguageSelector() {
         selected = LanguageManager.getSavedLanguageTag(context)
         AppLanguageState.bump()
 
-        // Fallback: si el locale no se actualiza en runtime, recrea la Activity.
+        // Fallback: locale-a ez bada eguneratzen exekuzio-denbora, Activity birsortu.
         scope.launch {
             delay(120)
             val currentLang = context.resources.configuration.locales[0].language
@@ -249,7 +270,7 @@ private fun LanguageSelector() {
         }
     }
 
-    // Cierra la animación tras un ratito (sin recrear Activity)
+    // Animazioa itxi denbora pixka bat igaro ondoren (Activity birsortu gabe)
     LaunchedEffect(showApplying) {
         if (!showApplying) return@LaunchedEffect
         delay(260)
@@ -278,9 +299,9 @@ private fun LanguageSelector() {
         AnimatedVisibility(
             visible = showApplying,
             enter = fadeIn(animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)) +
-                scaleIn(initialScale = 0.98f, animationSpec = tween(180, easing = FastOutSlowInEasing)),
+                    scaleIn(initialScale = 0.98f, animationSpec = tween(180, easing = FastOutSlowInEasing)),
             exit = fadeOut(animationSpec = tween(durationMillis = 140, easing = FastOutSlowInEasing)) +
-                scaleOut(targetScale = 0.98f, animationSpec = tween(140, easing = FastOutSlowInEasing))
+                    scaleOut(targetScale = 0.98f, animationSpec = tween(140, easing = FastOutSlowInEasing))
         ) {
             Box(
                 modifier = Modifier
@@ -309,6 +330,12 @@ private fun LanguageSelector() {
     }
 }
 
+/**
+ * Hizkuntza botoia konposatzen du
+ * @param label Botoiaren etiketa
+ * @param selected Hautatuta dagoen ala ez
+ * @param onClick Klik egiteko callback-a
+ */
 @Composable
 private fun LanguageButton(
     label: String,
@@ -334,6 +361,11 @@ private fun LanguageButton(
     }
 }
 
+/**
+ * Ezarpenen txartela konposatzen du
+ * @param title Txartelaren titulua
+ * @param content Txartelaren edukia
+ */
 @Composable
 private fun SettingsCard(
     title: String,
@@ -357,6 +389,12 @@ private fun SettingsCard(
     }
 }
 
+/**
+ * Gaitasun aukeren botoia konposatzen du
+ * @param label Botoiaren etiketa
+ * @param selected Hautatuta dagoen ala ez
+ * @param onClick Klik egiteko callback-a
+ */
 @Composable
 private fun ThemeOptionButton(
     label: String,
@@ -380,6 +418,9 @@ private fun ThemeOptionButton(
     }
 }
 
+/**
+ * Aurreikuspen pantaila prestatzen du
+ */
 @Preview
 @Composable
 private fun AjustesPreview() {

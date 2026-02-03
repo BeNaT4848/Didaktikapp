@@ -9,20 +9,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.errenteriaapp.components.*
-
 import com.example.errenteriaapp.components.video.InstruccionesVideoPapresa
-
 import com.example.errenteriaapp.components.video.VideoDialogoa
-import com.example.errenteriaapp.database.viewModel.OrdenatuJolasaViewModel
 import com.example.errenteriaapp.database.viewModel.PapresaViewModel
 import com.example.errenteriaapp.navigation.Routes
 import androidx.compose.ui.platform.LocalContext
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
-
+/**
+ * Papresa (paper birziklatze) jokoaren pantaila nagusia konposatzen du
+ * @param navController Nabigazio kontrolatzailea
+ * @param userName Erabiltzailearen izena (aukerakoa)
+ * @param viewModel Papresa jokoaren ViewModela
+ */
 @Composable
 fun PapresaScreen(
     navController: NavController,
@@ -45,20 +46,20 @@ fun PapresaScreen(
     val showWrong = viewModel.showWrongDialog
     val hasPassed = viewModel.hasPassed
 
-    // Estados para controlar el flujo estricto
+    // Egoera zorrotzak kontrolatzeko egoerak
     var showVideoInstructionDialog by remember { mutableStateOf(false) }
     var showStrictVideoDialog by remember { mutableStateOf(false) }
     var hasWatchedVideo by remember { mutableStateOf(false) }
 
-    // Lógica CORREGIDA para mostrar instrucción del video solo si APRUEBA
+    // ZUZENDUTAKO logika bideoaren instrukzioa erakusteko soilik GARAITZEN BADA
     LaunchedEffect(showResults) {
         if (showResults && hasPassed && !showVideoInstructionDialog && !hasWatchedVideo) {
-            // Solo mostrar instrucción del video si APRUEBA (hasPassed = true)
+            // Bideoaren instrukzioa soilik erakutsi GARAITZEN BADA (hasPassed = true)
             showVideoInstructionDialog = true
         }
     }
 
-    // Si suspende, muestra diálogo de error inmediatamente (ya lo maneja el viewModel)
+    // Gainditzen ez badu, errore elkarrizketa berehala erakusten du (viewModel-ek kudeatzen du)
 
     Column(
         modifier = Modifier
@@ -90,7 +91,7 @@ fun PapresaScreen(
         )
     }
 
-    // 1. Diálogo de instrucción del video (SOLO si APRUEBA)
+    // 1. Bideoaren instrukzio elkarrizketa (SOILIK GARAITZEN BADA)
     if (showVideoInstructionDialog) {
         InstruccionesVideoPapresa(
             onWatchVideo = {
@@ -101,7 +102,7 @@ fun PapresaScreen(
         )
     }
 
-    // 2. Diálogo del video (obligatorio ver completo)
+    // 2. Bideoaren elkarrizketa (betea ikustea beharrezkoa)
     if (showStrictVideoDialog) {
         VideoDialogoa(
             onVideoCompleted = {
@@ -114,8 +115,7 @@ fun PapresaScreen(
         )
     }
 
-
-    // 3. Diálogo de éxito SOLO después de ver el video completo
+    // 3. Arrakasta elkarrizketa BIDEOREN ONDOREN soilik
     if (showSuccess && hasWatchedVideo) {
         GameResultDialogs(
             showSuccess = true,
@@ -131,7 +131,7 @@ fun PapresaScreen(
         )
     }
 
-    // 4. Diálogo de error si SUSPENDE - se muestra inmediatamente
+    // 4. Errore elkarrizketa GAINDITZEN EZ BADA - berehala erakusten da
     if (showWrong) {
         GameResultDialogs(
             showSuccess = false,

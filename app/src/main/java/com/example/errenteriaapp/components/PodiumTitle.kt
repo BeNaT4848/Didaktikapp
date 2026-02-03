@@ -18,6 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Podioaren izenburua erakusten du.
+ * Ikonoekin apaindutako izenburua eta marra dekoratiboak erakusten ditu.
+ *
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun PodiumTitle(
     modifier: Modifier = Modifier
@@ -26,7 +32,7 @@ fun PodiumTitle(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth()
     ) {
-        // Línea decorativa superior
+        // Goiko marra dekoratiboa
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.4f)
@@ -45,7 +51,7 @@ fun PodiumTitle(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Título con iconos
+        // Izarra ikonoekin izenburua
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -73,7 +79,7 @@ fun PodiumTitle(
             )
         }
 
-        // Línea decorativa inferior
+        // Beheko marra dekoratiboa
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.4f)

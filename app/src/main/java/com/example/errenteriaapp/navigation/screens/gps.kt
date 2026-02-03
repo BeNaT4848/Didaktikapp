@@ -27,9 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
@@ -91,22 +88,26 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import kotlin.math.abs
 
+/**
+ * OSM mapa pantaila nagusia konposatzen du (GPS nabigazioa)
+ * @param navController Nabigazio kontrolatzailea
+ */
 @Composable
 fun MapaOsmScreen(navController: NavController) {
     AppScaffold(navController = navController) {
-        // Rail solo de UI (no navega a ningún sitio)
+        // Rail soilik UIrako (ez du nabigatzen)
         var railSelectedIndex by rememberSaveable { mutableStateOf(0) }
 
-        // Nuevo: colapsado/expandido tipo Gmail
+        // Berria: kolapsoa/zabaltzea Gmail estilokoa
         var railExpanded by rememberSaveable { mutableStateOf(false) }
 
-        // Forzamos colores muy contrastados para descartar tema/alpha.
+        // Kontraste handiko koloreak indartzen ditugu gaia/alpha baztertzeko
         val railContainer = MaterialTheme.colorScheme.surfaceVariant
         val railSelected = MaterialTheme.colorScheme.primary
         val railUnselected = MaterialTheme.colorScheme.onSurfaceVariant
         val railIndicator = MaterialTheme.colorScheme.secondaryContainer
 
-        // Un poco más estrecho en modo colapsado
+        // Kolapso moduan pixka bat estutuago
         val targetRailWidth = if (railExpanded) 112.dp else 64.dp
         val railWidth by animateDpAsState(
             targetValue = targetRailWidth,
@@ -114,41 +115,41 @@ fun MapaOsmScreen(navController: NavController) {
             label = "railWidth"
         )
 
-        // Labels: animación ligera (solo alpha) para evitar recompos/layout caros
+        // Etiketak: animazio arina (alpha soilik) berri osatu/kostu handiak saihesteko
         val labelAlpha by animateFloatAsState(
             targetValue = if (railExpanded) 1f else 0f,
             animationSpec = tween(durationMillis = 140),
             label = "railLabelAlpha"
         )
 
-        // Swipe gesture: umbral en px (ajustado a densidad)
+        // Swipe gestua: atalasea px-tan (dentsitateari egokitua)
         val density = LocalDensity.current
         val swipeThresholdPx = with(density) { 32.dp.toPx() }
 
-        // --- Swipe (fallback compatible): capa Android para detectar swipe desde el borde ---
-        // Importante: no depende de pointerInput (que en tu setup está dando Unresolved reference).
+        // --- Swipe (erreserba bateragarria): Android geruza swipe atzetik detektatzeko ---
+        // Garrantzitsua: ez du pointerInput-en menpe (zure konfigurazioan Unresolved reference ematen ari da)
         val swipeDetectorWidth = 24.dp
 
         val context = LocalContext.current
 
-        // Guardamos/recuperamos el usuario actual (lo actualiza el Login)
+        // Gorde/berreskuratu erabiltzaile aktiboa (Login-ek eguneratzen du)
         val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
         val activeUserName = sessionPrefs.getString("active_user_name", null)
 
-        // Repositorio de progreso (por usuario)
+        // Aurrerapen errepikaria (erabiltzaile bakoitzeko)
         val progressRepo = remember(activeUserName) {
             KokapenaProgressRepository(context, activeUserName ?: "default")
         }
 
-        // Fuerza recomposición cuando cambia el progreso (al volver desde un juego)
+        // Bir konposaketa behartzen du aurrerapena aldatzean (joko batetik itzultzean)
         var unlockedIndex by rememberSaveable { mutableStateOf(progressRepo.getUnlockedStepIndex()) }
 
         LaunchedEffect(activeUserName) {
-            // Refresca el progreso al entrar en GPS o al cambiar usuario
+            // GPS-n sartzean edo erabiltzailea aldatzean aurrerapena freskatu
             unlockedIndex = progressRepo.getUnlockedStepIndex()
         }
 
-        // Releer prefs al volver a primer plano (después de jugar)
+        // Prefs berrirakurri lehenengo planoan (jokatu ondoren)
         val lifecycleOwner = LocalLifecycleOwner.current
         DisposableEffect(lifecycleOwner) {
             val observer = LifecycleEventObserver { _, event ->
@@ -160,13 +161,11 @@ fun MapaOsmScreen(navController: NavController) {
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
         }
 
-
-
-        // ** NUEVO: estado para el marcador seleccionado **
+        // ** BERRIA: hautatutako markadorearentzako egoera **
         var selectedKokapena by remember { mutableStateOf<Kokapena?>(null) }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Detector de swipe en el borde izquierdo (abre el rail)
+            // Swipe detektagailua ezkerreko ertzean (rail-a irekitzeko)
             AndroidView(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -186,7 +185,7 @@ fun MapaOsmScreen(navController: NavController) {
                         var tracking = false
 
                         setOnTouchListener { v, event ->
-                            // Si ya está abierto, este detector no hace nada.
+                            // Irekita badago, detektagailu honek ez du ezer egiten
                             if (railExpanded) return@setOnTouchListener false
 
                             when (event.actionMasked) {
@@ -203,7 +202,7 @@ fun MapaOsmScreen(navController: NavController) {
                                     val dx = event.x - downX
                                     val dy = event.y - downY
 
-                                    // Solo nos interesa gesto principalmente horizontal.
+                                    // Gehienbat horizontala den gestua bakarrik
                                     if (abs(dx) > touchSlop && abs(dx) > abs(dy) * 1.2f) {
                                         sumDx = dx
                                     }
@@ -216,7 +215,7 @@ fun MapaOsmScreen(navController: NavController) {
 
                                     if (sumDx > thresholdPx) {
                                         railExpanded = true
-                                        // No es un click, pero para accesibilidad evitamos warning.
+                                        // Ez da klik bat, baina irisgarritasuna arazorik ez sortzeko
                                         v?.performClick()
                                     }
                                     true
@@ -234,7 +233,7 @@ fun MapaOsmScreen(navController: NavController) {
                 }
             )
 
-            // Detector de swipe sobre el rail cuando está expandido (cierra al swipar a la izquierda)
+            // Swipe detektagailua rail gainean irekita dagoenean (ezkerrera swipe egitean ixten da)
             if (railExpanded) {
                 AndroidView(
                     modifier = Modifier
@@ -262,7 +261,7 @@ fun MapaOsmScreen(navController: NavController) {
                                         sumDx = 0f
                                         moved = false
                                         tracking = true
-                                        // No consumimos: dejamos que el rail reciba taps si finalmente no hay swipe.
+
                                         false
                                     }
 
@@ -325,7 +324,7 @@ fun MapaOsmScreen(navController: NavController) {
                                 .fillMaxHeight()
                                 .padding(vertical = 8.dp)
                         ) {
-                            // Botón superior para expandir/colapsar
+
                             NavigationRailItem(
                                 selected = false,
                                 onClick = { railExpanded = !railExpanded },
@@ -336,7 +335,7 @@ fun MapaOsmScreen(navController: NavController) {
                                         tint = railUnselected
                                     )
                                 },
-                                // Siempre ponemos label, pero lo hacemos invisible con alpha cuando está colapsado.
+
                                 label = {
                                     Text(
                                         stringResource(R.string.nav_menu),
@@ -354,7 +353,7 @@ fun MapaOsmScreen(navController: NavController) {
                                 )
                             )
 
-                            // Más separación para que el header no quede pegado
+
                             Spacer(modifier = Modifier.padding(top = 12.dp))
 
                             val itemColors = NavigationRailItemDefaults.colors(
@@ -483,14 +482,14 @@ fun MapaOsmScreen(navController: NavController) {
                             }
                         },
                         onUserMapGestureStart = {
-                            // Si el usuario empieza a mover/zoomear el mapa y el rail está abierto, lo cerramos.
+
                             if (railExpanded) railExpanded = false
                         }
                     )
                 }
             }
 
-            // ** NUEVO: modal para mostrar KokapenaAzalpen **
+
             if (selectedKokapena != null) {
                 val currentKokapena = selectedKokapena
                 ReusableModalBottomSheet(
@@ -524,9 +523,9 @@ fun MapaOsmScreen(navController: NavController) {
 
 
 /**
- * Contrato:
- * - Muestra marcadores fijos + tu ubicación en tiempo real.
- * - Botón para fijar/desfijar el seguimiento (centrado continuo).
+ * Kontratua:
+ * - Markadore finkoak + zure kokapen denbora errealean erakusten ditu
+ * - Botoia jarraipena finkatzeko/askatzeko (etengabe zentratua)
  */
 @SuppressLint("MissingPermission")
 @Composable
@@ -540,7 +539,7 @@ fun OsmMapView(
     val density = LocalDensity.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Progreso por usuario (mismo usuario activo que en MapaOsmScreen)
+    // Aurrerapena erabiltzaile bakoitzeko (MapaOsmScreen-ko erabiltzaile aktibo bera)
     val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
     val activeUserName = sessionPrefs.getString("active_user_name", null)
 
@@ -548,47 +547,59 @@ fun OsmMapView(
         KokapenaProgressRepository(context, activeUserName ?: "default")
     }
 
-    // Configuración mínima recomendada de osmdroid.
-    // Importante para que el servidor acepte requests (evita tiles en blanco / raros en algunos casos).
+    // OSMdroid-en konfigurazio minimo gomendatua
+    // Garrantzitsua zerbitzariak eskaerak onartzeko (zuretako laukizurik gabe/gauza bitxiak saihesteko)
     SideEffect {
         try {
             Configuration.getInstance().userAgentValue = context.packageName
         } catch (_: Throwable) {
-
+            // Salbuespena barkatu
         }
     }
 
-    // --- Permisos + estado de ubicación ---
+    // --- Baimenak + kokapen egoera ---
     var hasLocationPermission by remember { mutableStateOf(false) }
     var myLocation by remember { mutableStateOf<GeoPoint?>(null) }
 
-    // Distancia máxima para permitir abrir una ubicación (metros)
+    // Kokapena irekitzeko gehienezko distantzia (metro)
     val unlockRadiusMeters = 100f
 
+    /**
+     * Bi punturen arteko distantzia kalkulatzen du metroetan
+     * @param from Hasierako puntua
+     * @param toLat Helburu latitudea
+     * @param toLon Helburu longitudea
+     * @return Distantzia metroetan
+     */
     fun distanceMeters(from: GeoPoint, toLat: Double, toLon: Double): Float {
         val results = FloatArray(1)
         android.location.Location.distanceBetween(from.latitude, from.longitude, toLat, toLon, results)
         return results[0]
     }
 
+    /**
+     * Kokapena hurbilegi dagoen egiaztatzen du
+     * @param k Egiaztatu beharreko kokapena
+     * @return Hurbilegi dagoen ala ez
+     */
     fun isNearEnough(k: Kokapena): Boolean {
         val here = myLocation ?: return false
         return distanceMeters(here, k.latitudea, k.longitudea) <= unlockRadiusMeters
     }
 
-    // Si true: el mapa se centra en cada update de ubicación
+    // Egia bada: mapa kokapen eguneraketa bakoitzean zentratzen da
     var followMyLocation by rememberSaveable { mutableStateOf(true) }
 
-    // Menos zoom al arrancar (cuando llegue el primer fix)
-    // 18-19 suele ser un buen equilibrio para ver calles sin exagerar.
+    // Hasierako zoom txikiagoa (lehenengo finkapena lortzen denean)
+    // 18-19 da oreka ona kaleak ikusteko exageratu gabe
     val initialZoom = 18.5
 
-    // Fallback para evitar ver "el mundo" mientras llega el primer fix
-    // (si no hay center/zoom inicial, osmdroid puede arrancar en vista global)
+    // Fallback "mundua" ikusi ez dadin lehenengo finkapenaren zain
+    // (center/zoom hasierarik ez bada, osmdroid-ek ikuspegi globalean has lezake)
     val startupCenter = GeoPoint(43.3129, -1.9018)
     val startupZoom = 14.0
 
-    // NUEVO: para que el mapa "arranque" en tu ubicación y no en un punto fijo
+    // BERRIA: mapa "zure kokapenean" hasi dadin puntu finko batean baino
     var hasInitialCentered by rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -626,7 +637,7 @@ fun OsmMapView(
 
         val fused = LocationServices.getFusedLocationProviderClient(context)
 
-        // 1) lastLocation (rápido si existe)
+
         try {
             val last = fused.lastLocation
             last.addOnSuccessListener { loc ->
@@ -637,7 +648,7 @@ fun OsmMapView(
         } catch (_: SecurityException) {
         }
 
-        // 2) getCurrentLocation (puede ser más rápido que esperar al callback)
+
         try {
             fused.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
                 .addOnSuccessListener { loc ->
@@ -649,14 +660,13 @@ fun OsmMapView(
         }
     }
 
-    // Updates de ubicación en tiempo real
+
     DisposableEffect(hasLocationPermission) {
         if (!hasLocationPermission) {
             onDispose { }
         } else {
             val fused = LocationServices.getFusedLocationProviderClient(context)
 
-            // Ajuste: primer fix más rápido + luego precisión alta
             val request = LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY, 1500L
             ).setMinUpdateIntervalMillis(800L).build()
@@ -676,13 +686,13 @@ fun OsmMapView(
         }
     }
 
-    // --- MapView + overlays: NO limpiar overlays en cada recomposición ---
+    // --- MapView + overlays: EZ garbitu overlays berri osaketa bakoitzean ---
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
     val myMarkerRef = remember { mutableStateOf<Marker?>(null) }
 
-    // NUEVO: cuando cambia la ubicación, fuerza redraw y centra.
-    // - Primer fix: centra + aplica zoom fuerte y marca hasInitialCentered
-    // - Después: si está fijado, sigue centrando
+    // BERRIA: kokapena aldatzean, birkarratzea behartu eta zentratu
+    // - Lehen finkapena: zentratu + zoom indartsua aplikatu eta hasInitialCentered markatu
+    // - Ondoren: finkatuta badago, jarraitu zentratzen
     LaunchedEffect(myLocation, followMyLocation) {
         val mapView = mapViewRef.value ?: return@LaunchedEffect
         val point = myLocation ?: return@LaunchedEffect
@@ -698,7 +708,13 @@ fun OsmMapView(
         mapView.invalidate()
     }
 
-    // --- Util: crear un Drawable escalado a un tamaño fijo en dp ---
+    // --- Util: Drawable bat sortu tamaina finko batean dp-tan eskalatuta ---
+    /**
+     * Drawable bat sortzen du baliabide batetik dp tamaina jakin batera eskalatuta
+     * @param resId Balibalido baliabidearen IDa
+     * @param sizeDp Helburu tamaina dp-tan
+     * @return Eskalatutako Drawable-a edo null
+     */
     fun scaledDrawable(resId: Int, sizeDp: Dp): Drawable? {
         val base = ContextCompat.getDrawable(context, resId) ?: return null
         val sizePx = with(density) { sizeDp.roundToPx() }.coerceAtLeast(1)
@@ -709,7 +725,15 @@ fun OsmMapView(
         return BitmapDrawable(context.resources, bitmap)
     }
 
-    // NUEVO: drawable escalado con alpha (para efecto “apagado”)
+
+    // BERRIA: drawable eskalatu alpha-rekin (efektu "itzalita" sortzeko)
+    /**
+     * Drawable bat sortzen du alpha zehaztuarekin
+     * @param resId Balibalido baliabidearen IDa
+     * @param sizeDp Helburu tamaina dp-tan
+     * @param alpha Alpha balioa (0-255)
+     * @return Eskalatutako Drawable-a alpha-rekin edo null
+     */
     fun scaledDrawableWithAlpha(resId: Int, sizeDp: Dp, alpha: Int): Drawable? {
         val base = ContextCompat.getDrawable(context, resId)?.mutate() ?: return null
         base.alpha = alpha.coerceIn(0, 255)
@@ -721,29 +745,29 @@ fun OsmMapView(
         return BitmapDrawable(context.resources, bitmap)
     }
 
-    // Tamaños de iconos
-    // Queremos que los kokapenak tengan el mismo tamaño que el de mi ubicación.
-    // Mi ubicación más pequeño para que no tape el mapa.
+    // Ikono tamainak
+    // Kokapenek nire kokapenaren tamaina bera izan dezan nahi dugu
+    // Nire kokapena txikiagoa da mapa ez estaltzeko
     val myLocationIconSize = 48.dp
-    // Mantén los kokapena como estaban (grandes).
+    // Kokapenak hasierako moduan utzi (handiak)
     val kokapenaIconSize = 84.dp
 
-    // Icono por defecto para kokapenak
+    // Lehenetsitako ikonoa kokapenentzat
     val kokapenaIconDefault = remember { scaledDrawable(R.drawable.ubinegra, kokapenaIconSize) }
 
-    // Icono al seleccionar (al pulsar)
+    // Hautatzean (sakatzean) ikonoa
     val kokapenaIconSelected = remember { scaledDrawable(R.drawable.ubinlanca, kokapenaIconSize) }
 
-    // NUEVO: icono “apagado” para kokapenak bloqueadas
-    // (reutilizamos el mismo asset, pero con alpha más bajo)
+    // BERRIA: ikono "itzalita" blokeatutako kokapenentzat
+    // (berdin baliabidea erabiltzen dugu, baina alpha txikiagoarekin)
     val kokapenaIconLocked = remember {
         scaledDrawableWithAlpha(R.drawable.ubinegra, kokapenaIconSize, alpha = 110)
     }
 
-    // Guardamos qué marker está seleccionado para hacer toggle
+    // Gorde zein marker dago hautatuta toggle-a egiteko
     val selectedKokapenaMarker = remember { mutableStateOf<Marker?>(null) }
 
-    // --- Icono para mi ubicación (Marker) ---
+    // --- Nire kokapenarentzat ikonoa (Marker) ---
     val myLocationIcon: Drawable? = remember {
         val base = ContextCompat.getDrawable(context, R.drawable.ic_my_location_person)
             ?: return@remember null
@@ -767,18 +791,18 @@ fun OsmMapView(
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
 
-                    // En algunos dispositivos, escalar tiles a DPI hace que se vean borrosos/pixelados.
-                    // Mejor dejarlos a tamaño nativo.
+                    // Gailu batzuetan, tile-ak DPI-ra eskalatzeak lausotuta/pixelduta ikusten dira
+                    // Hobe tamaina naturalean uztea
                     isTilesScaledToDpi = false
 
-                    // Cargar más tiles por defecto para evitar el efecto “pixelado” mientras llega el zoom.
-                    // (Opcional, pero suele mejorar la nitidez al mover/zoomear)
+                    // Lehenetsita tile gehiago kargatu "pixel" efektua saihesteko zoom iristen den bitartean
+                    // (Aukerakoa, baina mugitze/zoom egitean garbitasuna hobetzen du)
                     setUseDataConnection(true)
 
                     controller.setZoom(startupZoom)
                     controller.setCenter(startupCenter)
 
-                    // Marcadores kokapenak
+                    // Markadore kokapenak
                     nireKokapenak.forEach { kokapena ->
                         val canOpenInitial = progressRepo.isRouteUnlocked(kokapena.route) && isNearEnough(kokapena)
 
@@ -791,7 +815,7 @@ fun OsmMapView(
                             setInfoWindowAnchor(Marker.ANCHOR_CENTER, 0.30f)
                         }
 
-                        // Toggle de selección + mostrar InfoWindow
+                        // Hautaketa toggle-a + InfoWindow erakutsi
                         m.setOnMarkerClickListener { marker, mapView ->
                             val canOpenNow = progressRepo.isRouteCurrentOrSecondary(kokapena.route) && isNearEnough(kokapena)
                             if (!canOpenNow) {
@@ -827,12 +851,12 @@ fun OsmMapView(
                 }
             },
             update = { mapView ->
-                // --- Notificar gesto real de mapa (pan/zoom) para autocerrar el rail ---
-                // Esto no debe dispararse en taps (para no romper selección de marcadores).
+                // --- Mapa gestu erreala jakinarazi (pan/zoom) rail automatikoki ixteko ---
+                // Hau ez da tap-etan jaurti behar (markadore hautaketa haustu gabe)
                 var gestureNotified = false
                 val gestureSlop = ViewConfiguration.get(mapView.context).scaledTouchSlop
 
-                // --- Bloqueo de gestos cuando está "Fijado" ---
+                // --- Gestuen blokeoa "Finkatuta" dagoenean ---
                 if (followMyLocation) {
                     mapView.setMultiTouchControls(false)
                     mapView.setOnTouchListener(object : View.OnTouchListener {
@@ -880,7 +904,7 @@ fun OsmMapView(
                         }
                     })
                 } else {
-                    // Libre: dejamos gestos del mapa, pero detectamos cuando realmente empieza un pan/zoom.
+
                     mapView.setMultiTouchControls(true)
                     mapView.setOnTouchListener(object : View.OnTouchListener {
                         private var downX = 0f
@@ -928,24 +952,24 @@ fun OsmMapView(
                     })
                 }
 
-                // --- Actualización de mi ubicación ---
+                // --- Nire kokapen eguneraketa ---
                 val point = myLocation
                 if (hasLocationPermission && point != null) {
                     val marker = myMarkerRef.value ?: Marker(mapView).also { created ->
                         created.title = "Mi ubicación"
                         created.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                        // Mantener una InfoWindow coherente (si algún día se muestra)
+                        // InfoWindow koherentea mantendu (egunean batean erakutsi behar bada)
                         created.setInfoWindowAnchor(Marker.ANCHOR_CENTER, 0.30f)
                         myMarkerRef.value = created
                         mapView.overlays.add(created)
                     }
 
                     marker.position = point
-                    // Re-aplicar icono siempre por si cambia el tamaño/drawable
+                    // Ikonoa beti berriro aplikatu tamaina/drawable aldatu balitz
                     marker.icon = myLocationIcon
                 }
 
-                // Actualiza iconos de kokapenak según cercanía/desbloqueo (por si cambió la ubicación)
+                // Kokapen ikonoak eguneratu hurbiltasun/desblokeoaren arabera (kokapena aldatzen bada)
                 mapView.overlays.filterIsInstance<Marker>().forEach { marker ->
                     if (marker.title == "Mi ubicación") return@forEach
 
@@ -968,7 +992,7 @@ fun OsmMapView(
             }, modifier = Modifier.fillMaxSize()
         )
 
-        // Mantener ciclo de vida correcto del MapView para que recargue tiles bien.
+
         DisposableEffect(lifecycleOwner) {
             val mapView = mapViewRef.value
             val observer = LifecycleEventObserver { _, event ->
@@ -985,7 +1009,7 @@ fun OsmMapView(
             }
         }
 
-        // Botón para fijar/desfijar el seguimiento
+
         FloatingActionButton(
             onClick = { followMyLocation = !followMyLocation },
             modifier = Modifier
@@ -1000,7 +1024,7 @@ fun OsmMapView(
             )
         }
 
-        // Mensaje si no hay permisos o todavía no hay fix
+
         if (!hasLocationPermission) {
             Text(
                 text = stringResource(R.string.gps_permission_needed),

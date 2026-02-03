@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +9,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Aurrerapen-kontagailua erakusten du.
+ * Uneko posizioa eta elementu kopuru osoa erakusten ditu (adibidez, "3/8").
+ *
+ * @param currentIndex Uneko indizea (0tik hasita)
+ * @param totalItems Elementu kopuru osoa
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun ProgressCounter(
     currentIndex: Int,

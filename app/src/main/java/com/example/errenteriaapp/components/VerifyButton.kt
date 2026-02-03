@@ -11,6 +11,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Egiaztatzeko botoia erakusten du gurutze-hitzaren jokoan.
+ * Erabiltzaileak gurutze-hitza osatuta duela uste duenean.
+ *
+ * @param onClick Botoian klik egitean deitzen den funtzioa
+ */
 @Composable
 fun VerifyButton(onClick: () -> Unit) {
     val colorScheme = MaterialTheme.colorScheme

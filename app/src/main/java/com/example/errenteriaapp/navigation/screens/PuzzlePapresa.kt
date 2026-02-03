@@ -64,28 +64,44 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.errenteriaapp.database.viewModel.PuzzleViewModel
 import kotlinx.coroutines.delay
 
-private const val DragSlowFactor = 1f
+private const val DragSlowFactor = 1f // Arrastearen abiadura faktorea
 
+/**
+ * Puzzle jokoaren pantaila nagusia.
+ * Puzzle piezak arrastatu eta jartzeko jokoa.
+ *
+ * @param onBack Atzera botoiaren ekintza
+ * @param userName Erabiltzaile izena (hautazkoa)
+ * @param onPuzzleComplete Puzzlea osatutakoan exekutatuko den ekintza
+ *
+ * @see PuzzleViewModel
+ * @see SlotCell
+ * @see LoosePieceChip
+ */
 @Composable
 fun PuzzleScreen(
     onBack: () -> Unit,
     userName: String?,
     onPuzzleComplete: () -> Unit
 ) {
-
+    // Testuingurua eta ViewModel-a lortu
     val context = LocalContext.current
     val viewModel: PuzzleViewModel = viewModel()
     val density = LocalDensity.current
 
+    // Puzzlea hasieratu beharrezkoa bada
     LaunchedEffect(Unit) {
         if (viewModel.pieces.isEmpty()) {
             viewModel.initializePuzzle(context)
         }
     }
 
+    // Kokapen mugak gordetzeko mapa
     val slotBounds = remember { mutableStateMapOf<Int, Rect>() }
+    // Libre dauden piezen mugak gordetzeko mapa
     val loosePieceBounds = remember { mutableStateMapOf<Int, Rect>() }
 
+    // Arraste-egoera aldagaiak
     var draggingPieceId by remember { mutableStateOf<Int?>(null) }
     var dragOffset by remember { mutableStateOf(Offset.Zero) }
     var dragStartPosition by remember { mutableStateOf<Offset?>(null) }
@@ -96,6 +112,7 @@ fun PuzzleScreen(
 
     var showCompleteScreen by remember { mutableStateOf(false) }
 
+    // Puzzlea osatu denean pantaila aldatu
     LaunchedEffect(viewModel.isPuzzleComplete) {
         if (viewModel.isPuzzleComplete) {
             delay(400)
@@ -103,6 +120,9 @@ fun PuzzleScreen(
         }
     }
 
+    /**
+     * Arraste-egoera berrezarri.
+     */
     fun resetDragState() {
         draggingPieceId = null
         dragOffset = Offset.Zero
@@ -113,6 +133,12 @@ fun PuzzleScreen(
         originSlotIndex = null
     }
 
+    /**
+     * Arrastatzea hasi kokapen batetik.
+     *
+     * @param pieceId Pieza IDa
+     * @param slotIndex Kokapen indizea
+     */
     fun beginDragFromSlot(pieceId: Int, slotIndex: Int) {
         val bounds = slotBounds[slotIndex] ?: return
         draggingPieceId = pieceId
@@ -124,6 +150,11 @@ fun PuzzleScreen(
         dragCenter = bounds.center
     }
 
+    /**
+     * Arrastatzea hasi pieza libre batetik.
+     *
+     * @param pieceId Pieza IDa
+     */
     fun beginDragFromLoose(pieceId: Int) {
         val bounds = loosePieceBounds[pieceId] ?: return
         draggingPieceId = pieceId
@@ -135,6 +166,11 @@ fun PuzzleScreen(
         dragCenter = bounds.center
     }
 
+    /**
+     * Arrastea eguneratu.
+     *
+     * @param dragAmount Arraste kopurua
+     */
     fun updateDrag(dragAmount: Offset) {
         if (draggingPieceId == null) return
         dragOffset = dragOffset + (dragAmount * DragSlowFactor)
@@ -145,17 +181,23 @@ fun PuzzleScreen(
         }
     }
 
+    /**
+     * Arrastea amaitu.
+     */
     fun finishDrag() {
         val pieceId = draggingPieceId ?: return resetDragState()
         val center = dragCenter
         if (center != null) {
+            // Zein kokapenetara askatu den begiratu
             val targetSlot = slotBounds.entries.firstOrNull { it.value.contains(center) }?.key
             if (targetSlot != null) {
                 if (draggingFromSlot) {
+                    // Kokapen batetik bestera arrastatu
                     originSlotIndex?.let { source ->
                         viewModel.movePieceBetweenSlots(source, targetSlot)
                     }
                 } else {
+                    // Pieza libre bat kokapenera arrastatu
                     val placed = viewModel.placePieceInSlot(pieceId, targetSlot)
                     if (placed) {
                         viewModel.onPiecePlaced(context)
@@ -166,6 +208,7 @@ fun PuzzleScreen(
         resetDragState()
     }
 
+    // Kargatzen ari bada, kargaketa pantaila erakutsi
     if (viewModel.isLoading.value) {
         Box(
             modifier = Modifier
@@ -182,17 +225,20 @@ fun PuzzleScreen(
         return
     }
 
+    // Gainean dagoen kokapena detektatu
     val hoveredSlotIndex = slotBounds.entries.firstOrNull { entry ->
         val center = dragCenter
         center != null && entry.value.contains(center)
     }?.key
 
+    // Pantaila nagusia
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
+        // Puzzlea osatutako pantaila
         if (showCompleteScreen) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -222,12 +268,14 @@ fun PuzzleScreen(
                 }
             }
         } else {
+            // Joko pantaila nagusia
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Goiko txartela (egoera eta puntuazioa)
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -264,6 +312,7 @@ fun PuzzleScreen(
                     }
                 }
 
+                // Puzzle kokapenak (sarea)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -293,6 +342,7 @@ fun PuzzleScreen(
                     }
                 }
 
+                // Libre dauden piezen eremua
                 val loosePieces = viewModel.pieces.filter { it.currentSlot == null && it.isVisible }
                 Row(
                     modifier = Modifier
@@ -321,6 +371,7 @@ fun PuzzleScreen(
             }
         }
 
+        // Arrastean dagoen pieza erakutsi
         val draggingPiece = draggingPieceId?.let { id -> viewModel.getPieceById(id) }
         val start = dragStartPosition
         val size = dragPieceSize
@@ -354,6 +405,19 @@ fun PuzzleScreen(
     }
 }
 
+/**
+ * Puzzle kokapen baten gelaxka.
+ *
+ * @param slotIndex Kokapen indizea
+ * @param pieceId Pieza IDa (hautazkoa)
+ * @param isHighlighted Gainean dagoen ala ez
+ * @param hidePiece Pieza ezkutatu behar den (arrastean dagoenean)
+ * @param viewModel Puzzle ViewModel
+ * @param onSlotPositioned Kokapena posizionatutakoan
+ * @param onDragStart Arrastatzea hasitakoan
+ * @param onDrag Arrastean dagoenean
+ * @param onDragEnd Arrastea amaitutakoan
+ */
 @Composable
 private fun SlotCell(
     slotIndex: Int,
@@ -369,6 +433,7 @@ private fun SlotCell(
     val piece = pieceId?.let { viewModel.getPieceById(it) }
     val isCorrect = pieceId?.let { viewModel.getPieceById(it).correctSlot == slotIndex } == true
 
+    // Ertzeko kolorea egoeraren arabera
     val borderColor = when {
         isHighlighted -> MaterialTheme.colorScheme.primary
         piece != null && isCorrect -> MaterialTheme.colorScheme.tertiary
@@ -378,7 +443,7 @@ private fun SlotCell(
 
     Box(
         modifier = Modifier
-            .aspectRatio(1f)
+            .aspectRatio(1f) // Karratu formakoa
             .clip(RoundedCornerShape(10.dp))
             .border(2.dp, borderColor, RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surface)
@@ -402,6 +467,7 @@ private fun SlotCell(
     ) {
         when {
             piece != null && !hidePiece -> {
+                // Pieza erakutsi
                 Image(
                     bitmap = piece.bitmap,
                     contentDescription = null,
@@ -413,6 +479,7 @@ private fun SlotCell(
             }
 
             else -> {
+                // Kokapen zenbakia erakutsi (pieza ezean)
                 Text(
                     text = (slotIndex + 1).toString(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -423,6 +490,16 @@ private fun SlotCell(
     }
 }
 
+/**
+ * Libre dagoen puzzle pieza baten txipa.
+ *
+ * @param piece Puzzle pieza
+ * @param isHidden Ezkutatuta dagoen ala ez (arrastean dagoenean)
+ * @param onPositioned Posizionatutakoan
+ * @param onDragStart Arrastatzea hasitakoan
+ * @param onDrag Arrastean dagoenean
+ * @param onDragEnd Arrastea amaitutakoan
+ */
 @Composable
 private fun LoosePieceChip(
     piece: com.example.errenteriaapp.database.viewModel.PuzzlePiece,
@@ -442,7 +519,7 @@ private fun LoosePieceChip(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = if (isHidden) 0.2f else 1f),
                 shape = RoundedCornerShape(12.dp)
             )
-            .alpha(if (isHidden) 0f else 1f)
+            .alpha(if (isHidden) 0f else 1f) // Arrastean dagoenean ezkutatu
             .background(MaterialTheme.colorScheme.surface)
             .onGloballyPositioned { coords ->
                 onPositioned(coords.boundsInRoot())

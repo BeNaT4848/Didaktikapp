@@ -28,6 +28,12 @@ import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
 import kotlinx.coroutines.launch
 
+/**
+ * Crucigrama-jokoaren pantaila nagusia konposatzen du
+ * @param navController Nabigazio kontrolatzailea
+ * @param userName Erabiltzailearen izena (aukerakoa)
+ * @param viewModel Crucigrama jokoaren ViewModela
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CrucigramaScreen(

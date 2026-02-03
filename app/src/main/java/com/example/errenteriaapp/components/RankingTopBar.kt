@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -18,14 +16,21 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import com.example.errenteriaapp.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.errenteriaapp.R
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.ui.theme.*
 
+/**
+ * Ranking pantailarako goiko barra erakusten du.
+ * Izenburua eta atzera botoia erakusten ditu animazioekin.
+ *
+ * @param showContent Edukia ikusgarri den
+ * @param navController Nabigazio-kontrolatzailea (atzera joateko)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RankingTopBar(
@@ -52,11 +57,13 @@ fun RankingTopBar(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Izarra ikonoa
                     Icon(
                         Icons.Default.Star,
                         contentDescription = null,
-                        tint = Color(0xFFFFD700)
+                        tint = Color(0xFFFFD700) // Urre-kolorea
                     )
+                    // Izenburua
                     Text(
                         stringResource(R.string.ranking_title),
                         fontWeight = FontWeight.Bold,

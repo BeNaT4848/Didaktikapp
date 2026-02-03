@@ -26,6 +26,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
+/**
+ * Bertso-jokoaren bigarren pantaila konposatzen du (2. zatia)
+ * @param navController Nabigazio kontrolatzailea
+ * @param userName Erabiltzailearen izena (aukerakoa)
+ * @param viewModel Bertso jokoaren ViewModela
+ */
 @Composable
 @Suppress("UNUSED_PARAMETER")
 fun BertsoJolasaScreen2(
@@ -48,6 +54,9 @@ fun BertsoJolasaScreen2(
         effectiveUserName?.let { viewModel.setUsuario(it) }
     }
 
+    /**
+     * Aurrerapena kudeatzen du
+     */
     fun handleProgress() {
         viewModel.registerAnswer()
         viewModel.checkBertso2Completion()
@@ -62,7 +71,7 @@ fun BertsoJolasaScreen2(
         contentPadding = PaddingValues(vertical = 24.dp, horizontal = 16.dp)
     ) {
 
-        // Título principal
+        // Titulu nagusia
         item {
             Text(
                 text = "📝 Bertso Jolasa",
@@ -74,7 +83,7 @@ fun BertsoJolasaScreen2(
             )
         }
 
-        // Primera card
+        // Lehenengo txartela
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
@@ -115,7 +124,7 @@ fun BertsoJolasaScreen2(
             }
         }
 
-        // Segunda card
+        // Bigarren txartela
         item {
             ParagraphCard(
                 backgroundColor = MaterialTheme.colorScheme.primaryContainer,
@@ -170,7 +179,7 @@ fun BertsoJolasaScreen2(
         }
     }
 
-    // Diálogo de éxito
+    // Arrakasta elkarrizketa
     if (showSuccess) {
         GameResultDialogs(
             showSuccess = true,
@@ -186,7 +195,7 @@ fun BertsoJolasaScreen2(
         )
     }
 
-    // Diálogo de error
+    // Errore elkarrizketa
     if (showWrong) {
         GameResultDialogs(
             showSuccess = false,
@@ -199,6 +208,9 @@ fun BertsoJolasaScreen2(
     }
 }
 
+/**
+ * Aurreikuspen pantaila prestatzen du
+ */
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable

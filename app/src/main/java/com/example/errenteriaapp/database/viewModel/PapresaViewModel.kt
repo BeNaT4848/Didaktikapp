@@ -15,11 +15,24 @@ import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
+/**
+ * ViewModela erabili hondakinen sailkapen-jokoaren (Papresa) egoera kudeatzeko
+ * @see ViewModel
+ * @param puntuazioaDao Puntuazioak datu-basean gordetzeko erabiltzen den DAOa
+ * @param configJuego Jokoaren konfigurazioa, ConfigJuego.DEFAULT_PAPRESA balioa erabiltzen du berez
+ */
 class PapresaViewModel(
     private val puntuazioaDao: PuntuazioaDao?,
     private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_PAPRESA
 ) : ViewModel() {
 
+    /**
+     * Jokoaren konfigurazioaren datu-klasea
+     * @property successThreshold Arrakastarako gutxieneko proportzioa (0.0-1.0)
+     * @property minCorrectosRequeridos Onargarriak diren erantzun kopuru minimoa
+     * @property puntosPorCorrecto Erantzun zuzen bakoitzeko puntuak
+     * @property puntosExtraPerfecto Partida perfektuarentzako puntu gehigarriak
+     */
     data class ConfigJuego(
         val successThreshold: Double = 0.8,
         val minCorrectosRequeridos: Int = 12,
@@ -27,6 +40,9 @@ class PapresaViewModel(
         val puntosExtraPerfecto: Int = 10
     ) {
         companion object {
+            /**
+             * Papresa jokoarentzako konfigurazio lehenetsia
+             */
             val DEFAULT_PAPRESA = ConfigJuego(
                 successThreshold = 0.8,
                 minCorrectosRequeridos = 12,
@@ -36,40 +52,82 @@ class PapresaViewModel(
         }
     }
 
-    // Añade esta variable para el nombre del usuario
+    /**
+     * Oraingo erabiltzailearen izena gordetzeko
+     */
     var currentUserName: String? = null
 
+    /**
+     * Jokoan erabiliko diren hondakin-elementuen zerrenda
+     */
     val wasteItems = mutableStateListOf<WasteItem>()
 
+    /**
+     * Unean erakusten ari den elementuaren indizea
+     */
     var currentIndex by mutableStateOf(0)
         private set
 
+    /**
+     * Erabiltzailearen erantzunak: elementu-id -> hautatutako kategoria
+     */
     val userAnswers = mutableMapOf<Int, WasteCategory>()
 
+    /**
+     * Emaitzen bistaratzea kontrolatzeko
+     */
     var showResults by mutableStateOf(false)
         private set
 
+    /**
+     * Arrakasta elkarrizketaren bistaratzea kontrolatzeko
+     */
     var showSuccessDialog by mutableStateOf(false)
         private set
 
+    /**
+     * Errore elkarrizketaren bistaratzea kontrolatzeko
+     */
     var showWrongDialog by mutableStateOf(false)
         private set
 
+    /**
+     * Jokoa gainditu duen ala ez
+     */
     var hasPassed by mutableStateOf(false)
         private set
 
+    /**
+     * Lortutako puntuazioa
+     */
     var score: Int? by mutableStateOf(null)
         private set
 
+    /**
+     * Elementu guztiei erantzun zaien egiaztatzen du
+     * @return Elementu guztiei erantzun zaien ala ez
+     */
     val allAnswered: Boolean
         get() = wasteItems.all { userAnswers.containsKey(it.id) }
 
+    /**
+     * Erantzundako elementu kopurua kalkulatzen du
+     * @return Erantzundako elementu kopurua
+     */
     val answeredCount: Int
         get() = userAnswers.size
 
+    /**
+     * Elementu guztien kopurua kalkulatzen du
+     * @return Elementu guztien kopurua
+     */
     val totalCount: Int
         get() = wasteItems.size
 
+    /**
+     * Unean erakusten ari den elementua lortzen du
+     * @return Uneko elementua edo null
+     */
     val currentItem: WasteItem?
         get() = wasteItems.getOrNull(currentIndex)
 
@@ -77,6 +135,9 @@ class PapresaViewModel(
         generarOrdenAleatorio()
     }
 
+    /**
+     * Elementuen ordena aleatorioa sortzen du
+     */
     private fun generarOrdenAleatorio() {
         val itemsOriginales = listOf(
             WasteItem(1, R.string.papresa_item_water_bottle, WasteCategory.YELLOW, R.drawable.botella_agua),
@@ -105,6 +166,10 @@ class PapresaViewModel(
         wasteItems.addAll(itemsOriginales.shuffled())
     }
 
+    /**
+     * Edukiontzi bat klikatzerakoan deitzen da
+     * @param category Hautatutako hondakin-kategoria
+     */
     fun onContainerClick(category: WasteCategory) {
         currentItem?.let {
             userAnswers[it.id] = category
@@ -112,14 +177,23 @@ class PapresaViewModel(
         }
     }
 
+    /**
+     * Aurreko botoia klikatzerakoan deitzen da
+     */
     fun onPreviousClick() {
         currentIndex = (currentIndex - 1 + wasteItems.size) % wasteItems.size
     }
 
+    /**
+     * Hurrengo botoia klikatzerakoan deitzen da
+     */
     fun onNextClick() {
         currentIndex = (currentIndex + 1) % wasteItems.size
     }
 
+    /**
+     * Egiaztatu botoia klikatzerakoan deitzen da
+     */
     fun onVerifyClick() {
         if (!allAnswered) return
 
@@ -131,26 +205,39 @@ class PapresaViewModel(
         showResults = true
 
         if (hasPassed) {
-            // Guardar puntuación en base de datos
+            // Puntuazioa datu-basean gordetzen du
             guardarPuntuacion(correctAnswers)
         } else {
             showWrongDialog = true
         }
     }
 
+    /**
+     * Erantzun zuzenak zenbatzen ditu
+     * @return Erantzun zuzen kopurua
+     */
     private fun calcularPuntos(): Int {
         return wasteItems.count { userAnswers[it.id] == it.correctCategory }
     }
 
+    /**
+     * Puntuazio finala kalkulatzen du
+     * @param correctos Erantzun zuzen kopurua
+     * @return Puntuazio totala
+     */
     private fun calcularPuntuacionFinal(correctos: Int): Int {
         var puntos = correctos * configJuego.puntosPorCorrecto
-        // Bonus por respuesta perfecta (todas correctas)
+        // Bonus erantzun perfektuarentzat (guztiak zuzenak)
         if (correctos == wasteItems.size && configJuego.puntosExtraPerfecto > 0) {
             puntos += configJuego.puntosExtraPerfecto
         }
         return puntos
     }
 
+    /**
+     * Puntuazioa datu-basean gordetzen du
+     * @param correctos Erantzun zuzen kopurua
+     */
     fun guardarPuntuacion(correctos: Int) {
         viewModelScope.launch {
             currentUserName?.let { nombreUsuario ->
@@ -181,15 +268,23 @@ class PapresaViewModel(
         }
     }
 
-    /** Se llama SOLO cuando termina el vídeo */
+    /**
+     * Bideoa ikusi ondoren deitzen da
+     */
     fun onVideoWatched() {
         showSuccessDialog = true
     }
 
+    /**
+     * Errore elkarrizketaren "Saiatu berriro" botoia klikatzerakoan deitzen da
+     */
     fun onWrongDialogRetry() {
         resetGame()
     }
 
+    /**
+     * Jokoa berrabiarazten du
+     */
     fun resetGame() {
         generarOrdenAleatorio()
         currentIndex = 0
@@ -201,11 +296,17 @@ class PapresaViewModel(
         score = null
     }
 
+    /**
+     * Arrakasta elkarrizketa ixteko
+     */
     fun dismissSuccessDialog() {
         showSuccessDialog = false
     }
 
-    // Método para establecer el usuario
+    /**
+     * Erabiltzailea ezartzen du
+     * @param nombre Erabiltzailearen izena
+     */
     fun setUsuario(nombre: String) {
         currentUserName = nombre
     }

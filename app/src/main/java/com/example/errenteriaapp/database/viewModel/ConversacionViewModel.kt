@@ -5,16 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.ConversationState
 import com.example.errenteriaapp.classes.Dialogo
-
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Hasierako elkarrizketa kudeatzen duen ViewModel-a.
+ * Xanti eta Maialen pertsonaiaren arteko elkarrizketa erakusten du.
+ * Erabiltzailea "Hasi" botoia sakatu arte itzuli egiten da.
+ */
 class ConversacionViewModel : ViewModel() {
     private val _state = MutableStateFlow(ConversationState())
     val state: StateFlow<ConversationState> = _state
 
+    // Elkarrizketa nagusiaren mezuak (hasieran bakarrik erakusten dira)
     private val conversation = listOf(
         Dialogo(
             R.string.home_dialog_1,
@@ -43,6 +48,7 @@ class ConversacionViewModel : ViewModel() {
         )
     )
 
+    // Zirkuluan errepikatutako mezuak ("Hasi" botoia sakatu arte)
     private val idleLoop = listOf(
         Dialogo(
             R.string.home_idle_1,
@@ -55,11 +61,17 @@ class ConversacionViewModel : ViewModel() {
         )
     )
 
+    /**
+     * Elkarrizketa hastea.
+     * Elkarrizketa nagusia erakusten du eta ondoren zirkuluan errepikatzen da.
+     */
     fun startConversation() {
         viewModelScope.launch {
+            // Elkarrizketa nagusia erakutsi
             conversation.forEach { emitMessage(it) }
             _state.value = _state.value.copy(showStartButton = true)
 
+            // "Hasi" botoia sakatu arte zirkuluan errepikatu
             while (!_state.value.startButtonPressed) {
                 idleLoop.forEach {
                     if (_state.value.startButtonPressed) return@launch
@@ -69,6 +81,10 @@ class ConversacionViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Mezu bat igortzen du egoeran.
+     * @param message Igortzeko mezua
+     */
     private suspend fun emitMessage(message: Dialogo) {
         _state.value = _state.value.copy(
             currentMessage = message,
@@ -78,6 +94,10 @@ class ConversacionViewModel : ViewModel() {
         delay(message.duration)
     }
 
+    /**
+     * "Hasi" botoian klik egitean deitzen da.
+     * Elkarrizketa zirkulutik irteten da.
+     */
     fun onStartButtonClicked() {
         _state.value = _state.value.copy(startButtonPressed = true)
     }

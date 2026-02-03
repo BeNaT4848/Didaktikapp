@@ -13,11 +13,26 @@ import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+/**
+ * "Arropa Buru Handiak" (Taula Arrastrar) jokoaren ViewModel-a.
+ * Hitzak pertsonaien artean arrastatzearen logika kudeatzen du.
+ * Puntuazioa ordenik gabe kalkulatzen du.
+ *
+ * @param puntuazioaDao Puntuazioaren datu-basearen atzipenerako DAO (null izan daiteke)
+ * @param configJuego Jokoaren konfigurazioa (lehenetsiak erabiltzen ditu)
+ */
 class ArropaBuruHandiakViewModel(
     private val puntuazioaDao: PuntuazioaDao?,
     private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_DRAG
 ) : ViewModel() {
 
+    /**
+     * Jokoaren konfigurazioa.
+     * @property minCorrectosRequeridos Aprobatutako minimo hitz zuzenak
+     * @property puntosPorPalabraCorrecta Hitz zuzen bakoitzeko puntuak
+     * @property puntosExtraPerfecto Guztiz zuzena denean bonus puntuak
+     * @property puntosExtraAmbosPersonajes Bi pertsonaiek guztiz zuzen dute bonus puntuak
+     */
     data class ConfigJuego(
         val minCorrectosRequeridos: Int,
         val puntosPorPalabraCorrecta: Int = 2,
@@ -25,8 +40,9 @@ class ArropaBuruHandiakViewModel(
         val puntosExtraAmbosPersonajes: Int = 2
     ) {
         companion object {
+            /** Konfigurazio lehenetsiak */
             val DEFAULT_DRAG = ConfigJuego(
-                minCorrectosRequeridos = 6,  // 6 de 9 palabras (no 10 porque hay 1 extra)
+                minCorrectosRequeridos = 6,  // 9 hitzetatik 6 (10 ez, bat extra baitago)
                 puntosPorPalabraCorrecta = 2,
                 puntosExtraPerfecto = 5,
                 puntosExtraAmbosPersonajes = 2
@@ -36,42 +52,61 @@ class ArropaBuruHandiakViewModel(
 
     var currentUserName: String? = null
 
-    // Estado inicial
+    // Egoera hasieratzailea
     private val _uiState = MutableStateFlow(DragGameUiState())
     val uiState: StateFlow<DragGameUiState> = _uiState.asStateFlow()
 
-    // Drop zones
+    // Asketzeko eremuak
     private val xantiDropZones = mutableListOf<Rect?>()
     private val maialenDropZones = mutableListOf<Rect?>()
 
-    // Estadísticas del juego
+    // Jokoaren estatistikak
     private var palabrasCorrectasXanti: Int = 0
     private var palabrasCorrectasMaialen: Int = 0
     private var puntuacionActual: Int = 0
 
     init {
-        // Inicializar listas del tamaño correcto
+        // Zerrendak tamaina egokian hasieratu
         repeat(GameWords.XANTI_WORDS.size) { xantiDropZones.add(null) }
         repeat(GameWords.MAIALEN_WORDS.size) { maialenDropZones.add(null) }
 
-        // Estado inicial
+        // Egoera hasieratzailea
         resetGame()
     }
 
-    // ===== FUNCIONES EXISTENTES =====
+    // ===== EXISTITZEN DIREN FUNTZIOAK =====
 
+    /**
+     * Xanti pertsonaiko asketzeko eremua eguneratzen du.
+     * @param index Eremuaren indizea
+     * @param rect Eremuaren mugak (Rect Compose)
+     */
     fun updateXantiDropZone(index: Int, rect: Rect) {
         if (index < xantiDropZones.size) {
             xantiDropZones[index] = rect
         }
     }
 
+    /**
+     * Maialen pertsonaiko asketzeko eremua eguneratzen du.
+     * @param index Eremuaren indizea
+     * @param rect Eremuaren mugak (Rect Compose)
+     */
     fun updateMaialenDropZone(index: Int, rect: Rect) {
         if (index < maialenDropZones.size) {
             maialenDropZones[index] = rect
         }
     }
 
+    /**
+     * Hitz bat askatzean kudeatzen du.
+     * Asketze-puntua erabiltzen du zein eremutan askatu den zehazteko.
+     * @param dropPoint Asketzearen posizioa (Offset Compose)
+     * @param draggingWord Arrastatzen ari den hitza
+     * @param draggingSlotCharacter "Slot"-etik arrastatzen ari den pertsonaia
+     * @param draggingSlotIndex "Slot"-aren indizea
+     * @param isDraggingFromSlot "Slot"-etik arrastatzen ari den
+     */
     fun handleDrop(
         dropPoint: Offset,
         draggingWord: String?,
@@ -82,7 +117,7 @@ class ArropaBuruHandiakViewModel(
         viewModelScope.launch {
             val word = draggingWord ?: return@launch
 
-            // Buscar en zonas de Xanti
+            // Xanti pertsonaiko eremuetan bilatu
             xantiDropZones.forEachIndexed { index, rect ->
                 if (rect?.contains(dropPoint) == true) {
                     updateAssignments(
@@ -97,7 +132,7 @@ class ArropaBuruHandiakViewModel(
                 }
             }
 
-            // Buscar en zonas de Maialen
+            // Maialen pertsonaiko eremuetan bilatu
             maialenDropZones.forEachIndexed { index, rect ->
                 if (rect?.contains(dropPoint) == true) {
                     updateAssignments(
@@ -114,6 +149,15 @@ class ArropaBuruHandiakViewModel(
         }
     }
 
+    /**
+     * Esleipenak eguneratzen ditu hitz bat pertsonaia baten eremu batean askatzean.
+     * @param targetCharacter Helburuko pertsonaia
+     * @param targetIndex Helburuko indizea
+     * @param word Askatutako hitza
+     * @param draggingSlotCharacter "Slot"-etik arrastatzen ari den pertsonaia
+     * @param draggingSlotIndex "Slot"-aren indizea
+     * @param isDraggingFromSlot "Slot"-etik arrastatzen ari den
+     */
     private fun updateAssignments(
         targetCharacter: Character,
         targetIndex: Int,
@@ -133,7 +177,7 @@ class ArropaBuruHandiakViewModel(
                         xantiAssignments = currentAssignments
                     )
 
-                    // Si veníamos de un slot, manejar intercambio
+                    // "Slot"-etik badator, trukaketa kudeatu
                     if (isDraggingFromSlot) {
                         newState = handleSlotExchange(
                             currentState = newState,
@@ -153,7 +197,7 @@ class ArropaBuruHandiakViewModel(
                         maialenAssignments = currentAssignments
                     )
 
-                    // Si veníamos de un slot, manejar intercambio
+                    // "Slot"-etik badator, trukaketa kudeatu
                     if (isDraggingFromSlot) {
                         newState = handleSlotExchange(
                             currentState = newState,
@@ -168,6 +212,14 @@ class ArropaBuruHandiakViewModel(
         }
     }
 
+    /**
+     * "Slot"-etatik trukaketa kudeatzen du (hitz bat beste batera mugitzean).
+     * @param currentState Uneko egoera
+     * @param existingWord Eremuan dagoen hitza (hutsik izan daiteke)
+     * @param draggingSlotCharacter "Slot"-etik arrastatzen ari den pertsonaia
+     * @param draggingSlotIndex "Slot"-aren indizea
+     * @return Egoera eguneratua
+     */
     private fun handleSlotExchange(
         currentState: DragGameUiState,
         existingWord: String?,
@@ -197,22 +249,29 @@ class ArropaBuruHandiakViewModel(
         }
     }
 
-    // ===== FUNCIONES PARA PUNTOS - SIN ORDEN =====
+    // ===== PUNTUAKO FUNTZIOAK - ORDENIK GABE =====
 
-    // Función para normalizar palabras (quitar espacios y poner en minúsculas)
+    /**
+     * Hitz bat normalizatzen du (zuriuneak kendu eta minuskulara bihurtu).
+     * @param palabra Normalizatzeko hitza
+     * @return Hitz normalizatua
+     */
     private fun normalizarPalabra(palabra: String): String {
         return palabra.trim().lowercase()
     }
 
-    // Función para verificar respuestas SIN IMPORTAR EL ORDEN
+    /**
+     * Erabiltzailearen erantzunak egiaztatzen ditu ORDENIK GABE.
+     * @return (haAprobado, esPerfecto) bikotea (gainditu duen, perfektua den)
+     */
     fun checkAnswers(): Pair<Boolean, Boolean> {
         val currentState = _uiState.value
 
-        Log.d("DRAG_GAME", "=== VERIFICACIÓN INICIADA (SIN ORDEN) ===")
-        Log.d("DRAG_GAME", "Xanti assignments: ${currentState.xantiAssignments}")
-        Log.d("DRAG_GAME", "Maialen assignments: ${currentState.maialenAssignments}")
+        Log.d("DRAG_GAME", "=== EGIAZTAPENA HASITA (ORDENIK GABE) ===")
+        Log.d("DRAG_GAME", "Xanti esleipenak: ${currentState.xantiAssignments}")
+        Log.d("DRAG_GAME", "Maialen esleipenak: ${currentState.maialenAssignments}")
 
-        // Normalizar todas las listas para comparación
+        // Konparatzeko zerrenda guztiak normalizatu
         val palabrasXantiUsuario = currentState.xantiAssignments
             .filterNotNull()
             .map { normalizarPalabra(it) }
@@ -231,91 +290,96 @@ class ArropaBuruHandiakViewModel(
             .map { normalizarPalabra(it) }
             .toSet()
 
-        Log.d("DRAG_GAME", "Xanti usuario (normalizado): $palabrasXantiUsuario")
-        Log.d("DRAG_GAME", "Xanti esperadas (normalizado): $palabrasXantiEsperadas")
-        Log.d("DRAG_GAME", "Maialen usuario (normalizado): $palabrasMaialenUsuario")
-        Log.d("DRAG_GAME", "Maialen esperadas (normalizado): $palabrasMaialenEsperadas")
+        Log.d("DRAG_GAME", "Xanti erabiltzailea (normalizatua): $palabrasXantiUsuario")
+        Log.d("DRAG_GAME", "Xanti esperotakoa (normalizatua): $palabrasXantiEsperadas")
+        Log.d("DRAG_GAME", "Maialen erabiltzailea (normalizatua): $palabrasMaialenUsuario")
+        Log.d("DRAG_GAME", "Maialen esperotakoa (normalizatua): $palabrasMaialenEsperadas")
 
-        // Contar intersecciones (palabras correctas independientemente del orden)
+        // Ebaketa kopurua zenbatu (ordenik gabe hitz zuzenak)
         palabrasCorrectasXanti = palabrasXantiUsuario.intersect(palabrasXantiEsperadas).size
         palabrasCorrectasMaialen = palabrasMaialenUsuario.intersect(palabrasMaialenEsperadas).size
 
-        // Verificar palabras incorrectas (de un personaje en el otro)
+        // Hitz okerrak egiaztatu (pertsonaia bateko hitza bestean)
         val palabrasXantiEnMaialen = palabrasXantiUsuario.intersect(palabrasMaialenEsperadas).size
         val palabrasMaialenEnXanti = palabrasMaialenUsuario.intersect(palabrasXantiEsperadas).size
 
         val totalCorrectas = palabrasCorrectasXanti + palabrasCorrectasMaialen
         val totalPalabras = GameWords.XANTI_WORDS.size + GameWords.MAIALEN_WORDS.size
 
-        Log.d("DRAG_GAME", "=== RESULTADOS ===")
-        Log.d("DRAG_GAME", "Xanti correctas: $palabrasCorrectasXanti/${GameWords.XANTI_WORDS.size}")
-        Log.d("DRAG_GAME", "Maialen correctas: $palabrasCorrectasMaialen/${GameWords.MAIALEN_WORDS.size}")
-        Log.d("DRAG_GAME", "Palabras Xanti en Maialen (error): $palabrasXantiEnMaialen")
-        Log.d("DRAG_GAME", "Palabras Maialen en Xanti (error): $palabrasMaialenEnXanti")
-        Log.d("DRAG_GAME", "Total correctas: $totalCorrectas/$totalPalabras")
-        Log.d("DRAG_GAME", "Mínimo requerido: ${configJuego.minCorrectosRequeridos}")
+        Log.d("DRAG_GAME", "=== EMAITZAK ===")
+        Log.d("DRAG_GAME", "Xanti zuzenak: $palabrasCorrectasXanti/${GameWords.XANTI_WORDS.size}")
+        Log.d("DRAG_GAME", "Maialen zuzenak: $palabrasCorrectasMaialen/${GameWords.MAIALEN_WORDS.size}")
+        Log.d("DRAG_GAME", "Xanti hitzak Maialen-en (errorea): $palabrasXantiEnMaialen")
+        Log.d("DRAG_GAME", "Maialen hitzak Xanti-n (errorea): $palabrasMaialenEnXanti")
+        Log.d("DRAG_GAME", "Guztira zuzenak: $totalCorrectas/$totalPalabras")
+        Log.d("DRAG_GAME", "Minimo beharrezkoa: ${configJuego.minCorrectosRequeridos}")
 
-        // El juego es perfecto si TODAS las palabras están en su lugar correcto
-        // y NO HAY palabras mezcladas entre personajes
+        // Jokoa perfektua da HITZ GUZTIAK tokian badaude
+        // eta EZ DAUDE pertsonaiak nahastuta
         val esPerfecto = (palabrasCorrectasXanti == GameWords.XANTI_WORDS.size &&
                 palabrasCorrectasMaialen == GameWords.MAIALEN_WORDS.size &&
                 palabrasXantiEnMaialen == 0 &&
                 palabrasMaialenEnXanti == 0)
 
-        // Aprobado si tiene al menos el mínimo requerido de palabras correctas
+        // Gainditzen du gutxienez hitz zuzen minimoak baditu
         val haAprobado = totalCorrectas >= configJuego.minCorrectosRequeridos
 
-        Log.d("DRAG_GAME", "Ha aprobado: $haAprobado")
-        Log.d("DRAG_GAME", "Es perfecto: $esPerfecto")
+        Log.d("DRAG_GAME", "Gainditu du: $haAprobado")
+        Log.d("DRAG_GAME", "Perfektua da: $esPerfecto")
 
         if (haAprobado) {
             puntuacionActual = calcularPuntuacion()
-            Log.d("DRAG_GAME", "Puntuación calculada: $puntuacionActual")
+            Log.d("DRAG_GAME", "Kalkulatutako puntuazioa: $puntuacionActual")
             guardarPuntuacion()
 
-            // Actualizar la puntuación en el estado
+            // Puntuazioa egoeran eguneratu
             _uiState.update { it.copy(puntuacion = puntuacionActual) }
         }
 
-        Log.d("DRAG_GAME", "=== VERIFICACIÓN FINALIZADA ===")
+        Log.d("DRAG_GAME", "=== EGIAZTAPENA AMAITUTA ===")
 
         return Pair(haAprobado, esPerfecto)
     }
 
-    // Calcular puntuación (actualizada para trabajar sin orden)
+    /**
+     * Puntuazioa kalkulatzen du (ordenik gabe lan egiteko eguneratuta).
+     * @return Kalkulatutako puntuazioa
+     */
     private fun calcularPuntuacion(): Int {
         var puntos = 0
 
-        // Puntos base por palabras correctas
+        // Oinarrizko puntuak hitz zuzen bakoitzeko
         puntos += (palabrasCorrectasXanti + palabrasCorrectasMaialen) * configJuego.puntosPorPalabraCorrecta
 
-        Log.d("DRAG_GAME", "Puntos base: ${(palabrasCorrectasXanti + palabrasCorrectasMaialen) * configJuego.puntosPorPalabraCorrecta}")
+        Log.d("DRAG_GAME", "Oinarrizko puntuak: ${(palabrasCorrectasXanti + palabrasCorrectasMaialen) * configJuego.puntosPorPalabraCorrecta}")
 
-        // Bonus por completar todas las palabras de Xanti
+        // Bonusa Xanti pertsonaiko hitz guztiak osatzean
         if (palabrasCorrectasXanti == GameWords.XANTI_WORDS.size) {
             puntos += configJuego.puntosExtraPerfecto / 2
-            Log.d("DRAG_GAME", "Bonus Xanti completo: +${configJuego.puntosExtraPerfecto / 2}")
+            Log.d("DRAG_GAME", "Xanti osoaren bonusa: +${configJuego.puntosExtraPerfecto / 2}")
         }
 
-        // Bonus por completar todas las palabras de Maialen
+        // Bonusa Maialen pertsonaiko hitz guztiak osatzean
         if (palabrasCorrectasMaialen == GameWords.MAIALEN_WORDS.size) {
             puntos += configJuego.puntosExtraPerfecto / 2
-            Log.d("DRAG_GAME", "Bonus Maialen completo: +${configJuego.puntosExtraPerfecto / 2}")
+            Log.d("DRAG_GAME", "Maialen osoaren bonusa: +${configJuego.puntosExtraPerfecto / 2}")
         }
 
-        // Bonus por completar ambos personajes (sin palabras mezcladas)
+        // Bonusa bi pertsonaiek guztiz osatzean (hitz nahasirik gabe)
         if (palabrasCorrectasXanti == GameWords.XANTI_WORDS.size &&
             palabrasCorrectasMaialen == GameWords.MAIALEN_WORDS.size) {
             puntos += configJuego.puntosExtraAmbosPersonajes
-            Log.d("DRAG_GAME", "Bonus ambos personajes: +${configJuego.puntosExtraAmbosPersonajes}")
+            Log.d("DRAG_GAME", "Bi pertsonaien bonusa: +${configJuego.puntosExtraAmbosPersonajes}")
         }
 
-        Log.d("DRAG_GAME", "Puntos totales: $puntos")
+        Log.d("DRAG_GAME", "Puntu guztiak: $puntos")
 
         return puntos
     }
 
-    // Guardar puntuación en base de datos
+    /**
+     * Puntuazioa datu-basean gordetzen du.
+     */
     private fun guardarPuntuacion() {
         viewModelScope.launch {
             currentUserName?.let { nombreUsuario ->
@@ -327,7 +391,7 @@ class ArropaBuruHandiakViewModel(
                             puntuazioaArropaBuruHandiak = puntuacionActual
                         )
                         dao.insert(nuevaPuntuazio)
-                        Log.d("DRAG_GAME", "Puntuación guardada en BD: $puntuacionActual")
+                        Log.d("DRAG_GAME", "Puntuazioa BD-n gordeta: $puntuacionActual")
                     } else {
                         val nuevaPuntuazio = Puntuazioa(
                             izenaAbizena = nombreUsuario,
@@ -340,13 +404,16 @@ class ArropaBuruHandiakViewModel(
                             puntuazioaSopaLetra = 0
                         )
                         dao.insert(nuevaPuntuazio)
-                        Log.d("DRAG_GAME", "Nueva puntuación creada en BD: $puntuacionActual")
+                        Log.d("DRAG_GAME", "Puntuazio berria BD-n: $puntuacionActual")
                     }
                 }
             }
         }
     }
 
+    /**
+     * Jokoa berrezartzen du hasierako egoerara.
+     */
     fun resetGame() {
         viewModelScope.launch {
             _uiState.update {
@@ -362,23 +429,34 @@ class ArropaBuruHandiakViewModel(
             palabrasCorrectasXanti = 0
             palabrasCorrectasMaialen = 0
             puntuacionActual = 0
-            Log.d("DRAG_GAME", "Juego reiniciado")
+            Log.d("DRAG_GAME", "Jokoa berrezarrita")
         }
     }
 
+    /**
+     * Arrakasta-dialogoa erakusten du.
+     * @param show Erakutsi ala ez
+     */
     fun showSuccessDialog(show: Boolean) {
         _uiState.update { it.copy(showSuccessDialog = show) }
-        Log.d("DRAG_GAME", "Mostrar diálogo éxito: $show")
+        Log.d("DRAG_GAME", "Arrakasta-dialogoa erakustea: $show")
     }
 
+    /**
+     * Errore-dialogoa erakusten du.
+     * @param show Erakutsi ala ez
+     */
     fun showErrorDialog(show: Boolean) {
         _uiState.update { it.copy(showErrorDialog = show) }
-        Log.d("DRAG_GAME", "Mostrar diálogo error: $show")
+        Log.d("DRAG_GAME", "Errore-dialogoa erakustea: $show")
     }
 
-    // Método para establecer el usuario
+    /**
+     * Erabiltzailea ezartzen du.
+     * @param nombre Erabiltzailearen izena
+     */
     fun setUsuario(nombre: String) {
         currentUserName = nombre
-        Log.d("DRAG_GAME", "Usuario establecido: $nombre")
+        Log.d("DRAG_GAME", "Erabiltzailea ezarrita: $nombre")
     }
 }

@@ -16,6 +16,23 @@ import com.example.errenteriaapp.database.viewModel.SanMarkosViewModel
 import com.example.errenteriaapp.navigation.Routes
 import com.example.errenteriaapp.progress.KokapenaProgressRepository
 
+/**
+ * San Markos galdetegiaren pantaila nagusia.
+ * San Markosen museoari buruzko galderak erakusten eta ebazten ditu.
+ *
+ * @param navController Nabigazio kontroladorea
+ * @param userName Erabiltzaile izena (hautazkoa)
+ * @param viewModel San Markos galdetegiaren ViewModel
+ *
+ * @see SanMarkosViewModel
+ * @see KokapenaProgressRepository
+ * @see QuizHeader
+ * @see ProgressIndicator
+ * @see QuestionCard
+ * @see QuizNextButton
+ * @see RequirementInfo
+ * @see GameResultDialogs
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SanMarkosekoGalderak(
@@ -23,17 +40,22 @@ fun SanMarkosekoGalderak(
     userName: String?,
     viewModel: SanMarkosViewModel
 ) {
+    // Testuingurua eta erabiltzailearen datuak lortu
     val context = LocalContext.current
     val sessionPrefs = remember { context.getSharedPreferences("session", android.content.Context.MODE_PRIVATE) }
     val effectiveUserName = userName ?: sessionPrefs.getString("active_user_name", null)
-    val progressRepo = remember(effectiveUserName) { KokapenaProgressRepository(context, effectiveUserName ?: "default") }
+    val progressRepo = remember(effectiveUserName) {
+        KokapenaProgressRepository(context, effectiveUserName ?: "default")
+    }
 
+    // Erabiltzailea ViewModel-ean ezarri
     LaunchedEffect(effectiveUserName) {
         effectiveUserName?.let {
             viewModel.setUsuario(it)
         }
     }
-    // Observar el estado del ViewModel
+
+    // ViewModel-eko egoerak behatu (derivedStateOf erabiliz eraginkortasuna hobetzeko)
     val galderaIndex by remember { derivedStateOf { viewModel.galderaIndex } }
     val aukeraHautatua by remember { derivedStateOf { viewModel.aukeraHautatua } }
     val erantzunZuzenak by remember { derivedStateOf { viewModel.erantzunZuzenak } }
@@ -43,8 +65,10 @@ fun SanMarkosekoGalderak(
     val showSuccessDialog by remember { derivedStateOf { viewModel.showSuccessDialog } }
     val showWrongDialog by remember { derivedStateOf { viewModel.showWrongDialog } }
 
+    // Uneko galdera lortu
     val currentPregunta = viewModel.currentPregunta
 
+    // Pantaila nagusiaren egitura
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -56,13 +80,12 @@ fun SanMarkosekoGalderak(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cabecera
+            // Goiburu atala
             QuizHeader()
 
             Spacer(modifier = Modifier.height(30.dp))
 
-
-            // Progreso visual
+            // Aurrerapenaren ikusizko adierazlea
             ProgressIndicator(
                 galderaIndex = galderaIndex,
                 totalGalderak = viewModel.galderak.size,
@@ -71,12 +94,12 @@ fun SanMarkosekoGalderak(
 
             Spacer(modifier = Modifier.height(7.dp))
 
-            // Tarjeta de pregunta - USANDO opcionesMezcladas
+            // Galdera txartela - opcionesMezcladas erabiliz
             QuestionCard(
                 galderaIndex = galderaIndex,
                 galderaText = currentPregunta.texto,
-                aukerak = currentPregunta.opcionesMezcladas,  // Usar opciones mezcladas
-                erantzunZuzena = currentPregunta.respuestaCorrectaMezclada,  // Usar respuesta correcta en opciones mezcladas
+                aukerak = currentPregunta.opcionesMezcladas,  // Nahastutako aukerak erabili
+                erantzunZuzena = currentPregunta.respuestaCorrectaMezclada,  // Zuzena nahastutako aukeren artean
                 aukeraHautatua = aukeraHautatua,
                 galderakErantzunda = galderakErantzunda,
                 erantzunak = erantzunak,
@@ -87,7 +110,7 @@ fun SanMarkosekoGalderak(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Botón para continuar o terminar
+            // Jarraitu edo amaitzeko botoia
             QuizNextButton(
                 currentQuestionIndex = galderaIndex,
                 totalQuestions = viewModel.galderak.size,
@@ -100,12 +123,12 @@ fun SanMarkosekoGalderak(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Información sobre los requisitos
+            // Baldintzei buruzko informazioa
             RequirementInfo(erantzunZuzenak = erantzunZuzenak)
         }
     }
 
-    // Diálogo de éxito
+    // Arrakastaren elkarrizketa
     if (showSuccessDialog) {
         GameResultDialogs(
             showSuccess = true,
@@ -117,14 +140,14 @@ fun SanMarkosekoGalderak(
             onSuccessButton = {
                 viewModel.dismissSuccessDialog()
                 progressRepo.markCompleted(Routes.SANMARKOS_SCREEN)
-                // Encadenado automático: al terminar SanMarkos, entra al Crucigrama
+                // KATEATZE AUTOMATIKOA: SanMarkos amaitutakoan, Crucigrama-ra joan
                 navController.navigate(Routes.CRUCIGRAMA_SCREEN)
             },
             onWrongButton = { }
         )
     }
 
-    // Diálogo de error
+    // Akatsaren elkarrizketa
     if (showWrongDialog) {
         GameResultDialogs(
             showSuccess = false,

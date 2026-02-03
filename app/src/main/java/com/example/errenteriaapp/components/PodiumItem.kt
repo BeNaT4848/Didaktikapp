@@ -28,6 +28,18 @@ import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.RankingItem
 import kotlinx.coroutines.delay
 
+/**
+ * Rankingaren podio-elementua erakusten du.
+ * Erabiltzaile baten informazioa erakusten du animazioekin.
+ *
+ * @param position Erabiltzailearen posizioa rankingan (1, 2, 3...)
+ * @param item RankingItem objektua erabiltzailearen informazioarekin
+ * @param height Podioaren altuera
+ * @param color Podioaren kolore nagusia
+ * @param textColor Testuaren kolorea
+ * @param modifier Modifier gehigarria
+ * @param pointsTextSize Puntuazioaren testuaren tamaina
+ */
 @Composable
 fun PodiumItem(
     position: Int,
@@ -38,6 +50,7 @@ fun PodiumItem(
     modifier: Modifier = Modifier,
     pointsTextSize: TextUnit = 24.sp
 ) {
+    // Salto-animazioa posizioaren arabera
     val infiniteTransition = rememberInfiniteTransition(label = "bounce-animation")
     val bounce by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -55,6 +68,7 @@ fun PodiumItem(
 
     var showPoints by remember { mutableStateOf(false) }
 
+    // Puntuazioa erakusteko atzerapenarekin (posizioaren arabera)
     LaunchedEffect(Unit) {
         delay(500L + (position * 100L))
         showPoints = true
@@ -65,13 +79,14 @@ fun PodiumItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom
     ) {
-        // Información del participante
+        // Parte-hartzailearen informazioa
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(bottom = 12.dp)
                 .fillMaxWidth()
         ) {
+            // Abrebiaturaren zirkuinoa
             Box(
                 modifier = Modifier
                     .size(60.dp)
@@ -103,6 +118,7 @@ fun PodiumItem(
                     ),
                 contentAlignment = Alignment.Center
             ) {
+                // Izenaren lehen letrak
                 Text(
                     text = item.name.split(" ").joinToString("") { it.first().toString() },
                     color = MaterialTheme.colorScheme.onSurface,
@@ -117,10 +133,11 @@ fun PodiumItem(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Izen Osoa
+            // Izen osoa
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Izena
                 Text(
                     text = item.name.split(" ")[0],
                     fontWeight = FontWeight.SemiBold,
@@ -134,6 +151,7 @@ fun PodiumItem(
                     maxLines = 1
                 )
 
+                // Deitura (badago)
                 if (item.name.contains(" ")) {
                     Text(
                         text = item.name.split(" ")[1],
@@ -152,7 +170,7 @@ fun PodiumItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Puntos
+            // Puntuak
             AnimatedVisibility(
                 visible = showPoints,
                 enter = scaleIn(animationSpec = spring(dampingRatio = 0.5f)) + fadeIn()
@@ -179,18 +197,21 @@ fun PodiumItem(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+                        // Izarra ikonoa
                         Icon(
                             Icons.Default.Star,
                             contentDescription = "puntu",
                             tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(16.dp)
                         )
+                        // Puntu kopurua
                         Text(
                             text = "${item.points}",
                             fontWeight = FontWeight.Black,
                             fontSize = pointsTextSize,
                             color = MaterialTheme.colorScheme.onSurface
                         )
+                        // "pts" etiketa
                         Text(
                             text = "pts",
                             fontWeight = FontWeight.Bold,
@@ -202,12 +223,12 @@ fun PodiumItem(
             }
         }
 
-        // Pedestal
+        // Podio (oinarria)
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(height)
-                .offset(y = (-bounce).dp)
+                .offset(y = (-bounce).dp) // Salto-animazioa aplikatu
                 .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                 .background(
                     brush = Brush.verticalGradient(
@@ -244,6 +265,7 @@ fun PodiumItem(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(top = 16.dp)
             ) {
+                // Posizioa (1°, 2°, 3°)
                 Text(
                     text = "$position°",
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -267,7 +289,7 @@ fun PodiumItem(
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                 )
 
-                // Medalla decorativa
+                // Domina dekoratiboa (1., 2. eta 3. postuentzat)
                 if (position <= 3) {
                     val medalLabel = when (position) {
                         1 -> stringResource(R.string.ranking_medal_gold)

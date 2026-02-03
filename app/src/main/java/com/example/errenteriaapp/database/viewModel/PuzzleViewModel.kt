@@ -18,63 +18,103 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.max
 
+/**
+ * Puzzle-pieza baten datuak gordetzeko klasea
+ * @property id Pieza-identifikatzaile bakarra
+ * @property bitmap Piezaren irudia
+ * @property correctSlot Piezaren zokalo zuzena (0-8)
+ * @property currentSlot Piezaren uneko zokaloa (null zokaloan ez badago)
+ * @property offsetX X ardatzean desplazamendua posizio librean
+ * @property offsetY Y ardatzean desplazamendua posizio librean
+ * @property isVisible Pieza ikusgai dagoen ala ez
+ * @property aspectRatio Irudiaren aspektu-erlazioa (zabalera/altuera)
+ */
 data class PuzzlePiece(
     val id: Int,
     val bitmap: ImageBitmap,
-    val correctSlot: Int,      // Slot correcto (0-8)
-    var currentSlot: Int? = null, // Slot actual (null si no está colocado)
-    var offsetX: Float = 0f,   // Offset X para posición libre
-    var offsetY: Float = 0f,   // Offset Y para posición libre
+    val correctSlot: Int,      // Zokalo zuzena (0-8)
+    var currentSlot: Int? = null, // Uneko zokaloa (null zokaloan ez badago)
+    var offsetX: Float = 0f,   // X desplazamendua posizio librerako
+    var offsetY: Float = 0f,   // Y desplazamendua posizio librerako
     var isVisible: Boolean = false,
     val aspectRatio: Float = 1f
 )
 
+/**
+ * ViewModela erabili puzzle-jokoaren egoera kudeatzeko
+ * @see ViewModel
+ */
 class PuzzleViewModel : ViewModel() {
 
-    // Configuración 3x3
+    /**
+     * Puzzlearen konfigurazioa 3x3
+     */
     private val rows = 3
     private val cols = 3
+
+    /**
+     * Pieza guztien kopurua
+     */
     val totalPieces = rows * cols
 
-    // Piezas del puzzle
+    /**
+     * Puzzlearen piezen zerrenda
+     */
     private val _pieces = mutableStateListOf<PuzzlePiece>()
     val pieces: List<PuzzlePiece> get() = _pieces
 
-    // Slots (qué pieza hay en cada slot)
+    /**
+     * Zokaloak (pieza bat dagoen zokalo bakoitzean)
+     */
     private val _slots = mutableStateListOf<Int?>().apply {
         repeat(totalPieces) { add(null) }
     }
     val slots: List<Int?> get() = _slots
 
-    // Estados
+    /**
+     * Datuak kargatzen ari diren egoera kontrolatzeko
+     */
     val isLoading = mutableStateOf(true)
 
-    // Nueva: índice de la siguiente pieza a mostrar
+    /**
+     * Erakusteko hurrengo pieza-izendatzailea
+     */
     var nextPieceIndex by mutableStateOf(0)
         private set
 
-    // Imagen completa para mostrar al final
+    /**
+     * Puzzle osoko irudia amaieran erakusteko
+     */
     val fullPuzzleImageRes: Int = R.drawable.papresa_azalpena
 
-    // Contador de piezas correctas
+    /**
+     * Zokalo zuzenetan dauden piezen kopurua kalkulatzen du
+     * @return Zokalo zuzenetan dauden piezen kopurua
+     */
     val correctCount: Int
         get() = _slots.countIndexed { index, pieceId ->
             pieceId != null && getPieceById(pieceId).correctSlot == index
         }
 
-    // ¿Está el puzzle completo?
+    /**
+     * Puzzlea osatuta dagoen egiaztatzen du
+     * @return Puzzlea osatuta dagoen ala ez
+     */
     val isPuzzleComplete: Boolean get() = correctCount == totalPieces
 
-    // Variable para trackear qué pieza se está arrastrando
-    var draggingPieceId by mutableStateOf<Int?>(null)
 
-    // Inicializar puzzle
+
+
+    /**
+     * Puzzlea hasieratzen du
+     * @param context Aplikazioaren testuingurua
+     */
     fun initializePuzzle(context: Context) {
         isLoading.value = true
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    // Cargar y dividir imagen
+                    // Irudia kargatu eta zatitu
                     val options = BitmapFactory.Options().apply {
                         inScaled = false
                     }
@@ -83,7 +123,7 @@ class PuzzleViewModel : ViewModel() {
                         context.resources,
                         R.drawable.papresa_azalpena,
                         options
-                    ) ?: throw Exception("No se pudo cargar la imagen")
+                    ) ?: throw Exception("Ezin izan da irudia kargatu")
 
                     val piecesList = divideImage(originalBitmap)
 
@@ -94,7 +134,7 @@ class PuzzleViewModel : ViewModel() {
                         repeat(totalPieces) { _slots.add(null) }
                         nextPieceIndex = 0
 
-                        // Solo mostrar la primera pieza
+                        // Lehen pieza erakutsi bakarrik
                         showNextPiece(context)
 
                         isLoading.value = false
@@ -107,6 +147,11 @@ class PuzzleViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Irudi bat zatitzen du pieza txikietan
+     * @param bitmap Zatitu beharreko irudi nagusia
+     * @return Puzzle-piezen zerrenda
+     */
     private fun divideImage(bitmap: Bitmap): List<PuzzlePiece> {
         val pieces = mutableListOf<PuzzlePiece>()
         val pieceWidth = bitmap.width / cols
@@ -134,24 +179,27 @@ class PuzzleViewModel : ViewModel() {
                 pieceId++
             }
         }
-        return pieces.shuffled()  // Mezclar las piezas
+        return pieces.shuffled()  // Piezak nahastu
     }
 
-    // Mostrar la siguiente pieza disponible
+    /**
+     * Hurrengo pieza erabilgarria erakusten du
+     * @param context Aplikazioaren testuingurua
+     */
     private fun showNextPiece(context: Context) {
         if (nextPieceIndex < _pieces.size) {
-            // Hacer visible la siguiente pieza
+            // Hurrengo pieza ikusgai jarri
             val pieceIndex = nextPieceIndex
             _pieces[pieceIndex] = _pieces[pieceIndex].copy(isVisible = true)
 
-            // Posicionarla en la parte inferior (sola en el centro)
+            // Beheko aldean kokatu (erdian bakarrik)
             val displayMetrics = context.resources.displayMetrics
             val screenWidth = displayMetrics.widthPixels.toFloat()
             val screenHeight = displayMetrics.heightPixels.toFloat()
 
             val pieceSize = 100f
-            val posX = (screenWidth - pieceSize) / 3  // Centrada
-            val posY = screenHeight - 420f  // Un poco arriba del borde inferior
+            val posX = (screenWidth - pieceSize) / 3  // Erdian
+            val posY = screenHeight - 420f  // Beheko ertzaren apur bat gorago
 
             _pieces[pieceIndex] = _pieces[pieceIndex].copy(
                 offsetX = posX,
@@ -163,38 +211,24 @@ class PuzzleViewModel : ViewModel() {
         }
     }
 
-    // Obtener pieza por ID
+    /**
+     * Pieza lortzen du bere identifikatzailearen arabera
+     * @param pieceId Bilatu beharreko pieza-identifikatzailea
+     * @return Aurkitu den pieza
+     * @throws Exception Pieza ez bada aurkitzen
+     */
     fun getPieceById(pieceId: Int): PuzzlePiece {
-        return _pieces.find { it.id == pieceId } ?: throw Exception("Pieza no encontrada")
+        return _pieces.find { it.id == pieceId } ?: throw Exception("Pieza ez da aurkitu")
     }
 
-    // Método para intercambiar piezas
-    fun swapPieces(pieceId1: Int, pieceId2: Int): Boolean {
-        val piece1 = getPieceById(pieceId1)
-        val piece2 = getPieceById(pieceId2)
 
-        if (piece1.currentSlot == null || piece2.currentSlot == null) {
-            return false
-        }
 
-        val slot1 = piece1.currentSlot!!
-        val slot2 = piece2.currentSlot!!
-
-        // Intercambiar en los slots
-        _slots[slot1] = pieceId2
-        _slots[slot2] = pieceId1
-
-        // Actualizar las piezas
-        val piece1Index = _pieces.indexOfFirst { it.id == pieceId1 }
-        val piece2Index = _pieces.indexOfFirst { it.id == pieceId2 }
-
-        _pieces[piece1Index] = piece1.copy(currentSlot = slot2)
-        _pieces[piece2Index] = piece2.copy(currentSlot = slot1)
-
-        return true
-    }
-
-    // Colocar pieza en slot (con soporte para intercambio)
+    /**
+     * Pieza bat zokalo batean jartzen du (trukaketa laguntzarekin)
+     * @param pieceId Kokatu beharreko pieza-identifikatzailea
+     * @param slotIndex Helburu zokaloaren indizea
+     * @return Pieza kokatu den ala ez
+     */
     fun placePieceInSlot(pieceId: Int, slotIndex: Int): Boolean {
         val piece = getPieceById(pieceId)
         val originSlot = piece.currentSlot
@@ -225,6 +259,12 @@ class PuzzleViewModel : ViewModel() {
         return true
     }
 
+    /**
+     * Pieza bat zokalo batetik bestera mugitzen du
+     * @param sourceSlot Iturburu zokaloaren indizea
+     * @param targetSlot Helburu zokaloaren indizea
+     * @return Mugimendua arrakastaz egin den ala ez
+     */
     fun movePieceBetweenSlots(sourceSlot: Int, targetSlot: Int): Boolean {
         if (sourceSlot == targetSlot) return true
         val movingPieceId = _slots[sourceSlot] ?: return false
@@ -250,53 +290,31 @@ class PuzzleViewModel : ViewModel() {
         return true
     }
 
-    // Quitar pieza de slot (para arrastrar)
-    fun removePieceFromSlot(pieceId: Int) {
-        val piece = getPieceById(pieceId)
-        if (piece.currentSlot != null) {
-            _slots[piece.currentSlot!!] = null
 
-            val pieceIndex = _pieces.indexOfFirst { it.id == pieceId }
-            _pieces[pieceIndex] = piece.copy(
-                currentSlot = null
-            )
-        }
-    }
 
-    fun updatePiecePosition(pieceId: Int, offsetX: Float, offsetY: Float) {
-        val piece = getPieceById(pieceId)
-        if (piece.currentSlot == null) {
-            val pieceIndex = _pieces.indexOfFirst { it.id == pieceId }
-            _pieces[pieceIndex] = piece.copy(
-                offsetX = offsetX,
-                offsetY = offsetY
-            )
-        }
-    }
 
-    // Nueva: cuando se coloca una pieza, mostrar la siguiente
+    /**
+     * Pieza bat kokatu ondoren deitzen da, hurrengo pieza erakusteko
+     * @param context Aplikazioaren testuingurua
+     */
     fun onPiecePlaced(context: Context) {
-        // Contar cuántas piezas están colocadas
+        // Zenbat pieza daude kokatuak zenbatzen du
         val placedPieces = _pieces.count { it.currentSlot != null }
 
-        // Mostrar siguiente pieza solo si es una nueva colocación (no intercambio)
-        // Y si hay más piezas por mostrar
+        // Hurrengo pieza erakutsi soilik kokapen berria bada (ez trukaketa)
+        // Eta erakusteko pieza gehiago badago
         if (nextPieceIndex < totalPieces) {
             showNextPiece(context)
         }
     }
 
-    // Obtener piezas visibles (las que están abajo)
-    fun getVisiblePieces(): List<PuzzlePiece> {
-        return _pieces.filter { it.isVisible && it.currentSlot == null }
-    }
 
-    // Método para obtener pieza en un slot
-    fun getPieceInSlot(slotIndex: Int): PuzzlePiece? {
-        return _slots[slotIndex]?.let { getPieceById(it) }
-    }
 
-    // Extensión para contar con índice
+    /**
+     * Indizearekin zenbatzen duen luzapena
+     * @param predicate Zenbatuko den elementua zehazten duen baldintza
+     * @return Baldintza betetzen duten elementu kopurua
+     */
     inline fun <T> List<T?>.countIndexed(predicate: (index: Int, T?) -> Boolean): Int {
         var count = 0
         for (i in indices) {

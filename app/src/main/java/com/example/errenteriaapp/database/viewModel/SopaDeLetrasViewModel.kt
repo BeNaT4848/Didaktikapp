@@ -11,6 +11,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Sopa de letras jokoaren egoera gordetzeko datu-klasea
+ * @property palabrasEncontradas Aurkitu diren hitzen zerrenda
+ * @property showSuccessDialog Arrakasta elkarrizketa erakutsi behar den ala ez
+ * @property showWrongDialog Errore elkarrizketa erakutsi behar den ala ez
+ * @property mostrarExito Arrakasta mezu orokorra erakutsi behar den ala ez
+ * @property mostrarPista Pista bat erakutsi behar den ala ez
+ * @property puntos Lortutako puntu kopurua
+ */
 data class SopaGameState(
     val palabrasEncontradas: List<String> = emptyList(),
     val showSuccessDialog: Boolean = false,
@@ -20,11 +29,25 @@ data class SopaGameState(
     val puntos: Int = 0
 )
 
+/**
+ * ViewModela erabili sopa de letras jokoaren egoera kudeatzeko
+ * @see ViewModel
+ * @param puntuazioaDao Puntuazioak datu-basean gordetzeko erabiltzen den DAOa
+ * @param configJuego Jokoaren konfigurazioa, ConfigJuego.DEFAULT_SOPA balioa erabiltzen du berez
+ */
 class SopaDeLetrasViewModel(
     private val puntuazioaDao: PuntuazioaDao?,
     private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_SOPA
 ) : ViewModel() {
 
+    /**
+     * Jokoaren konfigurazioaren datu-klasea
+     * @property minPalabrasRequeridas Aurkitu beharreko hitz kopuru minimoa
+     * @property puntosPorPalabra Hitz aurkitu bakoitzeko puntuak
+     * @property puntosPorLetra Letra aurkitu bakoitzeko puntuak
+     * @property puntosExtraPerfecto Partida perfektuarentzako puntu gehigarriak
+     * @property puntosExtraTodasPalabras Hitz guztiak aurkituz gero puntu gehigarriak
+     */
     data class ConfigJuego(
         val minPalabrasRequeridas: Int,
         val puntosPorPalabra: Int = 3,
@@ -33,8 +56,11 @@ class SopaDeLetrasViewModel(
         val puntosExtraTodasPalabras: Int = 2
     ) {
         companion object {
+            /**
+             * Sopa de letras jokoarentzako konfigurazio lehenetsia
+             */
             val DEFAULT_SOPA = ConfigJuego(
-                minPalabrasRequeridas = 5, // Mínimo 5 de las 8 palabras
+                minPalabrasRequeridas = 5, // 8 hitzetatik gutxienez 5
                 puntosPorPalabra = 3,
                 puntosPorLetra = 0,
                 puntosExtraPerfecto = 1,
@@ -43,12 +69,24 @@ class SopaDeLetrasViewModel(
         }
     }
 
-    // Añade esta variable para el nombre del usuario
+    /**
+     * Oraingo erabiltzailearen izena gordetzeko
+     */
     var currentUserName: String? = null
 
+    /**
+     * Jokoaren egoera pribatua
+     */
     private val _gameState = MutableStateFlow(SopaGameState())
+
+    /**
+     * Jokoaren egoera publikoa (irakurgarria soilik)
+     */
     val gameState = _gameState.asStateFlow()
 
+    /**
+     * Sopa de letrasen aurkitu beharreko hitzen zerrenda
+     */
     val palabras = listOf(
         PalabraSopa(
             texto = "SAXOFOIA",
@@ -110,6 +148,9 @@ class SopaDeLetrasViewModel(
         )
     )
 
+    /**
+     * Sopa de letrasen taula (14x14)
+     */
     val tablero = arrayOf(
         charArrayOf('T', 'H', 'H', 'S', 'A', 'X', 'O', 'F', 'O', 'I', 'A', 'Z', 'T', 'A'),
         charArrayOf('Q', 'B', 'P', 'B', 'W', 'U', 'G', 'S', 'Y', 'P', 'R', 'J', 'X', 'A'),
@@ -127,24 +168,27 @@ class SopaDeLetrasViewModel(
         charArrayOf('M', 'Z', 'X', 'C', 'T', 'T', 'R', 'O', 'N', 'B', 'O', 'I', 'A', 'T')
     )
 
-    // Calcular puntuación total
+    /**
+     * Puntuazio totala kalkulatzen du
+     * @return Puntuazio totala
+     */
     private fun calcularPuntuacion(): Int {
         val palabrasEncontradas = _gameState.value.palabrasEncontradas.size
         var puntos = 0
 
-        // Puntos por palabras encontradas
+        // Hitz aurkitu bakoitzeko puntuak
         puntos += palabrasEncontradas * configJuego.puntosPorPalabra
 
-        // Puntos por letras en las palabras encontradas
+        // Aurkitu diren hitzetako letra bakoitzeko puntuak
         val totalLetras = palabras.sumOf { if (it.texto in _gameState.value.palabrasEncontradas) it.texto.length else 0 }
         puntos += totalLetras * configJuego.puntosPorLetra
 
-        // Bonus por encontrar todas las palabras
+        // Bonus hitz guztiak aurkitzeagatik
         if (palabrasEncontradas == palabras.size) {
             puntos += configJuego.puntosExtraTodasPalabras
         }
 
-        // Bonus extra si se encuentra una cantidad significativa
+        // Bonus gehigarria kantitate esanguratsua aurkitzeagatik
         if (palabrasEncontradas >= configJuego.minPalabrasRequeridas * 1.5) {
             puntos += configJuego.puntosExtraPerfecto
         }
@@ -152,11 +196,15 @@ class SopaDeLetrasViewModel(
         return puntos
     }
 
+    /**
+     * Hitz bat aurkitu dela markatzen du
+     * @param palabra Aurkitu den hitza
+     */
     fun marcarPalabraEncontrada(palabra: String) {
         if (!_gameState.value.palabrasEncontradas.contains(palabra)) {
             val nuevasEncontradas = _gameState.value.palabrasEncontradas + palabra
 
-            // Calcular nuevos puntos
+            // Puntu berriak kalkulatu
             val nuevosPuntos = calcularPuntuacionParaPalabra(palabra)
 
             _gameState.update {
@@ -166,28 +214,37 @@ class SopaDeLetrasViewModel(
                 )
             }
 
-            // Verificar si se completó el juego
+            // Jokoa osatu den egiaztatu
             if (nuevasEncontradas.size == palabras.size) {
-                // Guardar puntos cuando se completan todas las palabras
+                // Puntuak gorde hitz guztiak aurkitzen direnean
                 guardarPuntuacionFinal()
                 _gameState.update { it.copy(mostrarExito = true) }
             } else if (nuevasEncontradas.size >= configJuego.minPalabrasRequeridas) {
-                // Si alcanza el mínimo, guardar puntos parciales
+                // Gutxieneko iritsiz gero, puntu partzialak gorde
                 guardarPuntuacionParcial(nuevasEncontradas.size)
             }
         }
     }
 
+    /**
+     * Hitz baten puntuazioa kalkulatzen du
+     * @param palabra Kalkulatu beharreko hitza
+     * @return Hitzaren puntuazioa
+     */
     private fun calcularPuntuacionParaPalabra(palabra: String): Int {
         val palabraInfo = palabras.find { it.texto == palabra }
         return if (palabraInfo != null) {
-            // Puntos por palabra + puntos por letras
+            // Puntuak hitzagatik + puntuak letragatik
             configJuego.puntosPorPalabra + (palabraInfo.texto.length * configJuego.puntosPorLetra)
         } else {
             0
         }
     }
 
+    /**
+     * Puntuazio partziala datu-basean gordetzen du
+     * @param palabrasEncontradas Aurkitu diren hitz kopurua
+     */
     private fun guardarPuntuacionParcial(palabrasEncontradas: Int) {
         viewModelScope.launch {
             currentUserName?.let { nombreUsuario ->
@@ -196,7 +253,7 @@ class SopaDeLetrasViewModel(
                     val puntosParciales = calcularPuntuacion()
 
                     if (puntuazioActual != null) {
-                        // Si ya hay puntos, sumar los nuevos
+                        // Puntuak badauzka, puntu berriak gehitu
                         val nuevaPuntuazio = puntuazioActual.copy(
                             puntuazioaSopaLetra = puntosParciales
                         )
@@ -219,6 +276,9 @@ class SopaDeLetrasViewModel(
         }
     }
 
+    /**
+     * Puntuazio finala datu-basean gordetzen du
+     */
     private fun guardarPuntuacionFinal() {
         viewModelScope.launch {
             currentUserName?.let { nombreUsuario ->
@@ -249,13 +309,18 @@ class SopaDeLetrasViewModel(
         }
     }
 
+    /**
+     * Arrakasta elkarrizketa ezkutatzeko
+     */
     fun hideSuccessDialog() {
         _gameState.update { it.copy(mostrarExito = false) }
     }
 
-    // Método para establecer el usuario
+    /**
+     * Erabiltzailea ezartzen du
+     * @param nombre Erabiltzailearen izena
+     */
     fun setUsuario(nombre: String) {
         currentUserName = nombre
     }
 }
-

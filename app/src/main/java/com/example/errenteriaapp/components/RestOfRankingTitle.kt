@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -18,10 +16,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
-import com.example.errenteriaapp.ui.theme.primaryLight
 
-
-
+/**
+ * Rankingaren gainerako atalaren izenburua erakusten du.
+ * Ikonoekin apaindutako izenburua eta marra dekoratiboak erakusten ditu.
+ *
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun RestOfRankingTitle(
     modifier: Modifier = Modifier
@@ -30,7 +31,7 @@ fun RestOfRankingTitle(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth()
     ) {
-        // Línea decorativa superior
+        // Goiko marra dekoratiboa
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(0.3f),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
@@ -39,7 +40,7 @@ fun RestOfRankingTitle(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Título con iconos
+        // Izarra ikonoekin izenburua
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -67,7 +68,7 @@ fun RestOfRankingTitle(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Línea decorativa inferior
+        // Beheko marra dekoratiboa
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(0.3f),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),

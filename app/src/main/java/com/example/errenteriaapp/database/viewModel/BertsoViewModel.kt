@@ -9,11 +9,25 @@ import com.example.errenteriaapp.database.Puntuazioa
 import com.example.errenteriaapp.database.PuntuazioaDao
 import kotlinx.coroutines.launch
 
+/**
+ * Bertso jokoaren ViewModel-a.
+ * Bi bertsoren (bertso1 eta bertso2) logika kudeatzen du.
+ *
+ * @param puntuazioaDao Puntuazioaren datu-basearen atzipenerako DAO (null izan daiteke)
+ * @param configJuego Jokoaren konfigurazioa (lehen bertsoarekin hasieratzen da)
+ */
 class BertsoViewModel(
     private val puntuazioaDao: PuntuazioaDao?,
     private val configJuego: ConfigJuego = ConfigJuego.DEFAULT_BERTSOA_1
 ) : ViewModel() {
 
+    /**
+     * Jokoaren konfigurazioa.
+     * @property minCorrectosRequeridos Aprobatutako minimo erantzun zuzenak
+     * @property puntosPorCorrecto Erantzun zuzen bakoitzeko puntuak
+     * @property puntosExtraPerfecto Guztiz zuzena denean bonus puntuak
+     * @property necesitaTodosCorrectos Erantzun guztiak zuzenak izan behar dituen
+     */
     data class ConfigJuego(
         val minCorrectosRequeridos: Int,
         val puntosPorCorrecto: Int,
@@ -21,26 +35,26 @@ class BertsoViewModel(
         val necesitaTodosCorrectos: Boolean = false
     ) {
         companion object {
-            // Configuración para el primer bertso (7 preguntas)
+            // Lehen bertsoaren konfigurazioa (7 galdera)
             val DEFAULT_BERTSOA_1 = ConfigJuego(
-                minCorrectosRequeridos = 5,  // Más de 4 como dice tu código
+                minCorrectosRequeridos = 5,  // Zure kodeak 4 baino gehiago esaten duenez
                 puntosPorCorrecto = 2,
                 puntosExtraPerfecto = 3
             )
 
-            // Configuración para el segundo bertso (5 preguntas)
+            // Bigarren bertsoaren konfigurazioa (5 galdera)
             val DEFAULT_BERTSOA_2 = ConfigJuego(
-                minCorrectosRequeridos = 4,  // Más de 3 como dice tu código
+                minCorrectosRequeridos = 4,  // Zure kodeak 3 baino gehiago esaten duenez
                 puntosPorCorrecto = 1,
                 puntosExtraPerfecto = 2
             )
         }
     }
 
-    // Añade esta variable para el nombre del usuario
+    // Erabiltzailearen izenerako aldagaia
     var currentUserName: String? = null
 
-    // Variables para el control del juego
+    // Jokoaren kontrolerako aldagaiak
     var correctCount by mutableStateOf(0)
         private set
 
@@ -59,49 +73,65 @@ class BertsoViewModel(
     var showWrongDialog by mutableStateOf(false)
         private set
 
-    // Para el primer bertso
+    // Lehen bertsoaren galdera kopurua
     val totalItemsBertso1 = 7
-    // Para el segundo bertso
+    // Bigarren bertsoaren galdera kopurua
     val totalItemsBertso2 = 5
 
+    /**
+     * Erantzun zuzen bat erregistratzen du.
+     * @return Erantzun zuzen kopuru berria
+     */
     fun registerCorrect(): Int {
         correctCount += 1
         return correctCount
     }
 
+    /**
+     * Erantzun bat erregistratzen du (zuzena edo okerra).
+     * @return Erantzundako galdera kopuru berria
+     */
     fun registerAnswer(): Int {
         answeredCount += 1
         return answeredCount
     }
 
+    /**
+    Nabigazioa markatzen du (bigarren bertsoarako pasatzean).
+     */
     fun markNavigated() {
         hasNavigated = true
     }
 
-    // Verificar si el primer bertso está completado
+    /**
+     * Lehen bertsoaren osaketa egiaztatzen du.
+     * @param onSuccessNavigate Arrakasta denean deitzen den funtzioa (bigarren bertsoara nabigatzeko)
+     */
     fun checkBertso1Completion(onSuccessNavigate: () -> Unit) {
         if (configJuego != ConfigJuego.DEFAULT_BERTSOA_1) return
         if (answeredCount == totalItemsBertso1) {
             if (correctCount > 4 && !hasNavigated) {
                 markNavigated()
-                // Guardar puntos del primer bertso
+                // Lehen bertsoaren puntuak gorde
                 guardarPuntuacion(correctCount)
-                // Navegar al segundo bertso
+                // Bigarren bertsoara nabigatu
                 onSuccessNavigate()
             } else if (!hasNavigated) {
-                // Reiniciar intento si no aprobó
+                // Saiakera berrabiarazi ez badu gainditu
                 restartAttempt()
                 showWrongDialog = true
             }
         }
     }
 
-    // Verificar si el segundo bertso está completado
+    /**
+     * Bigarren bertsoaren osaketa egiaztatzen du.
+     */
     fun checkBertso2Completion() {
         if (configJuego != ConfigJuego.DEFAULT_BERTSOA_2) return
         if (answeredCount == totalItemsBertso2) {
             if (correctCount > 3) {
-                // Guardar puntos del segundo bertso
+                // Bigarren bertsoaren puntuak gorde
                 guardarPuntuacion(correctCount)
                 showSuccessDialog = true
             } else {
@@ -111,6 +141,9 @@ class BertsoViewModel(
         }
     }
 
+    /**
+     * Saiakera berrabiarazten du.
+     */
     fun restartAttempt() {
         correctCount = 0
         answeredCount = 0
@@ -118,9 +151,14 @@ class BertsoViewModel(
         attempt += 1
     }
 
+    /**
+     * Puntuazio finala kalkulatzen du.
+     * @param correctos Erantzun zuzen kopurua
+     * @return Kalkulatutako puntuazioa
+     */
     private fun calcularPuntuacionFinal(correctos: Int): Int {
         var puntos = correctos * configJuego.puntosPorCorrecto
-        // Bonus por respuesta perfecta
+        // Bonus erantzun perfektuagatik
         val totalItems = if (configJuego == ConfigJuego.DEFAULT_BERTSOA_1)
             totalItemsBertso1 else totalItemsBertso2
 
@@ -130,6 +168,10 @@ class BertsoViewModel(
         return puntos
     }
 
+    /**
+     * Puntuazioa datu-basean gordetzen du.
+     * @param correctos Erantzun zuzen kopurua
+     */
     fun guardarPuntuacion(correctos: Int) {
         viewModelScope.launch {
             currentUserName?.let { nombreUsuario ->
@@ -138,11 +180,13 @@ class BertsoViewModel(
                     val puntosFinales = calcularPuntuacionFinal(correctos)
 
                     if (puntuazioActual != null) {
+                        // Puntuazioa eguneratu (gehitu)
                         val nuevaPuntuazio = puntuazioActual.copy(
                             puntuazioaBertso = puntuazioActual.puntuazioaBertso + puntosFinales
                         )
                         dao.insert(nuevaPuntuazio)
                     } else {
+                        // Puntuazio berria sortu
                         val nuevaPuntuazio = Puntuazioa(
                             izenaAbizena = nombreUsuario,
                             puntuazioaBertso = puntosFinales,
@@ -160,22 +204,27 @@ class BertsoViewModel(
         }
     }
 
+    /**
+     * Arrakasta-dialogoa ezkutatzen du.
+     */
     fun dismissSuccessDialog() {
         showSuccessDialog = false
     }
 
+    /**
+     * Errore-dialogoa ezkutatzen du.
+     */
     fun dismissWrongDialog() {
         showWrongDialog = false
     }
 
-    // Método para establecer el usuario
+    /**
+     * Erabiltzailea ezartzen du.
+     * @param nombre Erabiltzailearen izena
+     */
     fun setUsuario(nombre: String) {
         currentUserName = nombre
     }
 
-    // Método para cambiar la configuración (para el segundo bertso)
-    fun cambiarConfiguracion(nuevaConfig: ConfigJuego) {
-        // Reiniciar el estado para el nuevo juego
-        restartAttempt()
-    }
+
 }

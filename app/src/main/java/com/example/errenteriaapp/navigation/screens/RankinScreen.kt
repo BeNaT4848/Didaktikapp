@@ -21,29 +21,42 @@ import com.example.errenteriaapp.database.viewModel.RankingViewModel
 import com.example.errenteriaapp.navigation.Routes
 import kotlinx.coroutines.delay
 
+/**
+ * Ranking pantaila nagusia.
+ * Erabiltzaileen puntuazioak erakusten ditu podio formatuan.
+ *
+ * @param navController Nabigazio kontroladorea
+ * @param viewModel Ranking ViewModel (bertsio lehenetsia erabiltzen da)
+ *
+ * @see RankingViewModel
+ * @see RankingTopBar
+ * @see PodiumSection
+ * @see RestOfRankingSection
+ */
 @Composable
 fun RankinScreen(
     navController: NavController,
     viewModel: RankingViewModel = viewModel()
 ) {
-    // Estados para controlar animaciones progresivas
+    // Pantaila kargatu deneko animazio egoera
     var isScreenLoaded by remember { mutableStateOf(false) }
 
-    // Obtener datos REALES del ViewModel
+    // ViewModel-eko DATU ERREALAK lortu
     val rankingData by viewModel.rankingData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val primaryColor = MaterialTheme.colorScheme.primary
-    // Convertir datos REALES de la base de datos a RankingItem
+
+    // DATU ERREALAK RankingItem formatura bihurtu
     val rankingItems = remember(rankingData, primaryColor) {
         rankingData.mapIndexed { index, puntuazio ->
             val totalPoints = viewModel.calculateTotalPoints(puntuazio)
 
-            // Para las primeras 3 posiciones, mantener colores del podio
+            // Lehenengo 3 postuentzako, podio koloreak mantendu
             val itemColor = when (index) {
-                0 -> Color(0xFFFFC107) // Oro - mantenido
-                1 -> Color(0xFF9E9E9E) // Plata - mantenido
-                2 -> Color(0xFF8D6E63) // Bronce - mantenido
-                else -> primaryColor // Usar el color primario del theme
+                0 -> Color(0xFFFFC107) // Urrea - mantenduta
+                1 -> Color(0xFF9E9E9E) // Zilarra - mantenduta
+                2 -> Color(0xFF8D6E63) // Brontzea - mantenduta
+                else -> primaryColor // Gaiaren kolore primarioa erabili
             }
 
             RankingItem(
@@ -54,17 +67,20 @@ fun RankinScreen(
         }
     }
 
+    // Pantaila hasieratzean datuak kargatu
     LaunchedEffect(Unit) {
-        // Cargar datos REALES al iniciar
+        // DATU ERREALAK kargatu abian jarrita
         viewModel.loadRanking()
         delay(100)
         isScreenLoaded = true
     }
 
+    // Alboko sagu-arrastea detektatzeko
     val edgeDp = 48.dp
     val edgePx = with(LocalDensity.current) { edgeDp.toPx() }
     var dragStartX by remember { mutableStateOf<Float?>(null) }
 
+    // Pantaila egitura nagusia
     Scaffold(
         topBar = {
             AnimatedVisibility(
@@ -91,6 +107,7 @@ fun RankinScreen(
                         onDragEnd = { dragStartX = null },
                         onDragCancel = { dragStartX = null }
                     ) { change, dragAmount ->
+                        // Ezkerreko ertzetik arrastea detektatu
                         val startedOnEdge = (dragStartX ?: Float.MAX_VALUE) <= edgePx
                         if (startedOnEdge && dragAmount > 40f) {
                             navController.navigate(Routes.GPS_SCREEN)
@@ -100,7 +117,7 @@ fun RankinScreen(
                 }
         ) {
             if (isLoading) {
-                // Mostrar indicador de carga mientras se cargan los datos
+                // Datuak kargatzen ari diren bitartean kargaketa-indikatzailea erakutsi
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -114,7 +131,7 @@ fun RankinScreen(
             } else {
                 RankingContent(
                     isScreenLoaded = isScreenLoaded,
-                    rankingItems = rankingItems, // Usamos los datos REALES convertidos
+                    rankingItems = rankingItems, // DATU ERREALAK bihurtuak erabiltzen dira
                     paddingValues = paddingValues
                 )
             }
@@ -122,13 +139,20 @@ fun RankinScreen(
     }
 }
 
+/**
+ * Ranking edukiaren konposaketa.
+ *
+ * @param isScreenLoaded Pantaila kargatu den ala ez
+ * @param rankingItems Ranking elementuen zerrenda
+ * @param paddingValues Paddings balioak
+ */
 @Composable
 private fun RankingContent(
     isScreenLoaded: Boolean,
     rankingItems: List<RankingItem>,
     paddingValues: PaddingValues
 ) {
-    // Fondo inmediato
+    // Atzeko plano berehala
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -138,6 +162,7 @@ private fun RankingContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            // PODIO atala (lehenengo 3ak)
             val podiumItems = rankingItems.take(3)
             if (podiumItems.isNotEmpty()) {
                 PodiumSection(
@@ -147,7 +172,7 @@ private fun RankingContent(
                 )
             }
 
-            // RESTO DEL RANKING - Aparece después
+            // GAINERAKO RANKING - Ondoren agertzen da
             val remainingItems = rankingItems.drop(3)
             if (remainingItems.isNotEmpty()) {
                 RestOfRankingSection(

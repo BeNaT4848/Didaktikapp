@@ -6,21 +6,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,19 +17,27 @@ import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.classes.RankingItem
 import kotlinx.coroutines.delay
 
-
+/**
+ * Rankingaren podioaren atala erakusten du.
+ * Lehenengo hiru postuen podio animatua erakusten du.
+ *
+ * @param isVisible Podioaren atala ikusgarri den
+ * @param rankingData Rankingaren datuak (gutxienez 1 elementu)
+ * @param totalItemsCount Elementu kopuru osoa (aukerakoa)
+ */
 @Composable
 fun PodiumSection(
     isVisible: Boolean,
     rankingData: List<RankingItem>,
     totalItemsCount: Int? = null
 ) {
-    // Estados para animar cada elemento del podio individualmente
+    // Podioaren elementuak banan-banan animatzeko egoerak
     var showTitle by remember { mutableStateOf(false) }
     var showFirstPlace by remember { mutableStateOf(false) }
     var showSecondPlace by remember { mutableStateOf(false) }
     var showThirdPlace by remember { mutableStateOf(false) }
 
+    // Animazioak hasi ikusgarri badago
     LaunchedEffect(isVisible) {
         if (isVisible) {
             showTitle = true
@@ -60,7 +56,7 @@ fun PodiumSection(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Título del podio
+        // Podioaren izenburua
         AnimatedVisibility(
             visible = showTitle && rankingData.isNotEmpty(),
             enter = fadeIn(animationSpec = tween(200)) +
@@ -77,8 +73,7 @@ fun PodiumSection(
             )
         }
 
-        // Podio con animaciones individuales más rápidas
-        // Solo mostramos el podio si hay al menos un elemento
+        // Podio animatua (gutxienez elementu bat badago)
         if (rankingData.isNotEmpty()) {
             Row(
                 modifier = Modifier
@@ -88,10 +83,10 @@ fun PodiumSection(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.Bottom
             ) {
-                // Manejar diferentes casos basados en el número de elementos
+                // Elementu kopuruaren arabera tratatu
                 when (rankingData.size) {
                     1 -> {
-                        // Caso 1: Solo hay un elemento - mostrar solo el primer lugar centrado
+                        // Kasu 1: Elementu bakarra - lehenengo postua zentratuta
                         Spacer(modifier = Modifier.weight(1f))
 
                         AnimatedVisibility(
@@ -107,7 +102,7 @@ fun PodiumSection(
                                 position = 1,
                                 item = rankingData[0],
                                 height = 200.dp,
-                                color = Color(0xFFFFC107), // Oro - Mantenido
+                                color = Color(0xFFFFC107), // Urrea - mantentzen da
                                 textColor = Color(0xFF333333),
                                 pointsTextSize = 22.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -118,7 +113,7 @@ fun PodiumSection(
                     }
 
                     2 -> {
-                        // Caso 2: Hay dos elementos - mostrar segundo y primer lugar
+                        // Kasu 2: Bi elementu - bigarren eta lehenengo postuak
                         AnimatedVisibility(
                             visible = showSecondPlace,
                             enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
@@ -132,7 +127,7 @@ fun PodiumSection(
                                 position = 2,
                                 item = rankingData[1],
                                 height = 160.dp,
-                                color = Color(0xFF9E9E9E), // Plata - Mantenido
+                                color = Color(0xFF9E9E9E), // Zilarra - mantentzen da
                                 textColor = MaterialTheme.colorScheme.onSurface,
                                 pointsTextSize = 20.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -152,19 +147,19 @@ fun PodiumSection(
                                 position = 1,
                                 item = rankingData[0],
                                 height = 200.dp,
-                                color = Color(0xFFFFC107), // Oro - Mantenido
+                                color = Color(0xFFFFC107), // Urrea - mantentzen da
                                 textColor = Color(0xFF333333),
                                 pointsTextSize = 22.sp,
                                 modifier = Modifier.fillMaxHeight()
                             )
                         }
 
-                        // Espacio para la tercera posición (vacía)
+                        // Hirugarren posturako espazioa (hutsik)
                         Spacer(modifier = Modifier.weight(1f))
                     }
 
                     else -> {
-                        // Caso 3: Hay 3 o más elementos - mostrar los tres primeros normalmente
+                        // Kasu 3: 3 elementu edo gehiago - lehenengo hiruak normalean
                         AnimatedVisibility(
                             visible = showSecondPlace,
                             enter = fadeIn(animationSpec = tween(200, delayMillis = 20)) +
@@ -178,7 +173,7 @@ fun PodiumSection(
                                 position = 2,
                                 item = rankingData[1],
                                 height = 160.dp,
-                                color = Color(0xFF9E9E9E), // Plata - Mantenido
+                                color = Color(0xFF9E9E9E), // Zilarra - mantentzen da
                                 textColor = MaterialTheme.colorScheme.onSurface,
                                 pointsTextSize = 20.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -198,7 +193,7 @@ fun PodiumSection(
                                 position = 1,
                                 item = rankingData[0],
                                 height = 200.dp,
-                                color = Color(0xFFFFC107), // Oro - Mantenido
+                                color = Color(0xFFFFC107), // Urrea - mantentzen da
                                 textColor = Color(0xFF333333),
                                 pointsTextSize = 22.sp,
                                 modifier = Modifier.fillMaxHeight()
@@ -218,7 +213,7 @@ fun PodiumSection(
                                 position = 3,
                                 item = rankingData[2],
                                 height = 120.dp,
-                                color = Color(0xFF8D6E63), // Bronce - Mantenido
+                                color = Color(0xFF8D6E63), // Brontzea - mantentzen da
                                 textColor = MaterialTheme.colorScheme.onPrimary,
                                 pointsTextSize = 18.sp,
                                 modifier = Modifier.fillMaxHeight()
