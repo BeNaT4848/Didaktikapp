@@ -111,7 +111,7 @@ fun AzalpenBase(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-
+        Spacer(modifier = Modifier.height(-20.dp))
 
         Column(
             modifier = Modifier

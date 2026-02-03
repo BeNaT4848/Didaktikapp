@@ -18,6 +18,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 
+/**
+ * Galdetegiaren galdera-txartela erakusten du.
+ * Galdera bat eta bere aukerak erakusten ditu, erabiltzailearen erantzunarekin.
+ *
+ * @param galderaIndex Galderaren indizea (0tik hasita)
+ * @param galderaText Galderaren testuaren baliabide-identifikadorea
+ * @param aukerak Aukeren testuen baliabide-identifikadoreen zerrenda
+ * @param erantzunZuzena Erantzun zuzenaren indizea (0tik hasita)
+ * @param aukeraHautatua Erabiltzaileak hautatutako aukeraren indizea
+ * @param galderakErantzunda Erantzundako galderen indizeen zerrenda
+ * @param erantzunak Galderen erantzunen mapa (galderaIndex → (hautatutakoIndex, zuzena))
+ * @param onOptionSelected Erabiltzaileak aukera bat hautatzen duenean deitzen den funtzioa
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuestionCard(
@@ -48,7 +61,7 @@ fun QuestionCard(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Etiqueta de pregunta
+            // Galderaren etiketa
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -65,7 +78,7 @@ fun QuestionCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Texto de la pregunta
+            // Galderaren testua
             Text(
                 text = stringResource(galderaText),
                 color = Color(0xFF1A2C4A),
@@ -77,7 +90,7 @@ fun QuestionCard(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Opciones
+            // Aukerak
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -103,6 +116,18 @@ fun QuestionCard(
     }
 }
 
+/**
+ * Galdetegiaren aukera-elementu bat erakusten du.
+ * Egoeraren arabera kolorez markatzen da.
+ *
+ * @param index Aukeraren indizea (0: A, 1: B, 2: C)
+ * @param text Aukeraren testua
+ * @param isSelected Aukera hau hautatuta dagoen
+ * @param estaErantzunda Galdera hau erantzunda dagoen
+ * @param fueSeleccionada Aukera hau hautatu zela (erantzundakoan)
+ * @param esLaCorrecta Aukera hau erantzun zuzena den
+ * @param onClick Aukera honetan klik egitean deitzen den funtzioa
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OptionItem(
@@ -117,6 +142,7 @@ fun OptionItem(
     val colorScheme = MaterialTheme.colorScheme
     val noFueSeleccionada = estaErantzunda && !fueSeleccionada
 
+    // Atzeko koloreak egoeraren arabera
     val backgroundColor = when {
         estaErantzunda && esLaCorrecta -> colorScheme.tertiaryContainer
         estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.errorContainer
@@ -125,6 +151,7 @@ fun OptionItem(
         else -> colorScheme.surfaceVariant
     }
 
+    // Ertz-koloreak egoeraren arabera
     val borderColor = when {
         estaErantzunda && esLaCorrecta -> colorScheme.tertiary
         estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.error
@@ -133,6 +160,7 @@ fun OptionItem(
         else -> Color.Transparent
     }
 
+    // Testu-koloreak egoeraren arabera
     val textColor = when {
         estaErantzunda && esLaCorrecta -> colorScheme.onTertiaryContainer
         estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.onErrorContainer
@@ -140,6 +168,7 @@ fun OptionItem(
         else -> colorScheme.onSurface
     }
 
+    // Zirkuluaren koloreak (A, B, C letrak)
     val circleColor = when {
         estaErantzunda && esLaCorrecta -> colorScheme.tertiary
         estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.error
@@ -148,6 +177,7 @@ fun OptionItem(
         else -> colorScheme.outlineVariant
     }
 
+    // Zirkuluaren testu-koloreak
     val circleTextColor = when {
         estaErantzunda && esLaCorrecta -> colorScheme.onTertiary
         estaErantzunda && fueSeleccionada && !esLaCorrecta -> colorScheme.onError
@@ -172,7 +202,7 @@ fun OptionItem(
                 .padding(vertical = 14.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Letra de la opción (A, B, C)
+            // Aukeraren letra (A, B, C)
             Box(
                 modifier = Modifier
                     .size(36.dp)
@@ -190,7 +220,7 @@ fun OptionItem(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Texto de la opción
+            // Aukeraren testua
             Text(
                 text = text,
                 color = textColor,
@@ -198,10 +228,10 @@ fun OptionItem(
                 modifier = Modifier.weight(1f)
             )
 
-            // Indicador de acierto/error
+            // Zuzen/oker adierazlea
             if (estaErantzunda) {
                 if (esLaCorrecta) {
-                    // Mostrar ✓ verde si es la respuesta correcta
+                    // ✓ berdea erakutsi erantzun zuzena bada
                     Text(
                         text = "✓",
                         color = colorScheme.tertiary,
@@ -209,7 +239,7 @@ fun OptionItem(
                         fontWeight = FontWeight.Bold
                     )
                 } else if (fueSeleccionada && !esLaCorrecta) {
-                    // Mostrar ✗ rojo si seleccionó esta pero es incorrecta
+                    // ✗ gorria erakutsi hautatu bada baina okerra bada
                     Text(
                         text = "✗",
                         color = colorScheme.error,

@@ -1,7 +1,5 @@
 package com.example.errenteriaapp.components
 
-
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Egiaztatzeko botoia erakusten du Papresa jokoan.
+ * Erabiltzaileak hondakin guztiak sailkatu dituenean botoia aktibatzen da.
+ *
+ * @param allAnswered Erabiltzaileak galdera guztiak erantzun dituen
+ * @param answeredCount Erantzundako galdera kopurua
+ * @param totalCount Galdera kopuru osoa
+ * @param onVerifyClick Botoian klik egitean deitzen den funtzioa
+ * @param modifier Modifier gehigarria
+ */
 @Composable
 fun VerifyButton(
     allAnswered: Boolean,
@@ -31,6 +39,7 @@ fun VerifyButton(
     onVerifyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Botoiaren egoeraren araberako testua
     val statusText = if (allAnswered) {
         stringResource(R.string.papresa_verify_ready)
     } else {
@@ -46,12 +55,14 @@ fun VerifyButton(
         enabled = allAnswered,
         shape = RoundedCornerShape(12.dp)
     ) {
+        // Egiaztatzeko ikonoa
         Icon(
             Icons.Default.Check,
             contentDescription = stringResource(R.string.papresa_verify_icon),
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(12.dp))
+        // Botoiaren testua
         Text(
             text = stringResource(R.string.papresa_verify_button, statusText),
             fontSize = 18.sp,

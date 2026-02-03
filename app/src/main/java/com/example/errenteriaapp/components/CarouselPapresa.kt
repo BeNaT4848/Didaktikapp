@@ -20,33 +20,33 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.WasteCategory
 import com.example.errenteriaapp.classes.WasteItem
-
-
-import androidx.compose.animation.slideInVertically
-
-import androidx.compose.animation.AnimatedContent
-
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.expandHorizontally
-
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-
-import androidx.compose.ui.draw.rotate
-import androidx.compose.animation.AnimatedContentTransitionScope
 import kotlinx.coroutines.delay
+
+/**
+ * Hondakin-elementuen karrusel animatua erakusten du.
+ * Irudiak erakusten ditu eta erabiltzaileak aukeratutako kategoriekin.
+ * Animazioak ditu irudi-trantzizioetarako eta elementu interaktiboetarako.
+ *
+ * @param wasteItems Erakusteko hondakin-elementuen zerrenda
+ * @param currentIndex Uneko elementuaren indizea zerrendan
+ * @param userAnswers Erabiltzaileak aukeratutako kategoria mapa (id → category)
+ * @param onPreviousClick Aurreko botoian klik egitean deitzen den funtzioa
+ * @param onNextClick Hurrengo botoian klik egitean deitzen den funtzioa
+ * @param modifier Modifier gehigarria
+ */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PhotoCarousel(
@@ -58,9 +58,9 @@ fun PhotoCarousel(
     modifier: Modifier = Modifier
 ) {
     var previousIndex by remember { mutableStateOf(currentIndex) }
-    var direction by remember { mutableStateOf(0) } // -1: izquierda, 1: derecha, 0: inicial
+    var direction by remember { mutableStateOf(0) } // -1: ezkerra, 1: eskuina, 0: hasierakoa
 
-    // Detectar dirección del cambio
+    // Aldaketaren norabidea detektatu
     LaunchedEffect(currentIndex) {
         direction = if (currentIndex > previousIndex) 1 else -1
         previousIndex = currentIndex
@@ -84,7 +84,7 @@ fun PhotoCarousel(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Flecha izquierda con animación de pulso
+                    // Ezkerreko gezia pulsu-animazioarekin
                     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                     val pulseScale by infiniteTransition.animateFloat(
                         initialValue = 1f,
@@ -108,7 +108,7 @@ fun PhotoCarousel(
                         )
                     }
 
-                    // Contenedor para la imagen con animación de entrada/salida
+                    // Irudia animazio-trantzizioekin
                     Box(
                         modifier = Modifier
                             .size(180.dp)
@@ -116,11 +116,11 @@ fun PhotoCarousel(
                             .clip(RoundedCornerShape(16.dp))
                             .background(Color.White)
                     ) {
-                        // Animación para cambio de imagen
+                        // Irudiaren aldaketa-animazioa
                         AnimatedContent(
                             targetState = currentItem,
                             transitionSpec = {
-                                // Animación de deslizamiento
+                                // Irristaketa-animazioa
                                 slideIntoContainer(
                                     towards = if (direction == 1) AnimatedContentTransitionScope.SlideDirection.Left
                                     else AnimatedContentTransitionScope.SlideDirection.Right,
@@ -133,12 +133,12 @@ fun PhotoCarousel(
                             },
                             label = "imageTransition"
                         ) { targetItem ->
-                            // Animación de escala al cargar la imagen
+                            // Irudia kargatzean eskalatzeko animazioa
                             var imageLoaded by remember { mutableStateOf(false) }
 
                             LaunchedEffect(targetItem) {
                                 imageLoaded = false
-                                // Simula una pequeña carga para la animación
+                                // Animazioa simulatzeko karga apur bat
                                 delay(50)
                                 imageLoaded = true
                             }
@@ -169,13 +169,13 @@ fun PhotoCarousel(
                                     contentScale = ContentScale.Crop
                                 )
 
-                                // Indicador de respuesta con animación
+                                // Erabiltzailearen erantzunaren adierazlea animazioarekin
                                 userAnswers[targetItem.id]?.let { category ->
                                     var showCheckmark by remember { mutableStateOf(false) }
 
                                     LaunchedEffect(category) {
                                         showCheckmark = false
-                                        delay(200) // Pequeño retraso
+                                        delay(200) // Atzerapen txikia
                                         showCheckmark = true
                                     }
 
@@ -212,7 +212,7 @@ fun PhotoCarousel(
                                                 text = "✓",
                                                 color = Color.White,
                                                 fontSize = 14.sp,
-                                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                                fontWeight = FontWeight.Bold,
                                                 modifier = Modifier
                                                     .align(Alignment.Center)
                                                     .rotate(rotation)
@@ -224,7 +224,7 @@ fun PhotoCarousel(
                         }
                     }
 
-                    // Flecha derecha con animación de pulso
+                    // Eskuineko gezia pulsu-animazioarekin
                     IconButton(
                         onClick = onNextClick,
                         modifier = Modifier.scale(pulseScale)
@@ -238,14 +238,14 @@ fun PhotoCarousel(
                     }
                 }
 
-                // Animación para el nombre del objeto
+                // Elementuaren izenaren animazioa
                 Spacer(modifier = Modifier.height(24.dp))
 
                 var cardVisible by remember { mutableStateOf(false) }
 
                 LaunchedEffect(currentItem) {
                     cardVisible = false
-                    delay(100) // Pequeño retraso para sincronizar con imagen
+                    delay(100) // Atzerapen txikia irudiarekin sinkronizatzeko
                     cardVisible = true
                 }
 
@@ -291,7 +291,7 @@ fun PhotoCarousel(
                                 .scale(animatedScale),
                             color = Color.White,
                             fontSize = 14.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }

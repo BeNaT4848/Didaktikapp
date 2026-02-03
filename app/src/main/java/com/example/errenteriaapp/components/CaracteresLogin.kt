@@ -9,14 +9,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Login pantailarako pertsonaia-elementua erakusten du.
+ * Pertsonaiaren irudia eta izena erakusten ditu.
+ *
+ * @param imageRes Pertsonaiaren irudiaren baliabide-identifikadorea
+ * @param name Pertsonaiaren izena
+ * @param imageHeight Irudiaren altuera
+ */
 @Composable
 fun CharacterItemLogin(
     imageRes: Int,
     name: String,
-    imageHeight: androidx.compose.ui.unit.Dp
+    imageHeight: Dp
 ) {
     Image(
         painter = painterResource(imageRes),

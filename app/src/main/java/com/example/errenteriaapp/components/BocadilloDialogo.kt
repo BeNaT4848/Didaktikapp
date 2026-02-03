@@ -20,6 +20,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+/**
+ * Elkarrizketa-burbuila animatua erakusten du.
+ * Testua letra-letra animatzen du idazte-efektua emateko.
+ *
+ * @param text Burbuilak erakutsiko duen testua
+ * @param isFromXanti Xanti pertsonaikoak bidaltzen duen mezua den (false bada, Maialen pertsonaikoak bidaltzen du)
+ * @param modifier Modifier gehigarria
+ * @param isSpeaking Burbuilak testua idazten ari den (animazioa erakusteko)
+ */
 @Composable
 fun SpeechBubble(
     text: String,
@@ -27,22 +36,22 @@ fun SpeechBubble(
     modifier: Modifier = Modifier,
     isSpeaking: Boolean = true
 ) {
-    // Estado para el texto animado
+    // Animaziorako testua gordetzen duen egoera
     var displayedText by remember { mutableStateOf("") }
 
-    // Animación de escritura
+    // Idazte-animazioa
     LaunchedEffect(text) {
         if (text.isNotEmpty()) {
             displayedText = ""
             for (i in text.indices) {
-                // Velocidad de escritura (ajusta el delay según necesites)
-                delay(62L) // 30ms por letra
+                // Idazte-abiadura (doitu delay-a behar den arabera)
+                delay(62L) // 30ms letra bakoitzeko
                 displayedText = text.take(i + 1)
             }
         }
     }
 
-    // Limpiar el texto cuando cambia
+    // Testua aldatu denean garbitu
     LaunchedEffect(text) {
         if (text.isEmpty()) {
             displayedText = ""
@@ -51,6 +60,7 @@ fun SpeechBubble(
 
     Card(
         modifier = modifier,
+        // Pertsonaiaren arabera burbuilaren forma aldatu
         shape = RoundedCornerShape(
             topStart = if (isFromXanti) 0.dp else 16.dp,
             topEnd = 16.dp,
