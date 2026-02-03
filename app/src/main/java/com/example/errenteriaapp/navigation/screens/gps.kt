@@ -160,8 +160,7 @@ fun MapaOsmScreen(navController: NavController) {
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
         }
 
-        // DEBUG: muestra qué paso está desbloqueado
-        val unlockedRouteDebug = progressRepo.tourSteps.getOrNull(unlockedIndex) ?: "(none)"
+
 
         // ** NUEVO: estado para el marcador seleccionado **
         var selectedKokapena by remember { mutableStateOf<Kokapena?>(null) }
@@ -516,15 +515,7 @@ fun MapaOsmScreen(navController: NavController) {
                 }
             }
 
-            // DEBUG badge arriba (temporal)
-            Text(
-                text = "DEBUG paso=${unlockedIndex + 1}/${progressRepo.tourSteps.size} -> $unlockedRouteDebug",
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodySmall
-            )
+
         }
 
 
