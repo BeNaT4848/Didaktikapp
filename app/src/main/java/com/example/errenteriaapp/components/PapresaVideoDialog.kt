@@ -146,11 +146,7 @@ fun VideoDialogoa(
                             playerKey += 1
                         }
                     ) {
-                        Text(text = stringResource(R.string.papresa_video_retry))
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = onVideoCompleted) {
-                        Text(text = stringResource(R.string.papresa_video_continue))
+                        Text(text = "Reintentar")
                     }
                 }
             }

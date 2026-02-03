@@ -61,23 +61,9 @@ fun HomeScreen(
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.matchParentSize()
         )
-        Button(
-            onClick = { navController.navigate(Routes.LOGIN_SCREEN) },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.home_skip),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+
+        // Botón "Skip" eliminado para que no aparezca.
+
         // Fila principal con los personajes
         Row(
             modifier = Modifier
