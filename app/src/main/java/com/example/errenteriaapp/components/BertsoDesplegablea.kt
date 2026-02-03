@@ -21,6 +21,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Bertso jolaserako desplegable konposatzailea.
+ * Hiru aukera erakusten ditu eta erabiltzailea aukera bat hautatzea ahalbidetzen du.
+ * Aukerak eremu horizontaletan erakusten dira eta hautatutakoak kolorez markatzen dira.
+ *
+ * @param a Lehenengo aukera (ezkerrekoa)
+ * @param b Bigarren aukera (erdikoa)
+ * @param c Hirugarren aukera (eskuinekoa)
+ * @param selectedOption Erabiltzaileak hautatutako aukera (null bada, oraindik ez du hautatu)
+ * @param isCorrectSelection Hautatutako aukera zuzena den (null bada, oraindik ez da egiaztatu)
+ * @param onOptionSelected Erabiltzaileak aukera bat hautatzen duenean deitzen den funtzioa
+ */
 @Composable
 fun BertsoDesplegablea(
     a: String,
@@ -30,15 +42,26 @@ fun BertsoDesplegablea(
     isCorrectSelection: Boolean?,
     onOptionSelected: (String) -> Unit
 ) {
-    val successColor = Color(0xFF4CAF50)
-    val errorColor = Color(0xFFE53935)
+    // Kolore definizioak
+    val successColor = Color(0xFF4CAF50) // Zuzena
+    val errorColor = Color(0xFFE53935) // Okerra
 
+    /**
+     * Aukera baten atzeko kolorea kalkulatzen du.
+     * @param option Kalkulatu nahi den aukera
+     * @return Atzeko kolore egokia
+     */
     fun backgroundFor(option: String) = when {
         option == selectedOption && isCorrectSelection == true -> successColor
         option == selectedOption && isCorrectSelection == false -> errorColor
         else -> Color.White
     }
 
+    /**
+     * Aukera baten testu-kolorea kalkulatzen du.
+     * @param option Kalkulatu nahi den aukera
+     * @return Testu-kolore egokia
+     */
     @Composable
     fun textColorFor(option: String) = if (option == selectedOption && isCorrectSelection != null) {
         Color.Black
@@ -60,11 +83,13 @@ fun BertsoDesplegablea(
                 .padding(horizontal = 10.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Hiru aukerak errenkada batean
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // AUKERA A (ezkerra)
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -90,6 +115,8 @@ fun BertsoDesplegablea(
                         textAlign = TextAlign.Center
                     )
                 }
+
+                // AUKERA B (erdia)
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -115,6 +142,8 @@ fun BertsoDesplegablea(
                         textAlign = TextAlign.Center
                     )
                 }
+
+                // AUKERA C (eskuina)
                 Box(
                     modifier = Modifier
                         .weight(1f)

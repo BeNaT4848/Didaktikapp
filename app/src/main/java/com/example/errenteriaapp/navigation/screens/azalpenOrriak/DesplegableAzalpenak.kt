@@ -111,34 +111,7 @@ fun AzalpenBase(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Botón de SKIP en la esquina superior derecha
-        if (!audioFinished && tieneAudio) {
-            Text(
-                text = "SKIP",
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-                        RoundedCornerShape(8.dp)
-                    )
-                    .clickable {
-                        // Parar el audio si está reproduciéndose
-                        mediaPlayer?.stop()
-                        mediaPlayer?.release()
-                        mediaPlayer = null
-                        isPlaying = false
 
-                        // Saltar directamente al juego
-                        onNavigateToGame()
-                    }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
 
         Column(
             modifier = Modifier

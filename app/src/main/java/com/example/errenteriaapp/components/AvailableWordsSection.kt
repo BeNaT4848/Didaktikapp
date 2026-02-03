@@ -19,20 +19,30 @@ import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.R
 import com.example.errenteriaapp.classes.DragState
 
+/**
+ * Erabili daitezkeen hitzen atala erakusten du (eskuineko hiztegi-kutxa).
+ * Hitzak LazyRow batean bistaratzen ditu arrastatzeko moduan.
+ *
+ * @param availableWords Erabili daitezkeen hitzen zerrenda
+ * @param dragState Arrastatzearen egoera
+ * @param onDrop Hitz bat eremu batean askatzean deitzen den funtzioa
+ */
 @Composable
 fun AvailableWordsSection(
     availableWords: List<String>,
     dragState: DragState,
     onDrop: (Offset) -> Unit
 ) {
+    // Atalaren izenburua
     Text(
-        text = stringResource(com.example.errenteriaapp.R.string.game_drag_words),
+        text = stringResource(R.string.game_drag_words),
         fontSize = 18.sp,
         fontWeight = FontWeight.Medium,
         modifier = Modifier.padding(bottom = 8.dp),
         color = MaterialTheme.colorScheme.primary
     )
 
+    // Hitzak erakusten dituen kutxa
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,6 +52,7 @@ fun AvailableWordsSection(
             .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
             .padding(vertical = 8.dp)
     ) {
+        // Hitzak lerro horizontalean
         LazyRow(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -49,6 +60,7 @@ fun AvailableWordsSection(
         ) {
             items(availableWords.size) { index ->
                 val word = availableWords[index]
+                // Hitz arrastagarri bakoitza
                 DraggableWordItem(
                     word = word,
                     onDragStart = { offset, bounds ->
@@ -56,6 +68,7 @@ fun AvailableWordsSection(
                     },
                     onDrag = dragState::updateDrag,
                     onDragEnd = {
+                        // Hitz askatzean, askatze-puntua pasatu
                         dragState.dragCenterPx?.let { dropPoint ->
                             onDrop(dropPoint)
                         }

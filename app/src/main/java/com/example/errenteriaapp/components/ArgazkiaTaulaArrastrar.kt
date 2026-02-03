@@ -23,6 +23,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
+/**
+ * "Taula Arrastrar" pantailarako irudi konposatzailea.
+ * Xanti eta Maialen pertsonaien irudi erraldoia erakusten du.
+ * Irudia ez badago, mezu bat erakusten du.
+ */
 @Composable
 fun ArgazkiaTaulaArrastrar() {
     Box(
@@ -35,6 +40,7 @@ fun ArgazkiaTaulaArrastrar() {
         contentAlignment = Alignment.Center
     ) {
         val context = LocalContext.current
+        // Irudiaren baliabide-identifikadorea bilatu izenaren arabera
         val resourceId = context.resources.getIdentifier(
             "xanti_eta_maialen_erraldoiak",
             "drawable",
@@ -42,6 +48,7 @@ fun ArgazkiaTaulaArrastrar() {
         )
 
         if (resourceId != 0) {
+            // Irudia erakutsi baldin badago
             Image(
                 painter = painterResource(id = resourceId),
                 contentDescription = "Xanti eta Maialen Erraldoiak",
@@ -49,6 +56,7 @@ fun ArgazkiaTaulaArrastrar() {
                 modifier = Modifier.fillMaxSize()
             )
         } else {
+            // Irudia ez bada aurkitu, mezu bat erakutsi
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center

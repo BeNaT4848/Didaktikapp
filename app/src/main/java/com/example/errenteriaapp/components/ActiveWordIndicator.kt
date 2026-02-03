@@ -19,6 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.errenteriaapp.classes.PalabraInfo
 
+/**
+ * Gurutze-hitzean hitz aktibo bat dagoela erakusten duen adierazlea.
+ * Hitz aktibo bat aukeratzean agertzen da eta aukeraketa desaktibatzeko aukera ematen du.
+ *
+ * @param palabraActiva Erabiltzaileak aukeratutako hitza
+ * @param onDeactivate Hitz aktiboa desaktibatzeko funtzioa
+ */
 @Composable
 fun ActiveWordIndicator(
     palabraActiva: PalabraInfo,
@@ -48,7 +55,7 @@ fun ActiveWordIndicator(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Indicador visual
+                // Adierazle bisuala
                 Box(
                     modifier = Modifier
                         .size(12.dp)
